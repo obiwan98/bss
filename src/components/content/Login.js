@@ -1,8 +1,9 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import './Content.css';
 
-function Login() {
+function Login({ setIsLoggedIn }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const history = useHistory();
@@ -21,22 +22,25 @@ function Login() {
       const response = await axios.post(process.env.REACT_APP_API_URL + '/api/users/login', { email, password });
 
       localStorage.setItem('token', response.data.token);
-      
+
+      setIsLoggedIn(true);
+
       history.push('/home'); // 로그인 성공 후 Home 페이지로 이동
     } catch (error) {
-      alert('Error logging in');
+      alert('Error logging in' + error);
     }
   };
 
   return (
-    <div>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="login-container">
+      <h2 className="login-title">로그인</h2>
+      <form className="login-form" onSubmit={handleSubmit}>
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          className="login-input"
           required
         />
         <input
@@ -44,9 +48,10 @@ function Login() {
           placeholder="Password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
+          className="login-input"
           required
         />
-        <button type="submit">Login</button>
+        <button type="submit" className="login-button">로그인</button>
       </form>
     </div>
   );

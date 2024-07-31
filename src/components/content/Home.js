@@ -33,14 +33,14 @@ function Home() {
   }, [history]);
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <div className="loading">Loading...</div>;
   }
 
   return (
-    <div>
-      <h2>Welcome, {user.email}</h2>
-      <p>Role: {user.role.roleName}</p>
-      <p>Group: {user.group.office} - {user.group.part} - {user.group.team}</p>
+    <div className="home-container">
+      <h2 className="welcome-message">Welcome, {user.email}</h2>
+      <p className="user-info">역할: {user.role.roleName}</p>
+      <p className="user-info">팀: {user.group.office} - {user.group.part} - {user.group.team}</p>
     </div>
   );
 }

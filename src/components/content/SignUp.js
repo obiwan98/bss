@@ -1,5 +1,7 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
+import './Content.css';
 
 function SignUp() {
   const [email, setEmail] = useState('');
@@ -8,6 +10,7 @@ function SignUp() {
   const [groups, setGroups] = useState([]);
   const [selectedRole, setSelectedRole] = useState('');
   const [selectedGroup, setSelectedGroup] = useState('');
+  const history = useHistory();
 
   useEffect(() => {
     const fetchRolesAndGroups = async () => {
@@ -35,6 +38,7 @@ function SignUp() {
         group: selectedGroup
       });
       alert(response.data.message);
+      history.push('/login');
     } catch (error) {
       console.error('Error during signup:', error.response ? error.response.data : error.message);
       alert(`Error signing up: ${error.response ? error.response.data.error : error.message}`);
@@ -42,15 +46,16 @@ function SignUp() {
   };
 
   return (
-    <div>
-      <h2>Sign Up</h2>
-      <form onSubmit={handleSubmit}>
+    <div className="signup-container">
+      <h2 className="signup-title">회원가입</h2>
+      <form className="signup-form" onSubmit={handleSubmit}>
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className="signup-input"
         />
         <input
           type="password"
@@ -58,13 +63,15 @@ function SignUp() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          className="signup-input"
         />
         <select
           value={selectedRole}
           onChange={(e) => setSelectedRole(e.target.value)}
           required
+          className="signup-select"
         >
-          <option value="">Select Role</option>
+          <option value="">역할 선택</option>
           {roles.map((role) => (
             <option key={role._id} value={role.role}>
               {role.roleName}
@@ -75,15 +82,16 @@ function SignUp() {
           value={selectedGroup}
           onChange={(e) => setSelectedGroup(e.target.value)}
           required
+          className="signup-select"
         >
-          <option value="">Select Group</option>
+          <option value="">팀 선택</option>
           {groups.map((group) => (
             <option key={group._id} value={group._id}>
               {group.office} - {group.part} - {group.team}
             </option>
           ))}
         </select>
-        <button type="submit">Sign Up</button>
+        <button type="submit" className="signup-button">Sign Up</button>
       </form>
     </div>
   );
