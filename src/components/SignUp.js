@@ -66,8 +66,8 @@ function SignUp() {
         >
           <option value="">Select Role</option>
           {roles.map((role) => (
-            <option key={role._id} value={role.Role}>
-              {role.RoleName}
+            <option key={role._id} value={role.role}>
+              {role.roleName}
             </option>
           ))}
         </select>

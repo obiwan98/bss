@@ -24,6 +24,7 @@ function Home() {
         setUser(response.data);
       } catch (error) {
         console.error('Error fetching user data:', error.response ? error.response.data : error.message);
+        localStorage.removeItem('token'); // 토큰 삭제
         history.push('/login');
       }
     };

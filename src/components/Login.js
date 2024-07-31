@@ -1,5 +1,5 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
 function Login() {
@@ -7,15 +7,21 @@ function Login() {
   const [password, setPassword] = useState('');
   const history = useHistory();
 
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      history.push('/home');
+      return;
+    }
+  }, [history]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      alert(process.env.REACT_APP_API_URL);
-      
       const response = await axios.post(process.env.REACT_APP_API_URL + '/api/users/login', { email, password });
 
       localStorage.setItem('token', response.data.token);
-      alert('Login successful');
+      
       history.push('/home'); // 로그인 성공 후 Home 페이지로 이동
     } catch (error) {
       alert('Error logging in');
