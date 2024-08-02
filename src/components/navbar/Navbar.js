@@ -1,7 +1,8 @@
+import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
+import { Button, Dropdown, Menu } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { Link, useHistory } from 'react-router-dom';
-import './Navbar.css';
 
 function Navbar({ isLoggedIn, setIsLoggedIn }) {
   const [user, setUser] = useState(null);
@@ -36,17 +37,23 @@ function Navbar({ isLoggedIn, setIsLoggedIn }) {
     history.push('/login');
   };
 
+  const menu = (
+    <Menu>
+      <Menu.Item key="1" onClick={handleLogout}>
+        <LogoutOutlined />
+        로그아웃
+      </Menu.Item>
+    </Menu>
+  );
+
   return (
     <div className="navbar">
       {isLoggedIn ? (
-        <>
-        {user && (
-            <div className="user-info">
-              {user.email} [{user.role.roleName}, {user.group.team}]
-            </div>
-          )}
-        <button onClick={handleLogout} className="logout-button">로그아웃</button>
-        </>
+        <Dropdown overlay={menu} placement="bottomRight">
+          <Button icon={<UserOutlined />} type="link" className="user-info">
+            {user ? `${user.email} [${user.role.roleName}, ${user.group.office} ${user.group.team}]` : '사용자'}
+          </Button>
+        </Dropdown>
       ) : (
         <>
           <Link to="/signup">회원가입</Link>

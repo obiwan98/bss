@@ -1,0 +1,13 @@
+.logo-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  margin-right: 20px; /* 메뉴와의 간격 조정 */
+}
+.logo-title {
+  font-size: 36px; /* 텍스트 크기 설정 */
+  font-weight: bold;
+  color: #4a90e2; /* 밝은 파란색 */
+  letter-spacing: 2px; /* 글자 간격 */
+}
