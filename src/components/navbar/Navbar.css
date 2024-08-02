@@ -19,4 +19,9 @@
     font-size: 1em;
     margin: 0 1em;
   }
-  
+  .user-info {
+    font-size: 1em;
+    color: #333;
+    font-weight: bold;
+    margin-right: 1em; /* 우측에 여백 추가 */
+  }
