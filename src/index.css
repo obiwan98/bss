@@ -1,13 +1,17 @@
+/* Global Layout */
 .layout {
   min-height: 100vh;
+  background-color: #f0f2f5; /* Slightly lighter background for main layout */
 }
 
+/* Header Styles */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   background-color: #001529;
-  padding: 0 50px;
+  padding: 0 20px;
+  height: 64px;
 }
 
 .header-left {
@@ -16,13 +20,60 @@
   flex: 1;
 }
 
-.site-layout-content {
-  background: #fff;
-  padding: 20px;
-  min-height: 550px;
-  margin-top: 16px;
+/* Ant Design Menu Styles */
+.ant-menu-horizontal {
+  border-bottom: none;
+  flex: 1;
+  justify-content: flex-start;
+  background-color: #001529;
+  color: white; /* 메뉴 텍스트 색상 */
 }
 
+.ant-menu-item {
+  margin: 0;
+  padding: 0 20px;
+  height: 64px;
+  line-height: 64px;
+  white-space: nowrap;
+  color: white;
+  transition: background-color 0.3s ease;
+}
+
+.ant-menu-title-content {
+  color: white;
+}
+
+/* Submenu Styles */
+.ant-menu-submenu-title {
+  padding: 0 20px;
+  height: 64px;
+  line-height: 64px;
+  color: black;
+  background-color: #001529;
+}
+
+.ant-menu-sub {
+  background-color: #001529; /* 서브메뉴 배경색 */
+  color: black;
+  border-radius: 4px;
+}
+
+.ant-menu-sub .ant-menu-item {
+  padding-left: 40px; /* 서브 메뉴 아이템 들여쓰기 */
+  color: white;
+}
+
+/* Content Area */
+.site-layout-content {
+  margin: 24px 16px;
+  padding: 24px;
+  background: #fff;
+  min-height: 280px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+/* Navbar Styles */
 .navbar {
   display: flex;
   justify-content: flex-end;
@@ -32,13 +83,22 @@
 .navbar a {
   margin: 0 1em;
   text-decoration: none;
-  color: #fff; /* White text for contrast */
+  color: #fff;
+  transition: color 0.3s ease;
 }
 
+.navbar a:hover {
+  color: #d3d3d3; /* Slight color change on hover */
+}
+
+/* User Info */
 .user-info {
-  color: #fff; /* White text for user info */
+  color: #fff;
+  margin-right: 1em;
+  font-weight: bold;
 }
 
+/* Loading Spinner */
 .loading-spinner {
   display: flex;
   justify-content: center;
@@ -46,14 +106,18 @@
   height: 100vh;
 }
 
+/* Home Card */
 .home-card {
   max-width: 500px;
   margin: 50px auto;
   padding: 20px;
   text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Added shadow for better visibility */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  background-color: #fff;
 }
 
+/* Forms */
 .login-form,
 .signup-form {
   max-width: 400px;
@@ -61,10 +125,44 @@
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
 }
 
 .login-title,
 .signup-title {
   text-align: center;
   color: #001529;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* General Buttons */
+.ant-btn-primary {
+  background-color: #001529;
+  border-color: #001529;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.ant-btn-primary:hover {
+  background-color: #2d598b;
+  border-color: #2d598b;
+}
+
+.ant-btn {
+  border-radius: 4px;
+}
+
+/* General Input Styles */
+.ant-input,
+.ant-select-selector {
+  border-radius: 4px;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ant-input:focus,
+.ant-select-selector:focus,
+.ant-input-focused,
+.ant-select-focused {
+  border-color: #1890ff;
+  box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
 }

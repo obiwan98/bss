@@ -1,20 +1,20 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
-import { Alert, Button, Form, Input } from 'antd';
+import { Button, Form, Input, message } from 'antd';
 import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AuthContext } from '../../contexts/AuthContext';
 
-function Login({ setIsLoggedIn }) {
-  const [errorMessage, setErrorMessage] = useState('');
-  const history = useHistory();
+const Login = () => {
+  const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
+  const navigate = useNavigate ();
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      history.push('/home');
+    if (isLoggedIn) {
+      navigate('/home');
       return;
     }
-  }, [history]);
+  }, [isLoggedIn, navigate]);
 
   const onFinish = async (values) => {
     try {
@@ -25,17 +25,17 @@ function Login({ setIsLoggedIn }) {
       const token = response.data.token; // 실제 로그인 로직에서 받은 토큰을 사용하세요.
       localStorage.setItem('token', token);
       setIsLoggedIn(true);
-      history.push('/home');
+      message.success("로그인이 성공하였습니다.", 2);
+      navigate('/home');
     } catch (error) {
       console.error('Error during login:', error.response ? error.response.data : error.message);
-      setErrorMessage('Login failed. Please check your credentials.');
+      message.error(error.message, 2);
     }
   };
 
   return (
     <div className="login-container">
       <h2 className="login-title">로그인</h2>
-      {errorMessage && <Alert message={errorMessage} type="error" showIcon />}
       <Form
         name="login"
         className="login-form"

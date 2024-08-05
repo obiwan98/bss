@@ -2,12 +2,12 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Form, Input, Select } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const { Option } = Select;
 
-function SignUp({ setIsLoggedIn }) {
-  const history = useHistory();
+const SignUp = () => {
+  const navigate = useNavigate();
   const [roles, setRoles] = useState([]);
   const [groups, setGroups] = useState([]);
   const [errorMessage, setErrorMessage] = useState('');
@@ -37,10 +37,7 @@ function SignUp({ setIsLoggedIn }) {
         group: values.group,
       });
       alert(response.data.message);
-      const token = response.data.token; // 실제 회원가입 로직에서 받은 토큰을 사용하세요.
-      localStorage.setItem('token', token);
-      setIsLoggedIn(true);
-      history.push('/home');
+      navigate('/home');
     } catch (error) {
       console.error('Error during signup:', error.response ? error.response.data : error.message);
       setErrorMessage(`Error signing up: ${error.response ? error.response.data.error : error.message}`);

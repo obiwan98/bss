@@ -1,25 +1,55 @@
 import { AppstoreOutlined, BookOutlined, TeamOutlined } from '@ant-design/icons';
 import { Menu } from 'antd';
-import React from 'react';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
 
-function AppMenu() {
-  return (
-    <Menu mode="horizontal" theme="dark" style={{ lineHeight: '64px', flex: 1 }}>
-      <Menu.SubMenu key="sub1" icon={<BookOutlined />} title="도서 관리">
-        <Menu.Item key="1"><a href="/books/add">도서 추가</a></Menu.Item>
-        <Menu.Item key="2"><a href="/books/list">도서 목록</a></Menu.Item>
-        <Menu.Item key="3"><a href="/books/statistics">도서 통계</a></Menu.Item>
-      </Menu.SubMenu>
-      <Menu.SubMenu key="sub2" icon={<AppstoreOutlined />} title="도서 승인 관리">
-        <Menu.Item key="4"><a href="/approvals/pending">승인 대기</a></Menu.Item>
-        <Menu.Item key="5"><a href="/approvals/approved">승인 완료</a></Menu.Item>
-        <Menu.Item key="6"><a href="/approvals/rejected">반려</a></Menu.Item>
-      </Menu.SubMenu>
-      <Menu.SubMenu key="sub3" icon={<TeamOutlined />} title="사용자 관리">
-        <Menu.Item key="7"><a href="/users/List">사용자 목록</a></Menu.Item>
-      </Menu.SubMenu>
-    </Menu>
-  );
-}
+const AppMenu = () => {
+  const [current, setCurrent] = useState('1');
+  const navigate = useNavigate();
+
+  const items = [
+    {
+      label: '도서 관리',
+      key: 'sub1',
+      icon: <BookOutlined style={{ color: 'white' }} />,
+      children: [
+        { label: '도서 추가', key: '1', path: '/books/add' },
+        { label: '도서 목록', key: '2', path: '/books/list' },
+        { label: '도서 통계', key: '3', path: '/books/statistics' },
+      ],
+    },
+    {
+      label: '도서 승인 관리',
+      key: 'sub2',
+      icon: <AppstoreOutlined style={{ color: 'white' }} />,
+      children: [
+        { label: '승인 대기', key: '4', path: '/approvals/pending' },
+        { label: '승인 완료', key: '5', path: '/approvals/approved' },
+        { label: '반려', key: '6', path: '/approvals/rejected' },
+      ],
+    },
+    {
+      label: '사용자 관리',
+      key: 'sub3',
+      icon: <TeamOutlined style={{ color: 'white' }} />,
+      children: [
+        { label: '사용자 목록', key: '7', path: '/users/UserList' },
+      ],
+    },
+  ];
+
+  const onClick = (e) => {
+    setCurrent(e.key);
+    // 여기에 경로 변경 로직 추가
+    const item = items
+      .flatMap((group) => group.children)
+      .find((child) => child.key === e.key);
+      if (item && item.path) {
+        navigate(item.path); // useNavigate로 경로 변경
+      }
+  };
+
+  return <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />;
+};
 
 export default AppMenu;
