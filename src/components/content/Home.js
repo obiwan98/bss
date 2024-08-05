@@ -39,8 +39,8 @@ function Home() {
   return (
     <div className="home-container">
       <h2 className="welcome-message">Welcome, {user.email}</h2>
-      <p className="user-info">역할: {user.role.roleName}</p>
-      <p className="user-info">팀: {user.group.office} - {user.group.part} - {user.group.team}</p>
+      <p className="welcome-message">역할: {user.role.roleName}</p>
+      <p className="welcome-message">팀: {user.group.office} - {user.group.part} - {user.group.team}</p>
     </div>
   );
 }

@@ -1,21 +1,70 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+.layout {
+  min-height: 100vh;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #001529;
+  padding: 0 50px;
 }
 
-.app {
+.header-left {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.site-layout-content {
+  background: #fff;
+  padding: 20px;
+  min-height: 550px;
+  margin-top: 16px;
+}
+
+.navbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.navbar a {
+  margin: 0 1em;
+  text-decoration: none;
+  color: #fff; /* White text for contrast */
+}
+
+.user-info {
+  color: #fff; /* White text for user info */
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.home-card {
+  max-width: 500px;
+  margin: 50px auto;
+  padding: 20px;
   text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Added shadow for better visibility */
 }
 
-.content {
-  padding: 2em;
+.login-form,
+.signup-form {
+  max-width: 400px;
+  margin: 50px auto;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.login-title,
+.signup-title {
+  text-align: center;
+  color: #001529;
 }
