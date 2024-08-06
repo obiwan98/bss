@@ -4,14 +4,14 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom'; // useNavigate 훅 임포트
 
 const AppMenu = () => {
-  const [current, setCurrent] = useState('1');
+  const [current, setCurrent] = useState('');
   const navigate = useNavigate();
 
   const items = [
     {
       label: '도서 관리',
       key: 'sub1',
-      icon: <BookOutlined style={{ color: 'white' }} />,
+      icon: <BookOutlined />,
       children: [
         { label: '도서 추가', key: '1', path: '/books/add' },
         { label: '도서 목록', key: '2', path: '/books/list' },
@@ -21,9 +21,9 @@ const AppMenu = () => {
     {
       label: '도서 승인 관리',
       key: 'sub2',
-      icon: <AppstoreOutlined style={{ color: 'white' }} />,
+      icon: <AppstoreOutlined />,
       children: [
-        { label: '승인 대기', key: '4', path: '/approvals/pending' },
+        { label: '승인 요청', key: '4', path: '/approvals/pending' },
         { label: '승인 완료', key: '5', path: '/approvals/approved' },
         { label: '반려', key: '6', path: '/approvals/rejected' },
       ],
@@ -31,7 +31,7 @@ const AppMenu = () => {
     {
       label: '사용자 관리',
       key: 'sub3',
-      icon: <TeamOutlined style={{ color: 'white' }} />,
+      icon: <TeamOutlined />,
       children: [
         { label: '사용자 목록', key: '7', path: '/users/UserList' },
       ],
@@ -49,7 +49,7 @@ const AppMenu = () => {
       }
   };
 
-  return <Menu onClick={onClick} selectedKeys={[current]} mode="horizontal" items={items} />;
+  return <Menu onClick={onClick} selectedKeys={[current]} mode="inline" items={items} />;
 };
 
 export default AppMenu;

@@ -199,7 +199,7 @@ const UserList = () => {
 						label="Email"
 						name="email"
 					>
-						<Input disabled />
+						<Input defaultValue={selectedUser?.email} disabled />
 					</Form.Item>
           <Form.Item
             label="역할"

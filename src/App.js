@@ -13,22 +13,24 @@ import Navbar from './components/navbar/Navbar';
 import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content, Sider, Footer } = Layout;
 
 function App() {
   return (
     <AuthProvider>
       <Router>
-        <Layout className="layout">
-          <Header className="header">
-            <div className="header-left">
+        <Layout style={{ minHeight: '100vh' }}>
+          <Sider breakpoint="lg" collapsedWidth="0" style={{ background: 'white'}}>
+            <div className="logo" style={{ padding: '16px', textAlign: 'center', color: 'white', height: '64px' }}>
               <LogoText />
-              <AppMenu />
             </div>
-            <Navbar />
-          </Header>
-          <Content style={{ padding: '0 30px' }}>
-            <div className="site-layout-content">
+            <AppMenu />
+          </Sider>
+          <Layout>
+            <Header className="header">
+              <Navbar />
+            </Header>
+            <Content className="site-layout-content" style={{ margin: '24px 16px', padding: 24, background: '#fff' }}>
               <Routes >
                 <Route path="/signup" element={<SignUp />}/>
                 <Route path="/login" element={<Login />} />
@@ -36,9 +38,9 @@ function App() {
                 <Route path="/" element={<Login />} /> 
                 <Route path="/users/UserList" element={<UserList />} />
               </Routes >
-            </div>
-          </Content>
-          <Footer style={{ textAlign: 'center' }}>BSS ©2024 Created with Ant Design</Footer>
+            </Content>
+            <Footer style={{ textAlign: 'center' }}>BSS ©2024 Created with Ant Design</Footer>
+          </Layout>
         </Layout>
       </Router>
     </AuthProvider>
