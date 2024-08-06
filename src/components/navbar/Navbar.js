@@ -25,12 +25,13 @@ const Navbar = () => {
       } catch (error) {
         console.error('Error fetching user data:', error);
         localStorage.removeItem('token');
+        setIsLoggedIn(false);
         setUser(null);
       }
     };
 
     fetchUser();
-  }, [isLoggedIn]);
+  }, [isLoggedIn, setIsLoggedIn]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');

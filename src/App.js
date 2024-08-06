@@ -30,7 +30,7 @@ function App() {
             <Header className="header">
               <Navbar />
             </Header>
-            <Content className="site-layout-content" style={{ margin: '24px 16px', padding: 24, background: '#fff' }}>
+            <Content className="site-layout-content">
               <Routes >
                 <Route path="/signup" element={<SignUp />}/>
                 <Route path="/login" element={<Login />} />
