@@ -8,7 +8,7 @@ import { AuthContext } from '../../../contexts/AuthContext';
 const { Option } = Select;
 
 const UserList = () => {
-  const [filteredUsers, setFilteredUsers] = useState([]); // 필터링된 사용자 데이터를 저장
+  const [filteredUsers, setFilteredUsers] = useState([]); // 필터링된 사용자 데이터를 저장 합니다 !
   const [selectedTeam, setSelectedTeam] = useState(''); // 선택된 팀의 ID를 저장
 	const [isModalVisible, setIsModalVisible] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
