@@ -14,9 +14,11 @@ const UserList = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [roles, setRoles] = useState([]);
 	const [groups, setGroups] = useState([]); // 팀 데이터를 저장
+  const [isAdmin, setIsAdmin] = useState(false);
   const { isLoggedIn } = useContext(AuthContext);
   const navigate = useNavigate();
 	const [form] = Form.useForm();
+  const { confirm } = Modal;
 
   // 팀 데이터 가져오기 (컴포넌트가 처음 렌더링될 때 한 번)
   useEffect(() => {
@@ -24,6 +26,19 @@ const UserList = () => {
       navigate('/login');
       return;
     }
+
+    const token = localStorage.getItem('token');
+		if (!token) return;
+
+    axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
+		  headers: {
+				Authorization: `Bearer ${token}`,
+			},
+		}).then((response) => {
+      setIsAdmin(response.data.role.role === "Admin");
+    });
+      
+
     const fetchRolesAndGroups = async () => {
       try {
         const rolesResponse = await axios.get(process.env.REACT_APP_API_URL + '/api/roles');
@@ -82,6 +97,36 @@ const UserList = () => {
     getFilteredUser();
   };
 
+  const handleDelete = (id) => {
+    confirm({
+      title: '사용자를 삭제하시겠습니까?',
+      content: '이 작업은 되돌릴 수 없습니다.',
+      okText: '삭제',
+      okType: 'danger',
+      cancelText: '취소',
+      onOk() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        // 사용자 삭제 API 호출
+        axios.delete(`${process.env.REACT_APP_API_URL}/api/users/${id}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(() => {
+          setFilteredUsers(filteredUsers.filter(user => user._id !== id));
+          message.success('사용자 정보가 삭제되었습니다.', 2);
+        })
+        .catch(error => {
+          console.error('Error deleting user:', error);
+        });
+      },
+      onCancel() {
+        console.log('삭제 취소됨');
+      },
+    });
+  };
+
   // 팀 선택 시 선택된 팀 ID를 설정하는 함수
   const handleTeamChange = (value) => {
     setSelectedTeam(value); // 선택된 팀의 ID를 설정
@@ -93,16 +138,17 @@ const UserList = () => {
       const token = localStorage.getItem('token');
 			if (!token) return;
 
-      await axios.put(`${process.env.REACT_APP_API_URL}/api/users/${selectedUser._id}`, {
-        role: values.role,
-        group: values.group,
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await axios.put(`${process.env.REACT_APP_API_URL}/api/users/${selectedUser._id}`, 
+        {
+          role: values.role,
+          group: values.group,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
         }
-      }
-    );
+      );
 
       message.success('사용자 정보가 성공적으로 업데이트되었습니다.', 2);
       setIsModalVisible(false);
@@ -158,6 +204,19 @@ const UserList = () => {
     },
   ];
 
+  // 관리자인 경우에만 '액션' 컬럼 추가
+  if (isAdmin) {
+    columns.push({
+      title: '삭제',
+      key: 'action',
+      render: (text, record) => (
+        <Button type="primary" onClick={() => handleDelete(record._id)}>
+          삭제
+        </Button>
+      ),
+      align: 'center',
+    });
+  }
   return (
     <div className="user-list-container">
       <h2>사용자 목록 조회</h2>
