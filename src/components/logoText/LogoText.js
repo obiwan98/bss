@@ -1,13 +1,14 @@
 import { Typography } from 'antd';
 import React from 'react';
+import { Link } from 'react-router-dom';
 import './LogoText.css';
 
 const { Text } = Typography;
 
-function LogoText() {
+const LogoText = () => {
   return (
   	<div className="logo-text">
-      <Text className="logo-title">BSS</Text>
+      <Link to="/"><Text className="logo-title">BSS</Text></Link>
     </div>
   );
 }
