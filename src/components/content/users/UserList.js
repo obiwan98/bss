@@ -45,11 +45,13 @@ const UserList = () => {
   }, [user, navigate]);
 
 	// 모달 열기
-  const showModal = (user) => {
-    setSelectedUser(user);
+  const showModal = (recode) => {
+    setSelectedUser(recode);
     form.setFieldsValue({
-      role: user.role._id,
-      group: user.group._id,
+      email: recode.email,
+      name : recode.name,
+      role: recode.role._id,
+      group: recode.group._id,
     });
     setIsModalVisible(true);
   };
@@ -191,8 +193,8 @@ const UserList = () => {
     {
       title: '수정',
       key: 'action',
-      render: (_, user) => (
-        <Button type="primary" onClick={() => showModal(user)}>
+      render: (_, recode) => (
+        <Button type="primary" onClick={() => showModal(recode)}>
           상세 정보
         </Button>
       ),
@@ -255,13 +257,13 @@ const UserList = () => {
 						label="Email"
 						name="email"
 					>
-						<Input defaultValue={selectedUser?.email} disabled />
+						<Input disabled />
 					</Form.Item>
           <Form.Item 
 						label="Name"
 						name="name"
 					>
-						<Input defaultValue={selectedUser?.name} disabled />
+						<Input disabled />
 					</Form.Item>
           <Form.Item
             label="역할"
