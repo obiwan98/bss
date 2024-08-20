@@ -10,14 +10,14 @@ import UserList from './components/content/users/UserList';
 import LogoText from './components/logoText/LogoText';
 import AppMenu from './components/menu/AppMenu';
 import Navbar from './components/navbar/Navbar';
-import { AuthProvider } from './contexts/AuthContext';
+import { UserProvider } from './contexts/UserContext';
 import './index.css';
 
 const { Header, Content, Sider, Footer } = Layout;
 
 function App() {
   return (
-    <AuthProvider>
+    <UserProvider>
       <Router>
         <Layout style={{ minHeight: '100vh' }}>
           <Sider breakpoint="lg" collapsedWidth="0" style={{ background: 'white'}}>
@@ -43,7 +43,7 @@ function App() {
           </Layout>
         </Layout>
       </Router>
-    </AuthProvider>
+    </UserProvider>
   );
 }
 

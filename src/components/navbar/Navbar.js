@@ -1,48 +1,22 @@
 import { LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
-import axios from 'axios';
-import React, { useContext, useEffect, useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useUser } from '../../contexts/UserContext';
 
 const Navbar = () => {
-  const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
-  const [user, setUser] = useState(null);
+  const { user, setUser } = useUser();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        const response = await axios.get(process.env.REACT_APP_API_URL + '/api/users/me', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-        setUser(response.data);
-      } catch (error) {
-        console.error('Error fetching user data:', error);
-        localStorage.removeItem('token');
-        setIsLoggedIn(false);
-        setUser(null);
-      }
-    };
-
-    fetchUser();
-  }, [isLoggedIn, setIsLoggedIn]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
-    setIsLoggedIn(false);
     setUser(null);
     navigate('/login');
   };
 
   return (
     <div className="navbar">
-      {isLoggedIn ? (
+      {user ? (
         <>
           <Button icon={<UserOutlined />} type="link" className="user-info">
             {user ? `${user.email} [${user.role.roleName}, ${user.group.office} ${user.group.team}]` : '사용자'}

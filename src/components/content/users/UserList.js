@@ -1,9 +1,9 @@
 import { Button, Form, Input, Modal, Select, Table, message } from 'antd';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../../contexts/AuthContext';
+import { useUser } from '../../../contexts/UserContext';
 
 const { Option } = Select;
 
@@ -15,29 +15,19 @@ const UserList = () => {
   const [roles, setRoles] = useState([]);
 	const [groups, setGroups] = useState([]); // 팀 데이터를 저장
   const [isAdmin, setIsAdmin] = useState(false);
-  const { isLoggedIn } = useContext(AuthContext);
+  const { user } = useUser();
   const navigate = useNavigate();
 	const [form] = Form.useForm();
   const { confirm } = Modal;
 
   // 팀 데이터 가져오기 (컴포넌트가 처음 렌더링될 때 한 번)
   useEffect(() => {
-    if(!isLoggedIn){
+    if(!user){
       navigate('/login');
       return;
     }
-
-    const token = localStorage.getItem('token');
-		if (!token) return;
-
-    axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
-		  headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		}).then((response) => {
-      setIsAdmin(response.data.role.role === "Admin");
-    });
-      
+    
+    setIsAdmin(user.role.role === "Admin");
 
     const fetchRolesAndGroups = async () => {
       try {
@@ -52,7 +42,7 @@ const UserList = () => {
     };
 
     fetchRolesAndGroups();
-  }, [isLoggedIn, navigate]);
+  }, [user, navigate]);
 
 	// 모달 열기
   const showModal = (user) => {
@@ -170,6 +160,13 @@ const UserList = () => {
       align: 'center', 
     },
     {
+      title: '이름',
+      dataIndex: 'name',
+      key: 'name',
+			width: 300,
+      align: 'center', 
+    },
+    {
       title: '역할',
       dataIndex: ['role', 'roleName'], // 중첩된 객체 접근
       key: 'roleName',
@@ -259,6 +256,12 @@ const UserList = () => {
 						name="email"
 					>
 						<Input defaultValue={selectedUser?.email} disabled />
+					</Form.Item>
+          <Form.Item 
+						label="Name"
+						name="name"
+					>
+						<Input defaultValue={selectedUser?.name} disabled />
 					</Form.Item>
           <Form.Item
             label="역할"
