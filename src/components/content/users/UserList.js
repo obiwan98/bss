@@ -15,7 +15,7 @@ const UserList = () => {
   const [roles, setRoles] = useState([]);
 	const [groups, setGroups] = useState([]); // 팀 데이터를 저장
   const [isAdmin, setIsAdmin] = useState(false);
-  const { user } = useUser();
+  const { user, setUser } = useUser();
   const navigate = useNavigate();
 	const [form] = Form.useForm();
   const { confirm } = Modal;
@@ -141,6 +141,8 @@ const UserList = () => {
           }
         }
       );
+
+      setUser((prevUser) => ({...prevUser, role: roles.filter((r) => r._id === values.role)[0], group: groups.filter((g) => g._id === values.group)[0]}));
 
       message.success('사용자 정보가 성공적으로 업데이트되었습니다.', 2);
       setIsModalVisible(false);
@@ -285,7 +287,7 @@ const UserList = () => {
           >
             <Select>
               {groups.map((group) => (
-                <Option key={group} value={group._id}>
+                <Option key={group._id} value={group._id}>
                   {group.office} - {group.part} - {group.team}
                 </Option>
               ))}
