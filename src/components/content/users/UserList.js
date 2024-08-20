@@ -1,9 +1,9 @@
 import { Button, Form, Input, Modal, Select, Table, message } from 'antd';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../../contexts/AuthContext';
+import { useUser } from '../../../contexts/UserContext';
 
 const { Option } = Select;
 
@@ -15,19 +15,19 @@ const UserList = () => {
   const [roles, setRoles] = useState([]);
 	const [groups, setGroups] = useState([]); // 팀 데이터를 저장
   const [isAdmin, setIsAdmin] = useState(false);
-  const { isLoggedIn, userRole } = useContext(AuthContext);
+  const { user } = useUser();
   const navigate = useNavigate();
 	const [form] = Form.useForm();
   const { confirm } = Modal;
 
   // 팀 데이터 가져오기 (컴포넌트가 처음 렌더링될 때 한 번)
   useEffect(() => {
-    if(!isLoggedIn){
+    if(!user){
       navigate('/login');
       return;
     }
-    console.log(userRole);
-    setIsAdmin(userRole.role === "Admin");
+    
+    setIsAdmin(user.role.role === "Admin");
 
     const fetchRolesAndGroups = async () => {
       try {
@@ -42,7 +42,7 @@ const UserList = () => {
     };
 
     fetchRolesAndGroups();
-  }, [isLoggedIn, userRole, navigate]);
+  }, [user, navigate]);
 
 	// 모달 열기
   const showModal = (user) => {
