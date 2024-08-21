@@ -32,6 +32,7 @@ const SignUp = () => {
     try {
       const response = await axios.post(process.env.REACT_APP_API_URL + '/api/users/signup', {
         email: values.email,
+        name: values.name,
         password: values.password,
         role: values.role,
         group: values.group,
@@ -60,6 +61,12 @@ const SignUp = () => {
           rules={[{ required: true, message: 'Email을 입력해주세요.' }]}
         >
           <Input prefix={<UserOutlined />} placeholder="Email" />
+        </Form.Item>
+        <Form.Item
+          name="name"
+          rules={[{ required: true, message: '이름을 입력해주세요.' }]}
+        >
+          <Input prefix={<UserOutlined />} placeholder="이름" />
         </Form.Item>
         <Form.Item
           name="password"

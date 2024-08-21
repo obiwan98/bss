@@ -1,9 +1,9 @@
 import { Button, Form, Input, Modal, Select, Table, message } from 'antd';
 import axios from 'axios';
 import dayjs from 'dayjs';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../../contexts/AuthContext';
+import { useUser } from '../../../contexts/UserContext';
 
 const { Option } = Select;
 
@@ -15,29 +15,19 @@ const UserList = () => {
   const [roles, setRoles] = useState([]);
 	const [groups, setGroups] = useState([]); // 팀 데이터를 저장
   const [isAdmin, setIsAdmin] = useState(false);
-  const { isLoggedIn } = useContext(AuthContext);
+  const { user, setUser } = useUser();
   const navigate = useNavigate();
 	const [form] = Form.useForm();
   const { confirm } = Modal;
 
   // 팀 데이터 가져오기 (컴포넌트가 처음 렌더링될 때 한 번)
   useEffect(() => {
-    if(!isLoggedIn){
+    if(!user){
       navigate('/login');
       return;
     }
-
-    const token = localStorage.getItem('token');
-		if (!token) return;
-
-    axios.get(`${process.env.REACT_APP_API_URL}/api/users/me`, {
-		  headers: {
-				Authorization: `Bearer ${token}`,
-			},
-		}).then((response) => {
-      setIsAdmin(response.data.role.role === "Admin");
-    });
-      
+    
+    setIsAdmin(user.role.role === "Admin");
 
     const fetchRolesAndGroups = async () => {
       try {
@@ -52,14 +42,16 @@ const UserList = () => {
     };
 
     fetchRolesAndGroups();
-  }, [isLoggedIn, navigate]);
+  }, [user, navigate]);
 
 	// 모달 열기
-  const showModal = (user) => {
-    setSelectedUser(user);
+  const showModal = (recode) => {
+    setSelectedUser(recode);
     form.setFieldsValue({
-      role: user.role._id,
-      group: user.group._id,
+      email: recode.email,
+      name : recode.name,
+      role: recode.role._id,
+      group: recode.group._id,
     });
     setIsModalVisible(true);
   };
@@ -150,6 +142,8 @@ const UserList = () => {
         }
       );
 
+      setUser((prevUser) => ({...prevUser, role: roles.filter((r) => r._id === values.role)[0], group: groups.filter((g) => g._id === values.group)[0]}));
+
       message.success('사용자 정보가 성공적으로 업데이트되었습니다.', 2);
       setIsModalVisible(false);
       // 사용자 목록 갱신
@@ -166,6 +160,13 @@ const UserList = () => {
       title: '이메일',
       dataIndex: 'email',
       key: 'email',
+			width: 300,
+      align: 'center', 
+    },
+    {
+      title: '이름',
+      dataIndex: 'name',
+      key: 'name',
 			width: 300,
       align: 'center', 
     },
@@ -194,8 +195,8 @@ const UserList = () => {
     {
       title: '수정',
       key: 'action',
-      render: (_, user) => (
-        <Button type="primary" onClick={() => showModal(user)}>
+      render: (_, recode) => (
+        <Button type="primary" onClick={() => showModal(recode)}>
           상세 정보
         </Button>
       ),
@@ -258,7 +259,13 @@ const UserList = () => {
 						label="Email"
 						name="email"
 					>
-						<Input defaultValue={selectedUser?.email} disabled />
+						<Input disabled />
+					</Form.Item>
+          <Form.Item 
+						label="Name"
+						name="name"
+					>
+						<Input disabled />
 					</Form.Item>
           <Form.Item
             label="역할"
@@ -280,7 +287,7 @@ const UserList = () => {
           >
             <Select>
               {groups.map((group) => (
-                <Option key={group} value={group._id}>
+                <Option key={group._id} value={group._id}>
                   {group.office} - {group.part} - {group.team}
                 </Option>
               ))}

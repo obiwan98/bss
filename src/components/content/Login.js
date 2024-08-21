@@ -1,20 +1,21 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Button, Form, Input, message } from 'antd';
 import axios from 'axios';
-import React, { useContext, useEffect } from 'react';
+import { jwtDecode } from 'jwt-decode';
+import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../contexts/AuthContext';
+import { useUser } from '../../contexts/UserContext';
 
 const Login = () => {
-  const { isLoggedIn, setIsLoggedIn } = useContext(AuthContext);
+  const { user, setUser } = useUser();
   const navigate = useNavigate ();
 
   useEffect(() => {
-    if (isLoggedIn) {
+    if (user) {
       navigate('/home');
       return;
     }
-  }, [isLoggedIn, navigate]);
+  }, [user, navigate]);
 
   const onFinish = async (values) => {
     try {
@@ -24,9 +25,14 @@ const Login = () => {
       });
       const token = response.data.token; // 실제 로그인 로직에서 받은 토큰을 사용하세요.
       localStorage.setItem('token', token);
-      setIsLoggedIn(true);
+      
+      const decodedToken = jwtDecode(token);
+      const userInfo = { email: decodedToken.email, role: decodedToken.role, group: decodedToken.group, name: decodedToken.name, loggedIn: true };
+      setUser(userInfo);
+
       message.success("로그인이 성공하였습니다.", 2);
       navigate('/home');
+
     } catch (error) {
       console.error('Error during login:', error.response ? error.response.data : error.message);
       message.error(error.message, 2);
