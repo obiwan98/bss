@@ -12,6 +12,8 @@ import AppMenu from './components/menu/AppMenu';
 import Navbar from './components/navbar/Navbar';
 import { AuthProvider } from './contexts/AuthContext';
 import './index.css';
+import BookAdd from './components/content/books/BookAdd';
+import BookList from './components/content/books/BookList';
 
 const { Header, Content, Sider, Footer } = Layout;
 
@@ -36,6 +38,8 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/home" element={<Home />} />
                 <Route path="/" element={<Home />} /> 
+                <Route path="/books/BookAdd" element={<BookAdd />} />
+                <Route path="/books/BookList" element={<BookList />} />
                 <Route path="/users/UserList" element={<UserList />} />
               </Routes >
             </Content>
