@@ -1,6 +1,6 @@
-import React, { useContext, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../contexts/AuthContext';
+import React, { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../contexts/AuthContext";
 
 function Home() {
   const { isLoggedIn } = useContext(AuthContext);
@@ -8,16 +8,12 @@ function Home() {
 
   useEffect(() => {
     if (!isLoggedIn) {
-      navigate('/login');
+      navigate("/login");
       return;
     }
   }, [isLoggedIn, navigate]);
 
-  return (
-    <div className="home-container">
-      
-    </div>
-  );
+  return <div className="home-container"></div>;
 }
 
 export default Home;
