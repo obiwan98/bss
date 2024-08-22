@@ -10,7 +10,9 @@ import UserList from "./components/content/users/UserList";
 import LogoText from "./components/logoText/LogoText";
 import AppMenu from "./components/menu/AppMenu";
 import Navbar from "./components/navbar/Navbar";
-import { AuthProvider } from "./contexts/AuthContext";
+import ApprovalList from "./components/content/approval/ApprovalList";
+import ApprovalEdit from "./components/content/approval/ApprovalEdit";
+import { UserProvider } from "./contexts/UserContext";
 import "./index.css";
 
 const { Header, Content, Sider, Footer } = Layout;
@@ -49,7 +51,6 @@ function App() {
                 <Route path="/home" element={<Home />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/users/UserList" element={<UserList />} />
-                <Route path="/approval/new" element={<ApprovalNew />} />
                 <Route path="/approval/list" element={<ApprovalList />} />
                 <Route path="/approval/edit" element={<ApprovalEdit />} />
               </Routes>
