@@ -1,105 +1,140 @@
-import { useState, useEffect, useContext } from "react";
+import { useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "../../../contexts/AuthContext";
+import { useUser } from "../../../contexts/UserContext";
 
-import { Form, Input, DatePicker, Select, Button, Space } from "antd";
+import { Form, Input, DatePicker, Space, Button, message } from "antd";
 
 import axios from "axios";
+import dayjs from "dayjs";
 
-const formItemLayout = {
-  labelCol: {
-    xs: { span: 24 },
-    sm: { span: 6 },
-  },
-  wrapperCol: {
-    xs: { span: 24 },
-    sm: { span: 14 },
-  },
-};
-
-const { Option } = Select;
-
-const BookAdd = () => {
-  const { isLoggedIn } = useContext(AuthContext);
+const BookAdd = ({ data, onClose }) => {
   const navigate = useNavigate();
 
-  const [form] = Form.useForm();
-  const [groups, setGroups] = useState([]);
+  const { user, setUser } = useUser();
 
-  const onReset = () => {
-    form.resetFields();
+  const [form] = Form.useForm();
+
+  const handleAdd = async (values) => {
+    try {
+      const { title, author, publisher, registrationDate, group } = values;
+
+      const response = await axios.post(
+        process.env.REACT_APP_API_URL + "/api/books/bookAdd",
+        {
+          title,
+          author,
+          publisher,
+          group,
+          registDate: registrationDate,
+        }
+      );
+
+      alert(response.data.message);
+      onReset();
+
+      if (onClose) onClose(true);
+    } catch (error) {}
   };
 
-  useEffect(() => {
-    if (!isLoggedIn) {
-      navigate("/login");
-      return;
+  const handleBookUpdate = async (values) => {
+    const { _id, title, author, publisher, group } = values;
+
+    try {
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/books/bookUpdate/${_id}`,
+        {
+          title,
+          author,
+          publisher,
+          group,
+          registDate: dayjs(),
+        }
+      );
+
+      message.success(response.data.message);
+    } catch (error) {
+      message.error("도서 정보 변경에 실패했습니다.");
     }
 
-    const fetchRolesAndGroups = async () => {
-      try {
-        const groupsResponse = await axios.get(
-          process.env.REACT_APP_API_URL + "/api/groups"
-        );
+    onClose(true);
+  };
 
-        setGroups(groupsResponse.data);
-      } catch (error) {}
-    };
+  const onReset = useCallback(() => {
+    const { group } = user;
 
-    fetchRolesAndGroups();
-  }, [isLoggedIn, navigate]);
+    form.resetFields();
+    form.setFieldsValue({
+      _id: data ? data._id : "",
+      title: data ? data.title : "",
+      author: data ? data.author : "",
+      publisher: data ? data.publisher : "",
+      registrationDate: dayjs(),
+      team: group.team,
+      group: group._id,
+      registeredBy: user.name,
+    });
+  }, [form, user, data]);
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+    } else {
+      onReset();
+    }
+  }, [user, navigate, onReset]);
 
   return (
     <div className="book-add-container">
-      <h2>도서 등록</h2>
+      <h2>{data ? "도서 변경" : "도서 등록"}</h2>
       <Form
-        {...formItemLayout}
+        layout="vertical"
         form={form}
         variant="filled"
-        style={{ maxWidth: 600, marginTop: 45 }}
+        onFinish={data ? handleBookUpdate : handleAdd}
+        style={{ maxWidth: 600 }}
       >
+        <Form.Item name="_id" hidden>
+          <Input disabled />
+        </Form.Item>
         <Form.Item
           label="도서명"
-          name="Title"
+          name="title"
           rules={[{ required: true, message: "Please input!" }]}
         >
           <Input />
         </Form.Item>
-        <Form.Item label="저자" name="Author">
+        <Form.Item label="저자" name="author">
           <Input />
         </Form.Item>
-        <Form.Item label="출판사" name="Publisher">
+        <Form.Item label="출판사" name="publisher">
           <Input />
         </Form.Item>
         <Form.Item
           label="등록일"
-          name="RegistrationDate"
+          name="registrationDate"
           rules={[{ required: true, message: "Please input!" }]}
         >
           <DatePicker />
         </Form.Item>
+        <Form.Item label="팀" name="team" rules={[{ required: true }]}>
+          <Input disabled />
+        </Form.Item>
+        <Form.Item label="그룹" name="group" hidden>
+          <Input disabled />
+        </Form.Item>
         <Form.Item
           label="등록자"
-          name="RegisteredBy"
-          rules={[{ required: true, message: "Please input!" }]}
+          name="registeredBy"
+          rules={[{ required: true }]}
         >
-          <Select>
-            <Option value="">전체</Option>
-            {groups.map((group) => (
-              <Option key={group._id} value={group._id}>
-                {group.team} {/* 팀 이름 표시 */}
-              </Option>
-            ))}
-          </Select>
+          <Input disabled />
         </Form.Item>
-        <Form.Item wrapperCol={{ offset: 6, span: 16 }}>
+        <Form.Item>
           <Space>
             <Button type="primary" htmlType="submit">
-              등록
+              {data ? "변경" : "등록"}
             </Button>
-            <Button htmlType="button" onClick={onReset}>
-              초기화
-            </Button>
+            <Button onClick={onReset}>초기화</Button>
           </Space>
         </Form.Item>
       </Form>
