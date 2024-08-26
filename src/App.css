@@ -36,3 +36,19 @@
     transform: rotate(360deg);
   }
 }
+
+.custom-descriptions .ant-descriptions-item-label {
+  width: 150px;
+}
+
+.custom-descriptions .ant-descriptions-item-content {
+  width: 200px;
+}
+
+.custom-input {
+  width: 100%;
+}
+
+.custom-select {
+  width: 100%;
+}
