@@ -13,10 +13,6 @@ const ApprovalList = () => {
     setCategory(e.target.value);
   };
 
-  const handleNavigate = () => {
-    nav(`/approval/edit?category=${category}`);
-  };
-
   return (
     <div className="test-container">
       <Radio.Group value={category} onChange={handleSizeChange}>
@@ -35,7 +31,6 @@ const ApprovalList = () => {
         >
           요청서 작성
         </Button>
-        <Button type="primary">조회</Button>
       </div>
     </div>
   );

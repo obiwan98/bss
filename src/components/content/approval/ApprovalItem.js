@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button, Input, Space, Table, Typography } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const data = [
   {
@@ -81,6 +82,7 @@ const ApprovalItem = () => {
   const nav = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
+  const [approval, setApproval] = useState([]);
   const searchInput = useRef(null);
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
@@ -91,6 +93,23 @@ const ApprovalItem = () => {
     clearFilters();
     setSearchText("");
   };
+
+  // 최초 렌더링 시, 승인 리스트 전체 조회
+  useEffect(() => {
+    const fetchApprovalList = async () => {
+      try {
+        const approvalResponse = await axios.get(
+          process.env.REACT_APP_API_URL + "/api/approvals"
+        );
+        setApproval(approvalResponse.data);
+        console.log(approvalResponse.data);
+      } catch (error) {
+        console.error("Error fetching approvals:", error);
+      }
+    };
+
+    fetchApprovalList();
+  }, []);
 
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -194,33 +213,57 @@ const ApprovalItem = () => {
         text
       ),
   });
+
+  // 날짜변환
+  const formatDate = (isoDate) => {
+    const date = new Date(isoDate);
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
+    const day = String(date.getDate()).padStart(2, "0");
+
+    return `${year}-${month}-${day}`;
+  };
+
+  // 상세보기
+  const onClickDetails = (id) => {
+    nav(`/approvals/pending/${id}`);
+  };
+
   const columns = [
     {
-      title: "요청자",
-      dataIndex: "name",
-      key: "name",
-      width: "20%",
-      ...getColumnSearchProps("name"),
+      title: "Approval Unique ID",
+      dataIndex: "_id",
+      key: "_id",
+      width: "10%",
+      ...getColumnSearchProps("_id"),
     },
     {
-      title: "부서명",
-      dataIndex: "deptname",
-      key: "deptname",
-      width: "20%",
-      ...getColumnSearchProps("deptname"),
+      title: "User ID",
+      dataIndex: "user",
+      key: "user",
+      width: "10%",
+      ...getColumnSearchProps("user"),
+    },
+    {
+      title: "신청자명",
+      dataIndex: "username",
+      key: "user",
+      width: "10%",
+      ...getColumnSearchProps("user"),
     },
     {
       title: "도서명",
-      dataIndex: "bookname",
+      dataIndex: ["book", "name"],
       key: "bookname",
-      width: "30%",
+      width: "40%",
       ...getColumnSearchProps("bookname"),
     },
     {
       title: "요청일자",
-      dataIndex: "date",
+      dataIndex: "regdate",
       key: "date",
-      ...getColumnSearchProps("date"),
+      render: (text) => formatDate(text),
+      // ...getColumnSearchProps("date"),
     },
     {
       title: "button",
@@ -228,7 +271,7 @@ const ApprovalItem = () => {
       render: (_, record) => {
         return (
           <Typography.Link
-            onClick={() => nav("/approval/edit")}
+            onClick={() => onClickDetails(record._id)} // Pass the _id here
             disabled={false}
           >
             상세보기
@@ -240,7 +283,11 @@ const ApprovalItem = () => {
 
   return (
     <div className="testSub1-container">
-      <Table columns={columns} dataSource={data} pagination={{ pageSize: 4 }} />
+      <Table
+        columns={columns}
+        dataSource={approval}
+        pagination={{ pageSize: 4 }}
+      />
     </div>
   );
 };

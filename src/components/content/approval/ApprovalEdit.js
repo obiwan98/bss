@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Badge, Button, Descriptions, Divider, Input, Form } from "antd";
 import { useState } from "react";
 import axios from "axios";
@@ -25,12 +25,54 @@ const ApprovalEdit = () => {
   const { param } = useParams();
   const navigate = useNavigate();
 
+  const [isInputDisabled, setIsInputDisabled] = useState(false);
+  const [descriptionDisplay, setDescriptionDisplay] = useState("none");
+  const [buttonDisplay, setButtonDisplay] = useState("none");
+
+  // 렌더링 시 초기 세팅
+  useEffect(() => {
+    // 로그인 체크
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    // 신규 작성이 아닌경우에는 도서 정보 외 수정 불가
+    if (param !== "new") {
+      setIsInputDisabled(true);
+    } else {
+      setIsInputDisabled(false);
+    }
+
+    // 권한에 따른 Description 활성화
+    const checkDescriptionDisplay = () => {
+      return param !== "new" &&
+        (user.role.role === "Admin" ||
+          user.role.role === "TeamLeader" ||
+          user.role.role === "BookManager")
+        ? "block"
+        : "none";
+    };
+
+    // 권한에 따른 Button 활성화
+    const checkButtonDisplay = () => {
+      return (user.role.role === "Admin" || user.role.role === "TeamLeader") &&
+        param !== "new"
+        ? "block"
+        : "none";
+    };
+
+    setDescriptionDisplay(checkDescriptionDisplay);
+    setButtonDisplay(checkButtonDisplay);
+  }, []);
+
   // 승인 요청사항 할당
   const [commentValue, setCommentValue] = useState("");
   const handleCommentChange = (e) => {
     setCommentValue(e.target.value);
   };
 
+  // Description Item
   const reqItems = [
     {
       key: "name",
@@ -51,7 +93,7 @@ const ApprovalEdit = () => {
     {
       key: "bookinfo",
       label: "도서정보",
-      children: <Input placeholder="Basic usage" value="USE ALADIN API" />,
+      children: <Input bna placeholder="Basic usage" value="USE ALADIN API" />,
       span: 3,
     },
     {
@@ -62,6 +104,7 @@ const ApprovalEdit = () => {
           placeholder="Enter your comment"
           value={commentValue}
           onChange={handleCommentChange}
+          disabled={isInputDisabled}
         />
       ),
       span: 2,
@@ -186,7 +229,7 @@ const ApprovalEdit = () => {
       </div>
       <div
         className="confirm-container"
-        style={{ display: param === "new" ? "none" : "inline-block" }}
+        style={{ display: descriptionDisplay }}
       >
         <Descriptions
           title="결재 정보"
@@ -211,7 +254,9 @@ const ApprovalEdit = () => {
       </div>
       <div
         className="payment-container"
-        style={{ display: param === "new" ? "none" : "inline-block" }}
+        style={{
+          display: descriptionDisplay,
+        }}
       >
         <Descriptions
           title="구매 정보"
@@ -235,19 +280,23 @@ const ApprovalEdit = () => {
         ></Divider>
       </div>
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
-        {param === "new" && (
-          <Button
-            type="primary"
-            onClick={onClickSave}
-            style={{ marginRight: "15px" }}
-          >
-            저장
-          </Button>
-        )}
+        <Button
+          type="primary"
+          onClick={onClickSave}
+          style={{
+            marginRight: "15px",
+            display: param === "new" ? "block" : "none",
+          }}
+        >
+          저장
+        </Button>
         <Button
           type="primary"
           onClick={onClickApproval}
-          style={{ marginRight: "15px", display: "none" }}
+          style={{
+            marginRight: "15px",
+            display: buttonDisplay,
+          }}
         >
           승인
         </Button>
@@ -255,7 +304,9 @@ const ApprovalEdit = () => {
           type="primary"
           danger
           onClick={onClickReject}
-          style={{ display: "none" }}
+          style={{
+            display: buttonDisplay,
+          }}
         >
           반려
         </Button>
