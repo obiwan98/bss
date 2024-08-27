@@ -51,8 +51,11 @@ function App() {
                 <Route path="/home" element={<Home />} />
                 <Route path="/" element={<Home />} />
                 <Route path="/users/UserList" element={<UserList />} />
-                <Route path="/approval/list" element={<ApprovalList />} />
-                <Route path="/approvals/pending" element={<ApprovalEdit />} />
+                <Route path="/approvals/pending/" element={<ApprovalList />} />
+                <Route
+                  path="/approvals/pending/:param"
+                  element={<ApprovalEdit />}
+                />
               </Routes>
             </Content>
             <Footer style={{ textAlign: "center" }}>
