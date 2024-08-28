@@ -21,7 +21,7 @@ const ApprovalList = () => {
         <Radio.Button value="3">반려</Radio.Button>
       </Radio.Group>
       <Divider style={{ borderColor: "#7cb305" }}></Divider>
-      <ApprovalItem></ApprovalItem>
+      <ApprovalItem category={category}></ApprovalItem>
       <Divider style={{ borderColor: "#7cb305" }}></Divider>
       <div style={{ display: "flex", justifyContent: "flex-end" }}>
         <Button

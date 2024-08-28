@@ -78,7 +78,7 @@ const data = [
   },
 ];
 
-const ApprovalItem = () => {
+const ApprovalItem = ({ category }) => {
   const nav = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
@@ -96,10 +96,12 @@ const ApprovalItem = () => {
 
   // 최초 렌더링 시, 승인 리스트 전체 조회
   useEffect(() => {
+    console.log(category);
+
     const fetchApprovalList = async () => {
       try {
         const approvalResponse = await axios.get(
-          process.env.REACT_APP_API_URL + "/api/approvals"
+          process.env.REACT_APP_API_URL + "/api/approvals/list"
         );
         setApproval(approvalResponse.data);
         console.log(approvalResponse.data);
@@ -239,14 +241,14 @@ const ApprovalItem = () => {
     },
     {
       title: "User ID",
-      dataIndex: "user",
+      dataIndex: ["user", "_id"],
       key: "user",
       width: "10%",
       ...getColumnSearchProps("user"),
     },
     {
       title: "신청자명",
-      dataIndex: "username",
+      dataIndex: ["user", "name"],
       key: "user",
       width: "10%",
       ...getColumnSearchProps("user"),

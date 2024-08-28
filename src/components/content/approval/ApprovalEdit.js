@@ -25,9 +25,11 @@ const ApprovalEdit = () => {
   const { param } = useParams();
   const navigate = useNavigate();
 
+  const [approvalTitle, setApprovalTitle] = useState("승인 요청");
   const [isInputDisabled, setIsInputDisabled] = useState(false);
   const [descriptionDisplay, setDescriptionDisplay] = useState("none");
   const [buttonDisplay, setButtonDisplay] = useState("none");
+  const [commentValue, setCommentValue] = useState("");
 
   // 렌더링 시 초기 세팅
   useEffect(() => {
@@ -37,9 +39,10 @@ const ApprovalEdit = () => {
       return;
     }
 
-    // 신규 작성이 아닌경우에는 도서 정보 외 수정 불가
+    // param에 따른 구분 ( new / etc )
     if (param !== "new") {
-      setIsInputDisabled(true);
+      setIsInputDisabled(true); // 신규 작성이 아닌경우에는 도서 정보 외 수정 불가
+      setApprovalTitle("승인 상세");
     } else {
       setIsInputDisabled(false);
     }
@@ -67,7 +70,6 @@ const ApprovalEdit = () => {
   }, []);
 
   // 승인 요청사항 할당
-  const [commentValue, setCommentValue] = useState("");
   const handleCommentChange = (e) => {
     setCommentValue(e.target.value);
   };
@@ -174,7 +176,7 @@ const ApprovalEdit = () => {
     };
 
     axios
-      .post(process.env.REACT_APP_API_URL + "/api/approvals/pending", {
+      .post(process.env.REACT_APP_API_URL + "/api/approvals/save", {
         data: totItem,
       })
       .then((response) => {
@@ -199,7 +201,7 @@ const ApprovalEdit = () => {
 
   return (
     <div>
-      <h1>승인 요청</h1>
+      <h1>{approvalTitle}</h1>
       <Divider
         style={{
           borderColor: "#7cb305",
