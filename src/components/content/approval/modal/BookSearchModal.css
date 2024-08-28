@@ -1,0 +1,23 @@
+.bookSearch_tag {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.bookSearch_modal {
+    height: 340px;
+    overflow: auto;
+}
+
+.book_radio {
+    width: 100%;
+    margin: 0;
+}
+
+.book_radio > span:first-child {
+    width: 16px;
+}
+
+.book_radio > span:last-child {
+    width: 16px;
+    flex-grow: 1;
+}
