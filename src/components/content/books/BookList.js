@@ -62,7 +62,7 @@ const BookList = () => {
     setIsModalVisible(false);
 
     if (refresh) handleSearch();
-  }
+  };
 
   useEffect(() => {
     if (!user) navigate("/login");
@@ -122,7 +122,7 @@ const BookList = () => {
           style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}
         >
           <Button type="primary" onClick={() => showModal(null)}>
-            등록
+            추가
           </Button>
         </span>
       </div>
@@ -133,8 +133,17 @@ const BookList = () => {
         pagination={{ pageSize: 5 }}
         style={{ marginTop: 20 }}
       />
-      <Modal open={isModalVisible} onCancel={() => handleCancel(false)} footer={null}>
-        <BookAdd data={bookData} onClose={handleCancel} />
+      <Modal
+        width={1000}
+        open={isModalVisible}
+        footer={null}
+        onCancel={() => handleCancel(false)}
+      >
+        <BookAdd
+          isModal={isModalVisible}
+          data={bookData}
+          onClose={handleCancel}
+        />
       </Modal>
     </div>
   );

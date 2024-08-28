@@ -1,0 +1,38 @@
+.bookAdd-container {
+  .bookAdd-form {
+    padding: 20px;
+
+    .ant-col {
+      &.ant-col-6 {
+        display: flex;
+        justify-content: center;
+
+        .bookCover-container {
+          width: 90%;
+
+          img {
+            width: 100%;
+            object-fit: cover;
+          }
+
+          .upload-form {
+            .ant-upload {
+              width: 100%;
+            }
+          }
+
+          .rate-form {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+
+            > span {
+              font-size: 15px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
