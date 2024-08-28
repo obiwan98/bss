@@ -1,24 +1,69 @@
-import { useState, useRef } from "react";
-import { Radio, Button, Input, Space, Table } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { useState, useEffect } from "react";
+import { Radio, Space } from "antd";
 import ApprovalItem from "./ApprovalItem";
-import Highlighter from "react-highlight-words";
+import axios from "axios";
+import { useUser } from "../../../contexts/UserContext";
+import { useNavigate } from "react-router-dom";
 
 const ApprovalList = () => {
-  const [category, setCategory] = useState("1");
+  const [dataList, setDataList] = useState([]); // 필터링된 사용자 데이터를 저장
+  const { user } = useUser();
+  const [state, setState] = useState("1");
+  const navigate = useNavigate();
+
   const handleSizeChange = (e) => {
-    setCategory(e.target.value);
+    setState(e.target.value);
   };
 
+  const getData = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const approvalListResponse = await axios.get(
+        process.env.REACT_APP_API_URL + `/api/approvals/list/${state}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      setDataList(approvalListResponse.data);
+    } catch (error) {
+      console.error("Error fetching dataList:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    getData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state]);
+
   return (
-    <div className="test-container">
-      <Radio.Group value={category} onChange={handleSizeChange}>
-        <Radio.Button value="1">승인요청</Radio.Button>
-        <Radio.Button value="2">승인완료</Radio.Button>
-        <Radio.Button value="3">반려</Radio.Button>
-      </Radio.Group>
-      <ApprovalItem></ApprovalItem>
-    </div>
+    <>
+      <div className="approval-list-container">
+        <Space
+          style={{
+            marginBottom: 16,
+          }}
+        >
+          <Radio.Group value={state} onChange={handleSizeChange}>
+            <Radio.Button value="1">승인요청</Radio.Button>
+            <Radio.Button value="2">승인완료</Radio.Button>
+            <Radio.Button value="3">반려</Radio.Button>
+          </Radio.Group>
+        </Space>
+        <ApprovalItem data={dataList}></ApprovalItem>
+      </div>
+    </>
   );
 };
 

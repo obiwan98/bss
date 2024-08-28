@@ -4,92 +4,41 @@ import { SearchOutlined } from "@ant-design/icons";
 import Highlighter from "react-highlight-words";
 import { useNavigate } from "react-router-dom";
 
-const data = [
-  {
-    key: "1",
-    name: "이장열",
-    deptname: "CGV팀",
-    bookname: "리액트 마스터1",
-    date: "2024-08-20",
-  },
-  {
-    key: "2",
-    name: "박광연",
-    deptname: "CGV팀",
-    bookname: "리액트 마스터2",
-    date: "2024-08-20",
-  },
-  {
-    key: "3",
-    name: "신혜경",
-    deptname: "CGV팀",
-    bookname: "리액트 마스터3",
-    date: "2024-08-20",
-  },
-  {
-    key: "4",
-    name: "최슬범",
-    deptname: "CGV팀",
-    bookname: "리액트 마스터4",
-    date: "2024-08-20",
-  },
-  {
-    key: "5",
-    name: "이장열",
-    deptname: "CGV팀",
-    bookname: "리액트 마스터5",
-    date: "2024-08-20",
-  },
-  {
-    key: "6",
-    name: "박광연",
-    deptname: "CGV팀",
-    bookname: "리액트 마스터6",
-    date: "2024-08-20",
-  },
-  {
-    key: "7",
-    name: "신혜경",
-    deptname: "CGV팀",
-    bookname: "리액트 마스터",
-    date: "2024-08-20",
-  },
-  {
-    key: "8",
-    name: "최슬범",
-    deptname: "CGV팀",
-    bookname: "리액트 마스터7",
-    date: "2024-08-20",
-  },
-  {
-    key: "9",
-    name: "이장열",
-    deptname: "CGV팀",
-    bookname: "리액트 마스터8",
-    date: "2024-08-20",
-  },
-  {
-    key: "10",
-    name: "이장열",
-    deptname: "CGV팀",
-    bookname: "리액트 마스터9",
-    date: "2024-08-20",
-  },
-];
-
-const ApprovalItem = () => {
-  const nav = useNavigate();
+const ApprovalItem = ({ data }) => {
+  const navigate = useNavigate();
   const [searchText, setSearchText] = useState("");
   const [searchedColumn, setSearchedColumn] = useState("");
   const searchInput = useRef(null);
+  //2024-08-23T06:38:44.433Z
+  const dataList = data.map((item, index) => {
+    let data = {
+      _id: item._id,
+      key: index + 1,
+      username: item.user.name,
+      email: item.user.email,
+      deptname: item.group.team,
+      bookname: item.book.name,
+      date:
+        item.regdate.length >= 19
+          ? item.regdate.substring(0, 10) + " " + item.regdate.substring(11, 19)
+          : "",
+      state:
+        item.state === "1"
+          ? "승인요청"
+          : item.state === "2"
+          ? typeof item.payment === "undefined"
+            ? "승인완료(구매대기)"
+            : "승인완료(구매완료)"
+          : "반려",
+    };
+
+    return data;
+  });
+
   const handleSearch = (selectedKeys, confirm, dataIndex) => {
     confirm();
     setSearchText(selectedKeys[0]);
     setSearchedColumn(dataIndex);
-  };
-  const handleReset = (clearFilters) => {
-    clearFilters();
-    setSearchText("");
   };
 
   const getColumnSearchProps = (dataIndex) => ({
@@ -131,37 +80,6 @@ const ApprovalItem = () => {
           >
             Search
           </Button>
-          <Button
-            onClick={() => clearFilters && handleReset(clearFilters)}
-            size="small"
-            style={{
-              width: 90,
-            }}
-          >
-            Reset
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              confirm({
-                closeDropdown: false,
-              });
-              setSearchText(selectedKeys[0]);
-              setSearchedColumn(dataIndex);
-            }}
-          >
-            Filter
-          </Button>
-          <Button
-            type="link"
-            size="small"
-            onClick={() => {
-              close();
-            }}
-          >
-            close
-          </Button>
         </Space>
       </div>
     ),
@@ -196,39 +114,56 @@ const ApprovalItem = () => {
   });
   const columns = [
     {
+      title: "_id",
+      dataIndex: "_id",
+      key: "_id",
+      hidden: true,
+    },
+    {
+      title: "순번",
+      dataIndex: "key",
+      key: "key",
+      rowScope: "row",
+    },
+    {
       title: "요청자",
-      dataIndex: "name",
-      key: "name",
-      width: "20%",
-      ...getColumnSearchProps("name"),
+      dataIndex: "username",
+      key: "username",
+      ...getColumnSearchProps("username"),
+    },
+    {
+      title: "이메일",
+      dataIndex: "email",
+      key: "email",
     },
     {
       title: "부서명",
       dataIndex: "deptname",
       key: "deptname",
-      width: "20%",
-      ...getColumnSearchProps("deptname"),
     },
     {
       title: "도서명",
       dataIndex: "bookname",
       key: "bookname",
-      width: "30%",
       ...getColumnSearchProps("bookname"),
     },
     {
       title: "요청일자",
       dataIndex: "date",
       key: "date",
-      ...getColumnSearchProps("date"),
     },
     {
-      title: "button",
+      title: "요청상태",
+      dataIndex: "state",
+      key: "state",
+    },
+    {
+      title: "",
       dataIndex: "button",
       render: (_, record) => {
         return (
           <Typography.Link
-            onClick={() => nav("/approval/edit")}
+            onClick={() => navigate(`/approval/edit/${record._id}`)}
             disabled={false}
           >
             상세보기
@@ -239,8 +174,12 @@ const ApprovalItem = () => {
   ];
 
   return (
-    <div className="testSub1-container">
-      <Table columns={columns} dataSource={data} pagination={{ pageSize: 4 }} />
+    <div className="approval-item-container">
+      <Table
+        columns={columns}
+        dataSource={dataList}
+        pagination={{ pageSize: 10 }}
+      />
     </div>
   );
 };
