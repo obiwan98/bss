@@ -23,9 +23,9 @@ const AppMenu = () => {
       key: 'sub2',
       icon: <AppstoreOutlined />,
       children: [
-        { label: '승인 요청', key: '4', path: '/approvals/pending' },
-        { label: '승인 완료', key: '5', path: '/approvals/approved' },
-        { label: '반려', key: '6', path: '/approvals/rejected' },
+        { label: '승인 요청', key: '4', path: '/approval/list' },
+        { label: '승인 완료', key: '5', path: '/approval/approved' },
+        { label: '반려', key: '6', path: '/approval/rejected' },
       ],
     },
     {
