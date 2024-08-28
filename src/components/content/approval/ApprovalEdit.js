@@ -1,19 +1,19 @@
-import React, { useEffect } from "react";
-import { Badge, Button, Descriptions, Divider, Input, Form } from "antd";
-import { useState } from "react";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import { useUser } from "../../../contexts/UserContext";
-import { useLocation, useParams } from "react-router-dom";
+import React, { useEffect } from 'react';
+import { Badge, Button, Descriptions, Divider, Input, Form } from 'antd';
+import { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../../contexts/UserContext';
+import { useLocation, useParams } from 'react-router-dom';
 
-import "../../../App.css";
+import '../../../App.css';
 
 // 현재 일자 출력
 const formatDate = (date) => {
   const options = {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
   };
 
   return new Date(date).toLocaleDateString(undefined, options);
@@ -25,44 +25,43 @@ const ApprovalEdit = () => {
   const { param } = useParams();
   const navigate = useNavigate();
 
-  const [approvalTitle, setApprovalTitle] = useState("승인 요청");
+  const [approvalTitle, setApprovalTitle] = useState('승인 요청');
   const [isInputDisabled, setIsInputDisabled] = useState(false);
-  const [descriptionDisplay, setDescriptionDisplay] = useState("none");
-  const [buttonDisplay, setButtonDisplay] = useState("none");
-  const [commentValue, setCommentValue] = useState("");
+  const [descriptionDisplay, setDescriptionDisplay] = useState('none');
+  const [buttonDisplay, setButtonDisplay] = useState('none');
+  const [commentValue, setCommentValue] = useState('');
 
   // 렌더링 시 초기 세팅
   useEffect(() => {
     // 로그인 체크
     if (!user) {
-      navigate("/login");
+      navigate('/login');
       return;
     }
 
     // param에 따른 구분 ( new / etc )
-    if (param !== "new") {
+    if (param !== 'new') {
       setIsInputDisabled(true); // 신규 작성이 아닌경우에는 도서 정보 외 수정 불가
-      setApprovalTitle("승인 상세");
+      setApprovalTitle('승인 상세');
     } else {
       setIsInputDisabled(false);
     }
 
     // 권한에 따른 Description 활성화
     const checkDescriptionDisplay = () => {
-      return param !== "new" &&
-        (user.role.role === "Admin" ||
-          user.role.role === "TeamLeader" ||
-          user.role.role === "BookManager")
-        ? "block"
-        : "none";
+      return param !== 'new' &&
+        (user.role.role === 'Admin' ||
+          user.role.role === 'TeamLeader' ||
+          user.role.role === 'BookManager')
+        ? 'block'
+        : 'none';
     };
 
     // 권한에 따른 Button 활성화
     const checkButtonDisplay = () => {
-      return (user.role.role === "Admin" || user.role.role === "TeamLeader") &&
-        param !== "new"
-        ? "block"
-        : "none";
+      return (user.role.role === 'Admin' || user.role.role === 'TeamLeader') && param !== 'new'
+        ? 'block'
+        : 'none';
     };
 
     setDescriptionDisplay(checkDescriptionDisplay);
@@ -77,30 +76,29 @@ const ApprovalEdit = () => {
   // Description Item
   const reqItems = [
     {
-      key: "name",
-      label: "신청자명",
-      children: user !== null ? user.name : "N/A",
+      key: 'name',
+      label: '신청자명',
+      children: user !== null ? user.name : 'N/A',
     },
     {
-      key: "group",
-      label: "신청부서",
-      children:
-        user !== null ? [user.group.part] + "/" + [user.group.team] : "N/A",
+      key: 'group',
+      label: '신청부서',
+      children: user !== null ? [user.group.part] + '/' + [user.group.team] : 'N/A',
     },
     {
-      key: "regdate",
-      label: "신청일자",
+      key: 'regdate',
+      label: '신청일자',
       children: formatDate(new Date()),
     },
     {
-      key: "bookinfo",
-      label: "도서정보",
+      key: 'bookinfo',
+      label: '도서정보',
       children: <Input bna placeholder="Basic usage" value="USE ALADIN API" />,
       span: 3,
     },
     {
-      key: "comment",
-      label: "요청사항",
+      key: 'comment',
+      label: '요청사항',
       children: (
         <Input
           placeholder="Enter your comment"
@@ -112,51 +110,51 @@ const ApprovalEdit = () => {
       span: 2,
     },
     {
-      key: "state",
-      label: "결재상태",
+      key: 'state',
+      label: '결재상태',
       children: <Badge status="processing" text="승인요청" value={1} />,
     },
   ];
 
   const confirmItems = [
     {
-      key: "1",
-      label: "결재자명",
-      children: "N/A",
+      key: '1',
+      label: '결재자명',
+      children: 'N/A',
     },
     {
-      key: "2",
-      label: "결재일시",
-      children: "N/A",
+      key: '2',
+      label: '결재일시',
+      children: 'N/A',
     },
 
     {
-      key: "3",
-      label: "결재의견",
-      children: "N/A",
+      key: '3',
+      label: '결재의견',
+      children: 'N/A',
     },
   ];
 
   const paymentItems = [
     {
-      key: "1",
-      label: "구매자명",
-      children: "N/A",
+      key: '1',
+      label: '구매자명',
+      children: 'N/A',
     },
     {
-      key: "2",
-      label: "구매금액",
-      children: "N/A",
+      key: '2',
+      label: '구매금액',
+      children: 'N/A',
     },
     {
-      key: "3",
-      label: "구매일자",
-      children: "N/A",
+      key: '3',
+      label: '구매일자',
+      children: 'N/A',
     },
     {
-      key: "4",
-      label: "구매정보",
-      children: "N/A",
+      key: '4',
+      label: '구매정보',
+      children: 'N/A',
     },
   ];
 
@@ -171,32 +169,32 @@ const ApprovalEdit = () => {
     const totItem = {
       reqItems: approval,
       etc: {
-        email: user?.email || "test1541@cj.net",
+        email: user?.email || 'test1541@cj.net',
       },
     };
 
     axios
-      .post(process.env.REACT_APP_API_URL + "/api/approvals/save", {
+      .post(process.env.REACT_APP_API_URL + '/api/approvals/save', {
         data: totItem,
       })
       .then((response) => {
-        console.log("Data saved successfully:", response.data);
+        console.log('Data saved successfully:', response.data);
         alert(response.data.message);
         // navigate('/');
       })
       .catch((error) => {
-        console.error("Error saving data:", error);
+        console.error('Error saving data:', error);
       });
   };
 
   // 승인
   const onClickApproval = () => {
-    return alert("Approval");
+    return alert('Approval');
   };
 
   // 반려
   const onClickReject = () => {
-    return alert("Reject");
+    return alert('Reject');
   };
 
   return (
@@ -204,53 +202,34 @@ const ApprovalEdit = () => {
       <h1>{approvalTitle}</h1>
       <Divider
         style={{
-          borderColor: "#7cb305",
+          borderColor: '#7cb305',
         }}
       ></Divider>
       <div className="req-container">
-        <Descriptions
-          title="신청 정보"
-          bordered
-          className="custom-descriptions"
-        >
+        <Descriptions title="신청 정보" bordered className="custom-descriptions">
           {reqItems.map((item) => (
-            <Descriptions.Item
-              key={item.key}
-              label={item.label}
-              span={item.span}
-            >
+            <Descriptions.Item key={item.key} label={item.label} span={item.span}>
               {item.children}
             </Descriptions.Item>
           ))}
         </Descriptions>
         <Divider
           style={{
-            borderColor: "#7cb305",
+            borderColor: '#7cb305',
           }}
         ></Divider>
       </div>
-      <div
-        className="confirm-container"
-        style={{ display: descriptionDisplay }}
-      >
-        <Descriptions
-          title="결재 정보"
-          bordered
-          className="custom-descriptions"
-        >
+      <div className="confirm-container" style={{ display: descriptionDisplay }}>
+        <Descriptions title="결재 정보" bordered className="custom-descriptions">
           {confirmItems.map((item) => (
-            <Descriptions.Item
-              key={item.key}
-              label={item.label}
-              span={item.span}
-            >
+            <Descriptions.Item key={item.key} label={item.label} span={item.span}>
               {item.children}
             </Descriptions.Item>
           ))}
         </Descriptions>
         <Divider
           style={{
-            borderColor: "#7cb305",
+            borderColor: '#7cb305',
           }}
         ></Divider>
       </div>
@@ -260,34 +239,26 @@ const ApprovalEdit = () => {
           display: descriptionDisplay,
         }}
       >
-        <Descriptions
-          title="구매 정보"
-          bordered
-          className="custom-descriptions"
-        >
+        <Descriptions title="구매 정보" bordered className="custom-descriptions">
           {paymentItems.map((item) => (
-            <Descriptions.Item
-              key={item.key}
-              label={item.label}
-              span={item.span}
-            >
+            <Descriptions.Item key={item.key} label={item.label} span={item.span}>
               {item.children}
             </Descriptions.Item>
           ))}
         </Descriptions>
         <Divider
           style={{
-            borderColor: "#7cb305",
+            borderColor: '#7cb305',
           }}
         ></Divider>
       </div>
-      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button
           type="primary"
           onClick={onClickSave}
           style={{
-            marginRight: "15px",
-            display: param === "new" ? "block" : "none",
+            marginRight: '15px',
+            display: param === 'new' ? 'block' : 'none',
           }}
         >
           저장
@@ -296,7 +267,7 @@ const ApprovalEdit = () => {
           type="primary"
           onClick={onClickApproval}
           style={{
-            marginRight: "15px",
+            marginRight: '15px',
             display: buttonDisplay,
           }}
         >
