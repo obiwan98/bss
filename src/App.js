@@ -12,6 +12,7 @@ import AppMenu from "./components/menu/AppMenu";
 import Navbar from "./components/navbar/Navbar";
 import ApprovalList from "./components/content/approval/ApprovalList";
 import ApprovalEdit from "./components/content/approval/ApprovalEdit";
+import BookSearchModal from "./components/content/approval/modal/BookSearchModal";
 import { UserProvider } from "./contexts/UserContext";
 import "./index.css";
 
@@ -53,6 +54,7 @@ function App() {
                 <Route path="/users/UserList" element={<UserList />} />
                 <Route path="/approval/list" element={<ApprovalList />} />
                 <Route path="/approval/edit" element={<ApprovalEdit />} />
+                <Route path="/approval/bookSearch" element={<BookSearchModal />} />
               </Routes>
             </Content>
             <Footer style={{ textAlign: "center" }}>
