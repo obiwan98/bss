@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Badge, Button, Descriptions, Divider, Input, Form } from 'antd';
+import { Badge, Button, Descriptions, Divider, Input, Form, message, Modal } from 'antd';
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -23,13 +23,23 @@ const ApprovalEdit = () => {
   // return "승인상세화면 공통(요청상태에 따라 UI 구성) 승인요청중 : 결제승인 & 결제반려 버튼 노출, 승인완료 : 구매완료처리 버튼, 결제의견 노출, 반려 : 결제의견 노출, 승인및구매완료 : ";
   const { user, setUser } = useUser(); // 유저 기본정보 세팅
   const { param } = useParams();
+  const { state } = useLocation();
+  const { confirm } = Modal;
   const navigate = useNavigate();
 
   const [approvalTitle, setApprovalTitle] = useState('승인 요청');
-  const [isInputDisabled, setIsInputDisabled] = useState(false);
+  const [approvalId, setApprovalId] = useState('');
   const [descriptionDisplay, setDescriptionDisplay] = useState('none');
   const [buttonDisplay, setButtonDisplay] = useState('none');
+
+  const [userName, setUserName] = useState('N/A');
+  const [userDept, setUserDept] = useState('N/A');
+  const [userEmail, setUserEmail] = useState('N/A');
+  const [regDate, setRegDate] = useState(formatDate(new Date()));
   const [commentValue, setCommentValue] = useState('');
+  const [badgeStatus, setBadgeStatus] = useState('processing');
+  const [badgeText, setBadgeText] = useState('승인요청');
+  const [badgeValue, setBadgeValue] = useState(1);
 
   // 렌더링 시 초기 세팅
   useEffect(() => {
@@ -39,13 +49,56 @@ const ApprovalEdit = () => {
       return;
     }
 
-    // param에 따른 구분 ( new / etc )
-    if (param !== 'new') {
-      setIsInputDisabled(true); // 신규 작성이 아닌경우에는 도서 정보 외 수정 불가
-      setApprovalTitle('승인 상세');
-    } else {
-      setIsInputDisabled(false);
-    }
+    // 신청 정보 Description Initialize
+    const updateReqItems = () => {
+      const isNew = param === 'new';
+      const record = isNew ? {} : state?.record || {};
+
+      const defaultBadgeStatus = 'processing';
+      const defaultBadgeText = '승인요청';
+      const defaultBadgeValue = 1;
+
+      const badgeStates = {
+        1: 'processing',
+        2: 'success',
+        3: 'error',
+        4: 'success',
+      };
+
+      const badgeTexts = {
+        1: '승인요청',
+        2: '승인완료',
+        3: '반려',
+        4: '승인완료',
+      };
+
+      setApprovalId(record._id);
+      setUserName(isNew ? user?.name || 'N/A' : record.username || 'N/A');
+      setUserDept(
+        isNew
+          ? user?.group
+            ? `${user.group.part}/${user.group.team}`
+            : 'N/A'
+          : record.deptname || 'N/A'
+      );
+      setUserEmail(isNew ? user?.email || 'N/A' : record.email || 'N/A');
+      setRegDate(isNew ? formatDate(new Date()) : formatDate(record.date || new Date()));
+
+      if (isNew) {
+        setCommentValue('');
+        setBadgeStatus(defaultBadgeStatus);
+        setBadgeText(defaultBadgeText);
+        setBadgeValue(defaultBadgeValue);
+      } else {
+        setApprovalTitle('승인 상세');
+        const badgeState = parseInt(record.state) || defaultBadgeValue;
+        setBadgeStatus(badgeStates[badgeState] || 'default');
+        setBadgeText(badgeTexts[badgeState] || '');
+        setBadgeValue(badgeState);
+      }
+    };
+
+    updateReqItems();
 
     // 권한에 따른 Description 활성화
     const checkDescriptionDisplay = () => {
@@ -59,7 +112,9 @@ const ApprovalEdit = () => {
 
     // 권한에 따른 Button 활성화
     const checkButtonDisplay = () => {
-      return (user.role.role === 'Admin' || user.role.role === 'TeamLeader') && param !== 'new'
+      return param !== 'new' &&
+        (user.role.role === 'Admin' || user.role.role === 'TeamLeader') &&
+        badgeValue === 1
         ? 'block'
         : 'none';
     };
@@ -78,22 +133,23 @@ const ApprovalEdit = () => {
     {
       key: 'name',
       label: '신청자명',
-      children: user !== null ? user.name : 'N/A',
+      children: userName,
     },
     {
       key: 'group',
       label: '신청부서',
-      children: user !== null ? [user.group.part] + '/' + [user.group.team] : 'N/A',
+      children: userDept,
     },
     {
       key: 'regdate',
       label: '신청일자',
-      children: formatDate(new Date()),
+      children: regDate,
     },
     {
       key: 'bookinfo',
       label: '도서정보',
-      children: <Input bna placeholder="Basic usage" value="USE ALADIN API" />,
+      // 도서 정보는 현재 샘플 데이터로 넣고, 모달 창 작업 완료됐을 때 모달에서 받은 값을 JSON으로 치환할 것
+      children: JSON.stringify({ bookName: 'TESTBOOK' }),
       span: 3,
     },
     {
@@ -104,7 +160,7 @@ const ApprovalEdit = () => {
           placeholder="Enter your comment"
           value={commentValue}
           onChange={handleCommentChange}
-          disabled={isInputDisabled}
+          disabled={false}
         />
       ),
       span: 2,
@@ -112,7 +168,7 @@ const ApprovalEdit = () => {
     {
       key: 'state',
       label: '결재상태',
-      children: <Badge status="processing" text="승인요청" value={1} />,
+      children: <Badge status={badgeStatus} text={badgeText} value={badgeValue} />,
     },
   ];
 
@@ -180,11 +236,42 @@ const ApprovalEdit = () => {
       .then((response) => {
         console.log('Data saved successfully:', response.data);
         alert(response.data.message);
-        // navigate('/');
+        navigate('/approval/list');
       })
       .catch((error) => {
         console.error('Error saving data:', error);
       });
+  };
+
+  // 삭제
+  const onClickDelete = () => {
+    confirm({
+      title: '해당 요청을 삭제하시겠습니까?',
+      content: '이 작업은 되돌릴 수 없습니다.',
+      okText: '삭제',
+      okType: 'danger',
+      cancelText: '취소',
+      onOk() {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+        axios
+          .delete(`${process.env.REACT_APP_API_URL}/api/approvals/${approvalId}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then(() => {
+            message.success('해당 요청이 삭제되었습니다.', 2);
+            navigate('/approval/list');
+          })
+          .catch((error) => {
+            console.error('Error deleting approval:', error);
+          });
+      },
+      onCancel() {
+        console.log('삭제 취소됨');
+      },
+    });
   };
 
   // 승인
@@ -255,16 +342,6 @@ const ApprovalEdit = () => {
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button
           type="primary"
-          onClick={onClickSave}
-          style={{
-            marginRight: '15px',
-            display: param === 'new' ? 'block' : 'none',
-          }}
-        >
-          저장
-        </Button>
-        <Button
-          type="primary"
           onClick={onClickApproval}
           style={{
             marginRight: '15px',
@@ -278,10 +355,34 @@ const ApprovalEdit = () => {
           danger
           onClick={onClickReject}
           style={{
+            marginRight: '15px',
             display: buttonDisplay,
           }}
         >
           반려
+        </Button>
+        <Button
+          type="primary"
+          onClick={onClickSave}
+          style={{
+            marginRight: '15px',
+            display: param === 'new' ? 'block' : 'none',
+          }}
+        >
+          저장
+        </Button>
+        <Button
+          type="primary"
+          danger
+          onClick={onClickDelete}
+          style={{
+            marginRight: '15px',
+            display:
+              // email 체크 부분은 추후 user의 id로 체크로 바꿔야함
+              param !== 'new' && user.email === userEmail && badgeValue === 1 ? 'block' : 'none',
+          }}
+        >
+          삭제
         </Button>
       </div>
     </div>
