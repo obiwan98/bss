@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
-import { Radio, Space } from "antd";
-import ApprovalItem from "./ApprovalItem";
-import axios from "axios";
-import { useUser } from "../../../contexts/UserContext";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from 'react';
+import { Radio, Space, Button, Flex } from 'antd';
+import ApprovalItem from './ApprovalItem';
+import axios from 'axios';
+import { useUser } from '../../../contexts/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 const ApprovalList = () => {
   const [dataList, setDataList] = useState([]); // 필터링된 사용자 데이터를 저장
   const { user } = useUser();
-  const [state, setState] = useState("1");
+  const [state, setState] = useState('1');
   const navigate = useNavigate();
 
   const handleSizeChange = (e) => {
@@ -17,7 +17,7 @@ const ApprovalList = () => {
 
   const getData = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
       if (!token) return;
 
       const approvalListResponse = await axios.get(
@@ -30,21 +30,19 @@ const ApprovalList = () => {
       );
       setDataList(approvalListResponse.data);
     } catch (error) {
-      console.error("Error fetching dataList:", error);
+      console.error('Error fetching dataList:', error);
     }
   };
 
   useEffect(() => {
     if (!user) {
-      navigate("/login");
+      navigate('/login');
       return;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     getData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (
@@ -61,6 +59,9 @@ const ApprovalList = () => {
             <Radio.Button value="3">반려</Radio.Button>
           </Radio.Group>
         </Space>
+        <Button type="primary" style={{ float: 'right' }}>
+          요청하기
+        </Button>
         <ApprovalItem data={dataList}></ApprovalItem>
       </div>
     </>
