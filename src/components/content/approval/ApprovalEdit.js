@@ -49,10 +49,12 @@ const ApprovalEdit = () => {
       return;
     }
 
+    console.log(state);
+
     // 신청 정보 Description Initialize
     const updateReqItems = () => {
       const isNew = param === 'new';
-      const record = isNew ? {} : state?.record || {};
+      const record = isNew ? {} : state || {};
 
       const defaultBadgeStatus = 'processing';
       const defaultBadgeText = '승인요청';
@@ -72,17 +74,17 @@ const ApprovalEdit = () => {
         4: '승인완료',
       };
 
-      setApprovalId(record._id);
-      setUserName(isNew ? user?.name || 'N/A' : record.username || 'N/A');
+      setApprovalId(setUserName(isNew ? '123456789' : state._id || 'N/A'));
+      setUserName(isNew ? user?.name || 'N/A' : state.user.name || 'N/A');
       setUserDept(
         isNew
           ? user?.group
             ? `${user.group.part}/${user.group.team}`
             : 'N/A'
-          : record.deptname || 'N/A'
+          : state.group.part + '/' + state.group.team || 'N/A'
       );
-      setUserEmail(isNew ? user?.email || 'N/A' : record.email || 'N/A');
-      setRegDate(isNew ? formatDate(new Date()) : formatDate(record.date || new Date()));
+      setUserEmail(isNew ? user?.email || 'N/A' : state.user.email || 'N/A');
+      setRegDate(isNew ? formatDate(new Date()) : formatDate(state.regdate || new Date()));
 
       if (isNew) {
         setCommentValue('');
