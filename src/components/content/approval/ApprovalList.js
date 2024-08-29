@@ -59,7 +59,11 @@ const ApprovalList = () => {
             <Radio.Button value="3">반려</Radio.Button>
           </Radio.Group>
         </Space>
-        <Button type="primary" style={{ float: 'right' }}>
+        <Button
+          type="primary"
+          style={{ float: 'right' }}
+          onClick={() => navigate('/approval/edit/new')}
+        >
           요청하기
         </Button>
         <ApprovalItem data={dataList}></ApprovalItem>
