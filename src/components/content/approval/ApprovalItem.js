@@ -9,7 +9,7 @@ const ApprovalItem = ({ data }) => {
   const [searchText, setSearchText] = useState('');
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef(null);
-  //2024-08-23T06:38:44.433Z
+
   const dataList = data.map((item, index) => {
     let data = {
       _id: item._id,
@@ -169,9 +169,11 @@ const ApprovalItem = ({ data }) => {
       title: '',
       dataIndex: 'button',
       render: (_, record) => {
+        let stateData = data.find((e) => e._id === record._id);
+
         return (
           <Typography.Link
-            onClick={() => navigate(`/approval/edit/${record._id}`)}
+            onClick={() => navigate(`/approval/edit/${record._id}`, { state: stateData })}
             disabled={false}
           >
             상세보기
