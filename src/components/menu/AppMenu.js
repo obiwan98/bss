@@ -13,9 +13,8 @@ const AppMenu = () => {
       key: 'sub1',
       icon: <BookOutlined />,
       children: [
-        { label: '도서 등록', key: '1', path: '/books/BookAdd' },
-        { label: '도서 조회', key: '2', path: '/books/BookList' },
-        { label: '도서 통계', key: '3', path: '/books/statistics' },
+        { label: '도서 조회', key: '1', path: '/books/BookList' },
+        { label: '도서 통계', key: '2', path: '/books/statistics' },
       ],
     },
     {

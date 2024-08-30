@@ -2,36 +2,40 @@
   .bookAdd-form {
     padding: 20px;
 
-    .ant-col {
-      &.ant-col-6 {
-        display: flex;
-        justify-content: center;
-
-        .bookCover-container {
-          width: 90%;
-
+    .ant-form {
+      .ant-row {
+        .ant-col {
           img {
             width: 100%;
-            object-fit: cover;
+            height: auto;
           }
 
-          .upload-form {
+          .ant-form-item {
             .ant-upload {
+              width: 100%;
+              height: 50px !important;
+
+              button {
+                border: 0;
+                background: none;
+                font-size: 12px;
+              }
+            }
+
+            .ant-upload-list-item {
+              margin-top: 0;
+            }
+
+            .ant-picker {
               width: 100%;
             }
           }
-
-          .rate-form {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 10px;
-
-            > span {
-              font-size: 15px;
-            }
-          }
         }
+      }
+
+      .ant-space {
+        display: flex;
+        justify-content: flex-end;
       }
     }
   }

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../../contexts/UserContext";
 
@@ -10,68 +10,37 @@ import {
   Upload,
   Select,
   DatePicker,
-  Rate,
-  Tabs,
   Space,
   Button,
   message,
 } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
-import BookReview from "./BookReview";
-
 import axios from "axios";
 import dayjs from "dayjs";
 
 import "./css/BookAdd.css";
-import BookHistory from "./BookHistory";
 
-const reviewCategories = [
-  { key: "review", category: "책 리뷰" },
-  { key: "history", category: "열람 이력" },
-];
-
-function getComponentByKey(key) {
-  switch (key) {
-    case "review":
-      return <BookReview />;
-    case "history":
-      return <BookHistory />;
-    default:
-      return null;
-  }
-}
-
-const BookAdd = ({ isModal = false, data, onClose }) => {
+const BookAdd = ({ bookData, onClose }) => {
   const navigate = useNavigate();
-  const isDetailView = isModal && data;
 
   const { user, setUser } = useUser();
   const { Option } = Select;
 
   const [form] = Form.useForm();
-  const [fileList, setFileList] = useState([]);
   const [imageUrl, setImageUrl] = useState("");
-  const [previewImage, setPreviewImage] = useState("");
-  const [rating, setRating] = useState(0);
+  const [fileList, setFileList] = useState([]);
+  const [coverHeight, setCoverHeight] = useState(0);
 
-  const handleUploadChange = ({ fileList: newFileList }) => {
-    setImageUrl("");
+  const coverRef = useRef(null);
+
+  const isDetailView = bookData;
+  const colSpan = imageUrl ? 8 : 12;
+
+  const handleUploadChange = ({ fileList: newFileList }) =>
     setFileList(newFileList);
 
-    if (newFileList.length > 0) {
-      const reader = new FileReader();
-      const file = newFileList[0].originFileObj;
-
-      reader.readAsDataURL(file);
-      reader.onload = () => setPreviewImage(reader.result);
-    } else {
-      setPreviewImage(null);
-    }
-  };
-
   const handleBookAdd = async (values) => {
-    console.log("values: ", values);
     try {
       const { title, author, cover, publisher, registrationDate, group } =
         values;
@@ -102,11 +71,11 @@ const BookAdd = ({ isModal = false, data, onClose }) => {
   };
 
   const handleBookUpdate = async (values) => {
-    const { _id, title, author, publisher, group } = values;
+    const { id, title, author, publisher, group } = values;
 
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/books/bookUpdate/${_id}`,
+        `${process.env.REACT_APP_API_URL}/api/books/bookUpdate/${id}`,
         {
           title,
           author,
@@ -125,35 +94,48 @@ const BookAdd = ({ isModal = false, data, onClose }) => {
   };
 
   const onReset = useCallback(() => {
-    const url =
-      isModal && data?.cover
-        ? `${process.env.REACT_APP_API_URL}/uploads/${data.cover}`
-        : "";
-
     const { group } = user;
 
-    setFileList([]);
-    setImageUrl(url);
-    setPreviewImage("");
+    setImageUrl(
+      bookData?.cover
+        ? `${process.env.REACT_APP_API_URL}/uploads/${bookData.cover}`
+        : ""
+    );
 
     form.resetFields();
     form.setFieldsValue({
-      _id: data?._id || "",
-      title: data?.title || "",
-      author: data?.author || "",
-      publisher: data?.publisher || "",
+      id: bookData?._id || "",
+      title: bookData?.title || "",
+      author: bookData?.author || "",
+      cover: setFileList([]),
+      publisher: bookData?.publisher || "",
+      count: bookData?.count || 1,
       registrationDate: dayjs(),
       team: group.team,
       group: group._id,
       registeredBy: user.name,
     });
-  }, [isModal, data, user, form]);
+  }, [bookData, user, form]);
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
     } else {
-      onReset();
+      const coverTarget = coverRef?.current;
+
+      if (coverTarget) {
+        const resizeObserver = new ResizeObserver(() =>
+          setCoverHeight(coverTarget.offsetHeight)
+        );
+
+        resizeObserver.observe(coverTarget);
+
+        onReset();
+
+        return () => resizeObserver.disconnect();
+      } else {
+        onReset();
+      }
     }
   }, [user, navigate, onReset]);
 
@@ -167,42 +149,70 @@ const BookAdd = ({ isModal = false, data, onClose }) => {
           variant="filled"
           onFinish={isDetailView ? handleBookUpdate : handleBookAdd}
         >
-          <Row gutter={20}>
-            <Col span={8}>
-              <Form.Item name="_id" hidden>
+          <Row gutter={16}>
+            {imageUrl && (
+              <Col span={8}>
+                <img src={imageUrl} alt="책표지" />
+              </Col>
+            )}
+            <Col span={colSpan}>
+              <Form.Item label="" name="id" hidden>
                 <Input disabled />
               </Form.Item>
               <Form.Item
                 label="도서명"
                 name="title"
-                rules={[{ required: true, message: "Please input!" }]}
+                rules={[{ required: true, message: "도서명을 입력해 주세요." }]}
               >
                 <Input />
               </Form.Item>
+              <div ref={coverRef}>
+                <Form.Item label="책표지" name="cover">
+                  <Upload
+                    listType={fileList.length > 0 ? "picture" : "picture-card"}
+                    fileList={fileList}
+                    onChange={handleUploadChange}
+                    beforeUpload={() => false}
+                  >
+                    {fileList.length < 1 && (
+                      <button type="button">
+                        <PlusOutlined />
+                        <div>Click or Drag File to Upload</div>
+                      </button>
+                    )}
+                  </Upload>
+                </Form.Item>
+              </div>
+              <Form.Item label="수량" name="count" rules={[{ required: true }]}>
+                <Select>
+                  {new Array(5).fill(null).map((_, index) => (
+                    <Option key={index + 1} value={index + 1}>
+                      {index + 1}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+              <Form.Item label="팀" name="team" rules={[{ required: true }]}>
+                <Input disabled />
+              </Form.Item>
+            </Col>
+            <Col span={colSpan}>
               <Form.Item label="저자" name="author">
                 <Input />
               </Form.Item>
-              <Form.Item label="출판사" name="publisher">
-                <Input />
-              </Form.Item>
               <Form.Item
-                label="수량"
-                name="count"
-                rules={[{ required: true, message: "Please input!" }]}
+                label="출판사"
+                name="publisher"
+                style={{ height: `${coverHeight}px` }}
               >
-                <Select style={{ width: "20%" }}>
-                  <Option value="0">0</Option>
-                </Select>
+                <Input />
               </Form.Item>
               <Form.Item
                 label="등록일"
                 name="registrationDate"
-                rules={[{ required: true, message: "Please input!" }]}
+                rules={[{ required: true }]}
               >
                 <DatePicker />
-              </Form.Item>
-              <Form.Item label="팀" name="team" rules={[{ required: true }]}>
-                <Input disabled />
               </Form.Item>
               <Form.Item label="그룹" name="group" hidden>
                 <Input disabled />
@@ -215,64 +225,15 @@ const BookAdd = ({ isModal = false, data, onClose }) => {
                 <Input disabled />
               </Form.Item>
             </Col>
-            <Col span={6}>
-              <div className="bookCover-container">
-                {previewImage || imageUrl ? (
-                  <img src={previewImage || imageUrl} alt="미리보기" />
-                ) : null}
-                <Form.Item name="cover">
-                  <Upload
-                    className="upload-form"
-                    listType={previewImage ? "picture" : "picture-card"}
-                    maxCount={1}
-                    fileList={fileList}
-                    onChange={handleUploadChange}
-                    beforeUpload={() => false}
-                  >
-                    {previewImage ? null : (
-                      <button type="button" style={{ border: 0, background: "none" }}>
-                        <PlusOutlined />
-                        <div style={{ marginTop: 8 }}>
-                          Click or Drag File to Upload
-                        </div>
-                      </button>
-                    )}
-                  </Upload>
-                </Form.Item>
-                <Form.Item name="rate">
-                  <div className="rate-form">
-                    <span>책 리뷰 평점:</span>
-                    <Rate
-                      allowHalf
-                      value={rating}
-                      onChange={(value) => setRating(value)}
-                    />
-                    <span>{rating.toFixed(1)}</span>
-                  </div>
-                </Form.Item>
-              </div>
-            </Col>
-            <Col span={10}>
-              <div className="review-container">
-                <Tabs
-                  type="card"
-                  items={reviewCategories.map((review) => ({
-                    label: review.category,
-                    key: review.key,
-                    children: getComponentByKey(review.key),
-                  }))}
-                />
-              </div>
-            </Col>
           </Row>
-          <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit">
-                {isDetailView ? "변경" : "등록"}
-              </Button>
-              <Button onClick={onReset}>초기화</Button>
-            </Space>
-          </Form.Item>
+          <Space>
+            <Button type="primary" htmlType="submit">
+              {isDetailView ? "변경" : "등록"}
+            </Button>
+            <Button type="default" onClick={onReset}>
+              초기화
+            </Button>
+          </Space>
         </Form>
       </div>
     </div>

@@ -38,7 +38,6 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/home" element={<Home />} />
                 <Route path="/" element={<Home />} /> 
-                <Route path="/books/BookAdd" element={<BookAdd />} />
                 <Route path="/books/BookList" element={<BookList />} />
                 <Route path="/users/UserList" element={<UserList />} />
               </Routes >

@@ -134,16 +134,12 @@ const BookList = () => {
         style={{ marginTop: 20 }}
       />
       <Modal
-        width={1000}
+        width={800}
         open={isModalVisible}
         footer={null}
         onCancel={() => handleCancel(false)}
       >
-        <BookAdd
-          isModal={isModalVisible}
-          data={bookData}
-          onClose={handleCancel}
-        />
+        <BookAdd bookData={bookData} onClose={handleCancel} />
       </Modal>
     </div>
   );
