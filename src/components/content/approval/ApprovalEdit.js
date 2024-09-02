@@ -19,6 +19,24 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString(undefined, options);
 };
 
+function generateRandomString(length = 24) {
+  // Define the characters to use: lowercase letters and digits
+  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+
+  // Initialize an empty string to accumulate the result
+  let result = '';
+
+  // Generate the random string
+  for (let i = 0; i < length; i++) {
+    // Get a random index from the characters string
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    // Append the character at the random index to the result string
+    result += characters[randomIndex];
+  }
+
+  return result;
+}
+
 const ApprovalEdit = () => {
   // return "승인상세화면 공통(요청상태에 따라 UI 구성) 승인요청중 : 결제승인 & 결제반려 버튼 노출, 승인완료 : 구매완료처리 버튼, 결제의견 노출, 반려 : 결제의견 노출, 승인및구매완료 : ";
   const { user, setUser } = useUser(); // 유저 기본정보 세팅
@@ -27,11 +45,13 @@ const ApprovalEdit = () => {
   const { confirm } = Modal;
   const navigate = useNavigate();
 
-  const [approvalTitle, setApprovalTitle] = useState('승인 요청');
-  const [approvalId, setApprovalId] = useState('');
   const [descriptionDisplay, setDescriptionDisplay] = useState('none');
   const [buttonDisplay, setButtonDisplay] = useState('none');
 
+  const [approvalTitle, setApprovalTitle] = useState('승인 요청');
+  const [approvalId, setApprovalId] = useState('');
+
+  // 신청 정보
   const [userName, setUserName] = useState('N/A');
   const [userDept, setUserDept] = useState('N/A');
   const [userEmail, setUserEmail] = useState('N/A');
@@ -41,6 +61,11 @@ const ApprovalEdit = () => {
   const [badgeText, setBadgeText] = useState('승인요청');
   const [badgeValue, setBadgeValue] = useState(1);
 
+  // 결재 정보
+  const [confirmUserName, setConfirmUserName] = useState('N/A');
+  const [confirmDate, setConfirmDate] = useState(formatDate(new Date()));
+  const [confirmComment, setConfirmComent] = useState('N/A');
+
   // 렌더링 시 초기 세팅
   useEffect(() => {
     // 로그인 체크
@@ -48,9 +73,6 @@ const ApprovalEdit = () => {
       navigate('/login');
       return;
     }
-
-    console.log(state);
-
     // 신청 정보 Description Initialize
     const updateReqItems = () => {
       const isNew = param === 'new';
@@ -74,29 +96,44 @@ const ApprovalEdit = () => {
         4: '승인완료',
       };
 
-      setApprovalId(setUserName(isNew ? '123456789' : state._id || 'N/A'));
-      setUserName(isNew ? user?.name || 'N/A' : state.user.name || 'N/A');
+      console.log(state);
+
+      const rndUniqueId = generateRandomString();
+      const badgeState = parseInt(record.state) || defaultBadgeValue;
+
+      // Step 1. 신규 / 기존 데이터 구분하여 셋팅
+      setApprovalTitle(isNew ? '승인 요청' : '승인 상세');
+      setApprovalId(isNew ? rndUniqueId : state?._id);
+      setUserName(isNew ? user?.name || 'N/A' : state?.user.name || 'N/A');
       setUserDept(
         isNew
           ? user?.group
-            ? `${user.group.part}/${user.group.team}`
+            ? `${user?.group.part || 'N/A'}/${user?.group.team || 'N/A'}`
             : 'N/A'
-          : state.group.part + '/' + state.group.team || 'N/A'
+          : (state?.group.part || 'N/A') + '/' + (state?.group.team || 'N/A')
       );
-      setUserEmail(isNew ? user?.email || 'N/A' : state.user.email || 'N/A');
-      setRegDate(isNew ? formatDate(new Date()) : formatDate(state.regdate || new Date()));
+      setUserEmail(isNew ? user?.email || 'N/A' : state?.user.email || 'N/A');
+      setRegDate(isNew ? formatDate(new Date()) : formatDate(state?.regdate || new Date()));
+      setCommentValue(isNew ? '' : state?.comment || 'N/A');
 
-      if (isNew) {
-        setCommentValue('');
-        setBadgeStatus(defaultBadgeStatus);
-        setBadgeText(defaultBadgeText);
-        setBadgeValue(defaultBadgeValue);
-      } else {
-        setApprovalTitle('승인 상세');
-        const badgeState = parseInt(record.state) || defaultBadgeValue;
-        setBadgeStatus(badgeStates[badgeState] || 'default');
-        setBadgeText(badgeTexts[badgeState] || '');
-        setBadgeValue(badgeState);
+      setBadgeStatus(isNew ? defaultBadgeStatus : badgeStates[badgeState] || 'default');
+      setBadgeText(isNew ? defaultBadgeText : badgeTexts[badgeState] || '');
+      setBadgeValue(isNew ? defaultBadgeValue : badgeState);
+
+      if (!isNew) {
+        // 기존 데이터 + ( 관리자 / 팀장 ) + 승인 요청
+        if ((user.role.role === 'Admin' || user.role.role === 'TeamLeader') && badgeState === 1) {
+          setConfirmUserName(user?.name || 'N/A');
+          setConfirmDate(formatDate(new Date()));
+          setConfirmComent('');
+        }
+
+        // 승인 완료 이후는 조건 없이 데이터 바인딩
+        if (badgeState !== 1) {
+          setConfirmUserName(state?.confirm?.user?.name || 'N/A');
+          setConfirmDate(formatDate(state?.confirm?.date || new Date()));
+          setConfirmComent(state?.confirm?.comment || 'N/A');
+        }
       }
     };
 
@@ -125,9 +162,12 @@ const ApprovalEdit = () => {
     setButtonDisplay(checkButtonDisplay);
   }, []);
 
-  // 승인 요청사항 할당
   const handleCommentChange = (e) => {
     setCommentValue(e.target.value);
+  };
+
+  const handleConfirmCommentChange = (e) => {
+    setConfirmComent(e.target.value);
   };
 
   // Description Item
@@ -176,41 +216,48 @@ const ApprovalEdit = () => {
 
   const confirmItems = [
     {
-      key: '1',
+      key: 'confirmUserName',
       label: '결재자명',
-      children: 'N/A',
+      children: confirmUserName,
     },
     {
-      key: '2',
-      label: '결재일시',
-      children: 'N/A',
+      key: 'confirmDate',
+      label: '결재일자',
+      children: confirmDate,
     },
 
     {
-      key: '3',
+      key: 'confirmComment',
       label: '결재의견',
-      children: 'N/A',
+      children: (
+        <Input
+          placeholder="Enter your comment"
+          value={confirmComment}
+          onChange={handleConfirmCommentChange}
+          disabled={false}
+        />
+      ),
     },
   ];
 
   const paymentItems = [
     {
-      key: '1',
+      key: 'paymentUserName',
       label: '구매자명',
       children: 'N/A',
     },
     {
-      key: '2',
-      label: '구매금액',
-      children: 'N/A',
-    },
-    {
-      key: '3',
+      key: 'paymentDate',
       label: '구매일자',
       children: 'N/A',
     },
     {
-      key: '4',
+      key: 'paymentPrice',
+      label: '구매금액',
+      children: 'N/A',
+    },
+    {
+      key: 'paymentInfo',
       label: '구매정보',
       children: 'N/A',
     },
@@ -236,7 +283,6 @@ const ApprovalEdit = () => {
         data: totItem,
       })
       .then((response) => {
-        console.log('Data saved successfully:', response.data);
         alert(response.data.message);
         navigate('/approval/list');
       })
@@ -256,12 +302,9 @@ const ApprovalEdit = () => {
       onOk() {
         const token = localStorage.getItem('token');
         if (!token) return;
+
         axios
-          .delete(`${process.env.REACT_APP_API_URL}/api/approvals/${approvalId}`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
+          .delete(`${process.env.REACT_APP_API_URL}/api/approvals/${approvalId}`)
           .then(() => {
             message.success('해당 요청이 삭제되었습니다.', 2);
             navigate('/approval/list');
@@ -276,14 +319,38 @@ const ApprovalEdit = () => {
     });
   };
 
-  // 승인
-  const onClickApproval = () => {
-    return alert('Approval');
-  };
+  // 승인 / 반려 / 구매 등록
+  const onClickApproval = (approvalType) => {
+    try {
+      const approval = confirmItems.map((item) => ({
+        key: item.key,
+        label: item.label,
+        value: item.children.props?.value || item.children,
+      }));
 
-  // 반려
-  const onClickReject = () => {
-    return alert('Reject');
+      const totItem = {
+        confirmItems: approval,
+        etc: {
+          email: user?.email || 'test1541@cj.net',
+          param: approvalType,
+        },
+      };
+
+      axios
+        .put(`${process.env.REACT_APP_API_URL}/api/approvals/${approvalId}`, {
+          data: totItem,
+        })
+        .then((response) => {
+          alert(response.data.message);
+          navigate('/approval/list');
+        })
+        .catch((error) => {
+          console.error('Error updating data:', error);
+        });
+    } catch (error) {
+      console.error('Error updating approval:', error);
+      message.error('승인 정보를 업데이트하는 중 오류가 발생했습니다.', 2);
+    }
   };
 
   return (
@@ -325,7 +392,7 @@ const ApprovalEdit = () => {
       <div
         className="payment-container"
         style={{
-          display: descriptionDisplay,
+          display: param !== 'new' && badgeValue !== 1 ? 'block' : 'none',
         }}
       >
         <Descriptions title="구매 정보" bordered className="custom-descriptions">
@@ -344,10 +411,16 @@ const ApprovalEdit = () => {
       <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
         <Button
           type="primary"
-          onClick={onClickApproval}
+          onClick={() => onClickApproval('approve')}
           style={{
             marginRight: '15px',
-            display: buttonDisplay,
+            display:
+              // 기존 데이터 + ( 관리자 / 팀장 ) + 승인 요청
+              param !== 'new' &&
+              (user.role.role === 'Admin' || user.role.role === 'TeamLeader') &&
+              badgeValue === 1
+                ? 'block'
+                : 'none',
           }}
         >
           승인
@@ -355,10 +428,16 @@ const ApprovalEdit = () => {
         <Button
           type="primary"
           danger
-          onClick={onClickReject}
+          onClick={() => onClickApproval('reject')}
           style={{
             marginRight: '15px',
-            display: buttonDisplay,
+            display:
+              // 기존 데이터 + ( 관리자 / 팀장 ) + 승인 요청
+              param !== 'new' &&
+              (user.role.role === 'Admin' || user.role.role === 'TeamLeader') &&
+              badgeValue === 1
+                ? 'block'
+                : 'none',
           }}
         >
           반려
@@ -368,6 +447,7 @@ const ApprovalEdit = () => {
           onClick={onClickSave}
           style={{
             marginRight: '15px',
+            // 신규 데이터
             display: param === 'new' ? 'block' : 'none',
           }}
         >
@@ -380,11 +460,29 @@ const ApprovalEdit = () => {
           style={{
             marginRight: '15px',
             display:
-              // email 체크 부분은 추후 user의 id로 체크로 바꿔야함
+              // 기존 데이터 + 본인 + 승인 요청
               param !== 'new' && user.email === userEmail && badgeValue === 1 ? 'block' : 'none',
           }}
         >
           삭제
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => onClickApproval('buy')}
+          style={{
+            marginRight: '15px',
+            display:
+              // 기존 데이터 + ( 관리자 / 팀장 / 도서관리자 ) + 승인 완료
+              param !== 'new' &&
+              (user.role.role === 'Admin' ||
+                user.role.role === 'TeamLeader' ||
+                user.role.role === 'BookManager') &&
+              badgeValue === 2
+                ? 'block'
+                : 'none',
+          }}
+        >
+          구매 등록
         </Button>
       </div>
     </div>
