@@ -3,7 +3,7 @@ import { Alert, Avatar, List, Spin, Tag, Button, Modal, Radio, Input } from 'ant
 import axios from 'axios';
 import "./BookSearchModal.css";
 
-const App = () => {
+const App = ({ getData }) => {
   const [books, setBooks] = useState([]);
   const [tags, setTags] = useState([]);
   const [selectedTag, setSelectedTag] = useState('');
@@ -11,7 +11,6 @@ const App = () => {
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
   const [radioValue, setRadioValue] = useState();
-  const [choiceBookInfo, setChoiceBookInfo] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState();
   const { Search } = Input;
   
@@ -21,19 +20,18 @@ const App = () => {
 
   /** 등록 버튼 */
   const handleOk = () => {
-    setIsModalOpen(false);
-    setChoiceBookInfo([
+    getData([
       radioValue.title,       // 상품명
       radioValue.link,        // 상품 링크 URL
       radioValue.author,      // 저자/아티스트
       radioValue.pubDate,     // 출간일(출시일)
       radioValue.description, // 상품설명(요약)
-      radioValue.isbn,        // 10자리 ISBN
       radioValue.isbn13,      // 13자리 ISBN
       radioValue.priceSales,  // 판매가
       radioValue.cover,       // 커버(표지)
       radioValue.publisher,   // 출판사(제작사/출시사)
     ]);
+    setIsModalOpen(false);
   };
 
   /** 취소 버튼 */
@@ -102,7 +100,8 @@ const App = () => {
         도서조회
       </Button>
 
-      <h2>{"상품명 : " + choiceBookInfo[0]}</h2>
+      {/* 아래와 같이 뽑아 쓸수있음. */}
+      {/* <h2>{"상품명 : " + choiceBookInfo[0]}</h2>
       <h2>{"상품 링크 URL : " + choiceBookInfo[1]}</h2>
       <h2>{"저자/아티스트 : " + choiceBookInfo[2]}</h2>
       <h2>{"출간일(출시일) : " + choiceBookInfo[3]}</h2>
@@ -111,7 +110,7 @@ const App = () => {
       <h2>{"13자리 ISBN : " + choiceBookInfo[6]}</h2>
       <h2>{"판매가 : " + choiceBookInfo[7]}</h2>
       <h2>{"커버(표지) : " + choiceBookInfo[8]}</h2>
-      <h2>{"출판사(제작사/출시사) : " + choiceBookInfo[9]}</h2>
+      <h2>{"출판사(제작사/출시사) : " + choiceBookInfo[9]}</h2> */}
 
       <Modal
         title="도서 검색"

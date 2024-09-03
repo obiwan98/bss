@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import ApprovalEdit from './components/content/approval/ApprovalEdit';
 import ApprovalList from './components/content/approval/ApprovalList';
-import BookSearchModal from './components/content/approval/modal/BookSearchModal';
+import BookSearchTest from './components/content/approval/modal/BookSearchTest';
 import Home from './components/content/Home';
 import Login from './components/content/Login';
 import SignUp from './components/content/SignUp';
@@ -84,7 +84,7 @@ const App = () => {
             <Route path="/users/UserList" element={<UserList />} />
             <Route path="/approval/list" element={<ApprovalList />} />
             <Route path="/approval/edit/:param" element={<ApprovalEdit />} />
-            <Route path="/approval/bookSearch" element={<BookSearchModal />} />
+            <Route path="/approval/bookSearch" element={<BookSearchTest />} />
           </Routes>
         </Content>
         <Footer style={{ textAlign: 'center' }}>BSS ©2024 Created with Ant Design</Footer>
