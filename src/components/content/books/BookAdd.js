@@ -28,14 +28,12 @@ const BookAdd = ({ bookData, onClose }) => {
   const { Option } = Select;
 
   const [form] = Form.useForm();
-  const [imageUrl, setImageUrl] = useState("");
   const [fileList, setFileList] = useState([]);
   const [coverHeight, setCoverHeight] = useState(0);
 
   const coverRef = useRef(null);
 
   const isDetailView = bookData;
-  const colSpan = imageUrl ? 8 : 12;
 
   const handleUploadChange = ({ fileList: newFileList }) =>
     setFileList(newFileList);
@@ -96,12 +94,6 @@ const BookAdd = ({ bookData, onClose }) => {
   const onReset = useCallback(() => {
     const { group } = user;
 
-    setImageUrl(
-      bookData?.cover
-        ? `${process.env.REACT_APP_API_URL}/uploads/${bookData.cover}`
-        : ""
-    );
-
     form.resetFields();
     form.setFieldsValue({
       id: bookData?._id || "",
@@ -141,7 +133,7 @@ const BookAdd = ({ bookData, onClose }) => {
 
   return (
     <div className="bookAdd-container">
-      <h2>{isDetailView ? "도서 상세정보" : "도서 등록"}</h2>
+      {!isDetailView && <h2>도서 등록</h2>}
       <div className="bookAdd-form">
         <Form
           layout="vertical"
@@ -150,12 +142,7 @@ const BookAdd = ({ bookData, onClose }) => {
           onFinish={isDetailView ? handleBookUpdate : handleBookAdd}
         >
           <Row gutter={16}>
-            {imageUrl && (
-              <Col span={8}>
-                <img src={imageUrl} alt="책표지" />
-              </Col>
-            )}
-            <Col span={colSpan}>
+            <Col span={12}>
               <Form.Item label="" name="id" hidden>
                 <Input disabled />
               </Form.Item>
@@ -196,7 +183,7 @@ const BookAdd = ({ bookData, onClose }) => {
                 <Input disabled />
               </Form.Item>
             </Col>
-            <Col span={colSpan}>
+            <Col span={12}>
               <Form.Item label="저자" name="author">
                 <Input />
               </Form.Item>

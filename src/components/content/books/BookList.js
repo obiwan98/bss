@@ -2,13 +2,30 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../../contexts/UserContext";
 
-import { Button, Table, Modal, Space, message } from "antd";
+import { Button, Table, Modal, Space, message, Tabs } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 import axios from "axios";
 import dayjs from "dayjs";
 
+import BookCover from "./BookCover";
 import BookAdd from "./BookAdd";
+import BookReview from "./BookReview";
+import BookHistory from "./BookHistory";
+
+import "./css/BookList.css";
+
+const tabConfigurations = [
+  { id: "DetailView", label: "도서 정보", component: BookAdd },
+  { id: "Review", label: "후기", component: BookReview },
+  { id: "History", label: "열람 이력", component: BookHistory },
+];
+
+const renderTabContent = (id, data, onClose) => {
+  const tabConfig = tabConfigurations.find((item) => item.id === id);
+
+  return tabConfig && <tabConfig.component bookData={data} onClose={onClose} />;
+};
 
 const BookList = () => {
   const navigate = useNavigate();
@@ -112,35 +129,49 @@ const BookList = () => {
   ];
 
   return (
-    <div className="book-list-container">
+    <div className="bookList-container">
       <h2>도서 조회</h2>
-      <div className="book-filter-container">
+      <div className="bookList-form">
         <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
           조회
         </Button>
-        <span
-          style={{ display: "flex", justifyContent: "flex-end", gap: "10px" }}
-        >
+        <span>
           <Button type="primary" onClick={() => showModal(null)}>
             추가
           </Button>
         </span>
+        <Table
+          dataSource={bookList}
+          columns={columns}
+          rowKey={(record) => record._id}
+          pagination={{ pageSize: 5 }}
+        />
+        <Modal
+          width={800}
+          open={isModalVisible}
+          footer={null}
+          onCancel={() => handleCancel(false)}
+        >
+          {bookData ? (
+            <>
+              <h2>도서 상세정보</h2>
+              <div className="detailView-form">
+                <BookCover bookData={bookData} />
+                <Tabs
+                  type="card"
+                  items={tabConfigurations.map((tab) => ({
+                    label: tab.label,
+                    key: tab.id,
+                    children: renderTabContent(tab.id, bookData, handleCancel),
+                  }))}
+                />
+              </div>
+            </>
+          ) : (
+            <BookAdd bookData={bookData} onClose={handleCancel} />
+          )}
+        </Modal>
       </div>
-      <Table
-        dataSource={bookList}
-        columns={columns}
-        rowKey={(record) => record._id}
-        pagination={{ pageSize: 5 }}
-        style={{ marginTop: 20 }}
-      />
-      <Modal
-        width={800}
-        open={isModalVisible}
-        footer={null}
-        onCancel={() => handleCancel(false)}
-      >
-        <BookAdd bookData={bookData} onClose={handleCancel} />
-      </Modal>
     </div>
   );
 };

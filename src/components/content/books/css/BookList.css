@@ -1,0 +1,28 @@
+.bookList-container {
+  .bookList-form {
+    span {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .ant-table-wrapper {
+      margin-top: 20px;
+    }
+  }
+}
+
+.ant-modal-root {
+  .ant-modal-content {
+    .ant-modal-body {
+      .detailView-form {
+        display: flex;
+        gap: 5px;
+
+        .ant-tabs {
+          flex: 1;
+        }
+      }
+    }
+  }
+}
