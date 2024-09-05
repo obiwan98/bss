@@ -1,4 +1,11 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../../contexts/UserContext";
 
@@ -21,7 +28,7 @@ import dayjs from "dayjs";
 
 import "./css/BookAdd.css";
 
-const BookAdd = ({ bookData, onClose }) => {
+const BookAdd = forwardRef(({ bookData, onClose }, ref) => {
   const navigate = useNavigate();
 
   const { user, setUser } = useUser();
@@ -36,6 +43,10 @@ const BookAdd = ({ bookData, onClose }) => {
   const coverRef = useRef(null);
 
   const isDetailView = !!bookData;
+
+  useImperativeHandle(ref, () => ({
+    resetForm: () => onReset(),
+  }));
 
   const fetchGroups = async () => {
     try {
@@ -75,14 +86,14 @@ const BookAdd = ({ bookData, onClose }) => {
     try {
       const { title, author, cover, publisher, registrationDate, group } =
         values;
-      const { fileList: newFileList } = cover;
+      const newFileList = cover?.fileList || [];
 
       const response = await axios.post(
         process.env.REACT_APP_API_URL + "/api/books/bookAdd",
         {
           title,
           author,
-          cover: newFileList[0].originFileObj,
+          cover: newFileList[0]?.originFileObj || "",
           publisher,
           group,
           registDate: registrationDate,
@@ -95,10 +106,13 @@ const BookAdd = ({ bookData, onClose }) => {
       );
 
       message.success(response.data.message);
+
       onReset();
 
       if (onClose) onClose(true);
-    } catch (error) {}
+    } catch (error) {
+      console.log("error: ", error);
+    }
   };
 
   const handleBookUpdate = async (values) => {
@@ -271,6 +285,6 @@ const BookAdd = ({ bookData, onClose }) => {
       </div>
     </div>
   );
-};
+});
 
 export default BookAdd;

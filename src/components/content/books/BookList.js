@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../../contexts/UserContext";
 
@@ -29,12 +29,6 @@ const tabConfigurations = [
   { id: "History", label: "열람 이력", component: BookHistory },
 ];
 
-const renderTabContent = (id, data, onClose) => {
-  const tabConfig = tabConfigurations.find((item) => item.id === id);
-
-  return tabConfig && <tabConfig.component bookData={data} onClose={onClose} />;
-};
-
 const BookList = () => {
   const navigate = useNavigate();
 
@@ -46,7 +40,10 @@ const BookList = () => {
   const [activeGroup, setActiveGroup] = useState("");
   const [bookData, setBookData] = useState(null);
   const [bookList, setBookList] = useState(null);
+  const [activeTabKey, setActiveTabKey] = useState("DetailView");
   const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const bookAddRef = useRef(null);
 
   const fetchGroups = async () => {
     try {
@@ -98,15 +95,31 @@ const BookList = () => {
     });
   };
 
+  const renderTabContent = (id, data, onClose) => {
+    const tabConfig = tabConfigurations.find((item) => item.id === id);
+
+    return (
+      tabConfig && (
+        <tabConfig.component
+          {...(tabConfig.component === BookAdd && { ref: bookAddRef })}
+          bookData={data}
+          onClose={onClose}
+        />
+      )
+    );
+  };
+
   const showModal = (recode) => {
     setBookData(recode);
     setIsModalVisible(true);
   };
 
   const handleCancel = (refresh) => {
+    bookAddRef?.current.resetForm();
+    setActiveTabKey("DetailView");
     setIsModalVisible(false);
 
-    if (refresh) handleSearch();
+    refresh && handleSearch();
   };
 
   useEffect(() => {
@@ -204,16 +217,22 @@ const BookList = () => {
                 <BookCover bookData={bookData} />
                 <Tabs
                   type="card"
+                  activeKey={activeTabKey}
                   items={tabConfigurations.map((tab) => ({
                     label: tab.label,
                     key: tab.id,
                     children: renderTabContent(tab.id, bookData, handleCancel),
                   }))}
+                  onChange={(key) => setActiveTabKey(key)}
                 />
               </div>
             </>
           ) : (
-            <BookAdd bookData={bookData} onClose={handleCancel} />
+            <BookAdd
+              ref={bookAddRef}
+              bookData={bookData}
+              onClose={handleCancel}
+            />
           )}
         </Modal>
       </div>
