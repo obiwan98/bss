@@ -1,13 +1,24 @@
 .bookList-container {
   .bookList-form {
-    span {
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
 
-    .ant-table-wrapper {
-      margin-top: 20px;
+    .bookSearch-form {
+      display: flex;
+      gap: 5px;
+
+      .ant-select {
+        width: 200px;
+      }
+
+      .ant-input-group-wrapper {
+        width: 300px;
+      }
+
+      .ant-btn {
+        margin-left: auto;
+      }
     }
   }
 }

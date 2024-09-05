@@ -2,8 +2,16 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "../../../contexts/UserContext";
 
-import { Button, Table, Modal, Space, message, Tabs } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import {
+  Select,
+  Input,
+  Button,
+  Table,
+  Modal,
+  Tabs,
+  Space,
+  message,
+} from "antd";
 
 import axios from "axios";
 import dayjs from "dayjs";
@@ -31,15 +39,35 @@ const BookList = () => {
   const navigate = useNavigate();
 
   const { user, setUser } = useUser();
+  const { Option } = Select;
+  const { Search } = Input;
 
-  const [bookList, setBookList] = useState(null);
+  const [groups, setGroups] = useState([]);
+  const [activeGroup, setActiveGroup] = useState("");
   const [bookData, setBookData] = useState(null);
+  const [bookList, setBookList] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const handleSearch = async () => {
+  const fetchGroups = async () => {
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/books/bookList`
+        `${process.env.REACT_APP_API_URL}/api/groups`
+      );
+
+      setGroups(response.data);
+    } catch (error) {}
+  };
+
+  const handleSearch = async (value) => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/books/bookList`,
+        {
+          params: {
+            title: value,
+            group: activeGroup,
+          },
+        }
       );
 
       setBookList(response.data);
@@ -82,7 +110,11 @@ const BookList = () => {
   };
 
   useEffect(() => {
-    if (!user) navigate("/login");
+    if (!user) {
+      navigate("/login");
+    } else {
+      fetchGroups();
+    }
   }, [user, navigate]);
 
   const columns = [
@@ -132,14 +164,27 @@ const BookList = () => {
     <div className="bookList-container">
       <h2>도서 조회</h2>
       <div className="bookList-form">
-        <Button type="primary" icon={<SearchOutlined />} onClick={handleSearch}>
-          조회
-        </Button>
-        <span>
+        <div className="bookSearch-form">
+          <Select
+            value={activeGroup}
+            onChange={(value) => setActiveGroup(value)}
+          >
+            <Option value="">전체</Option>
+            {groups.map((group) => (
+              <Option key={group._id} value={group._id}>
+                {group.team}
+              </Option>
+            ))}
+          </Select>
+          <Search
+            placeholder="도서명을 입력해 주세요."
+            onSearch={handleSearch}
+            enterButton
+          />
           <Button type="primary" onClick={() => showModal(null)}>
             추가
           </Button>
-        </span>
+        </div>
         <Table
           dataSource={bookList}
           columns={columns}

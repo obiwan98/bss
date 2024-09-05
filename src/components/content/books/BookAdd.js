@@ -28,13 +28,46 @@ const BookAdd = ({ bookData, onClose }) => {
   const { Option } = Select;
 
   const [form] = Form.useForm();
+  const [groups, setGroups] = useState([]);
+  const [users, setUsers] = useState([]);
   const [fileList, setFileList] = useState([]);
   const [coverHeight, setCoverHeight] = useState(0);
 
   const coverRef = useRef(null);
 
-  const isDetailView = bookData;
+  const isDetailView = !!bookData;
 
+  const fetchGroups = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/groups`
+      );
+
+      setGroups(response.data);
+    } catch (error) {}
+  };
+
+  const handleGroupChange = async (value) => {
+    try {
+      const token = localStorage.getItem("token");
+
+      if (token) {
+        const response = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/users`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const allUsers = response.data;
+        const groupUsers = allUsers.filter((user) => user.group._id === value);
+
+        setUsers(groupUsers);
+      }
+    } catch (error) {}
+  };
   const handleUploadChange = ({ fileList: newFileList }) =>
     setFileList(newFileList);
 
@@ -91,8 +124,10 @@ const BookAdd = ({ bookData, onClose }) => {
     onClose(true);
   };
 
-  const onReset = useCallback(() => {
+  const onReset = useCallback(async () => {
     const { group } = user;
+
+    await handleGroupChange(group._id);
 
     form.resetFields();
     form.setFieldsValue({
@@ -103,17 +138,19 @@ const BookAdd = ({ bookData, onClose }) => {
       publisher: bookData?.publisher || "",
       count: bookData?.count || 1,
       registrationDate: dayjs(),
-      team: group.team,
       group: group._id,
       registeredBy: user.name,
     });
-  }, [bookData, user, form]);
+  }, [user, form, bookData]);
 
   useEffect(() => {
     if (!user) {
       navigate("/login");
     } else {
       const coverTarget = coverRef?.current;
+
+      fetchGroups();
+      onReset();
 
       if (coverTarget) {
         const resizeObserver = new ResizeObserver(() =>
@@ -122,11 +159,7 @@ const BookAdd = ({ bookData, onClose }) => {
 
         resizeObserver.observe(coverTarget);
 
-        onReset();
-
         return () => resizeObserver.disconnect();
-      } else {
-        onReset();
       }
     }
   }, [user, navigate, onReset]);
@@ -179,8 +212,18 @@ const BookAdd = ({ bookData, onClose }) => {
                   ))}
                 </Select>
               </Form.Item>
-              <Form.Item label="팀" name="team" rules={[{ required: true }]}>
-                <Input disabled />
+              <Form.Item
+                label="팀"
+                name="group"
+                rules={[{ required: true, message: "팀을 선택해 주세요." }]}
+              >
+                <Select onChange={(value) => handleGroupChange(value)}>
+                  {groups.map((group) => (
+                    <Option key={group._id} value={group._id}>
+                      {group.team}
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
             <Col span={12}>
@@ -201,15 +244,18 @@ const BookAdd = ({ bookData, onClose }) => {
               >
                 <DatePicker />
               </Form.Item>
-              <Form.Item label="그룹" name="group" hidden>
-                <Input disabled />
-              </Form.Item>
               <Form.Item
                 label="등록자"
                 name="registeredBy"
                 rules={[{ required: true }]}
               >
-                <Input disabled />
+                <Select>
+                  {users.map((user) => (
+                    <Option key={user._id} value={user.name}>
+                      {user.name}
+                    </Option>
+                  ))}
+                </Select>
               </Form.Item>
             </Col>
           </Row>
