@@ -1,6 +1,16 @@
 .bookSearch_tag {
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    text-align: center;
+}
+
+.bookSearch_searchbar {
+    padding: 20;
+}
+
+.bookSearch_method {
+    margin-bottom: 20;
+    text-align: center;
 }
 
 .bookSearch_modal {
