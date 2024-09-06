@@ -36,3 +36,35 @@
     transform: rotate(360deg);
   }
 }
+
+.req-container .custom-descriptions .ant-descriptions-item-label {
+  width: 150px;
+}
+
+.confirm-container .custom-descriptions .ant-descriptions-item-label {
+  width: 150px;
+}
+
+.payment-container .custom-descriptions .ant-descriptions-item-label {
+  width: 150px;
+}
+
+.req-container .custom-descriptions .ant-descriptions-item-content {
+  width: 200px;
+}
+
+.confirm-container .custom-descriptions .ant-descriptions-item-content {
+  width: 200px;
+}
+
+.payment-container .custom-descriptions .ant-descriptions-item-content {
+  width: 200px;
+}
+
+.custom-input {
+  width: 100%;
+}
+
+.custom-select {
+  width: 100%;
+}
