@@ -102,7 +102,7 @@ const BookSearchModal = ({ getData }) => {
       axios.post(process.env.REACT_APP_API_URL + '/api/external/aladinLookUp', {
         ItemId: selectedIsbn,
       }).then(response => {
-        setIsbnBooks(response.data);
+        setIsbnBooks([response.data]);
       }).catch(error => {
         console.error('Error fetching isbnBooks:', error);
         setErrorMessage(`Error fetching isbnBooks: ${error.response ? error.response.data.error : error.message}`);
@@ -226,7 +226,7 @@ const BookSearchModal = ({ getData }) => {
 
         <div style={search2}>
           <Search onSearch={setSelectedIsbn} className='bookSearch_searchbar'></Search>
-          <div className="bookSearch_modal">
+          <div className="bookSearch_modal2">
             {loading ? 
             (
               <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
@@ -239,7 +239,7 @@ const BookSearchModal = ({ getData }) => {
                 dataSource={isbnBooks}
                 renderItem={book => (
                   /** 라디오공간부터 확보 */
-                  <Radio name="report-book" value={book} className="book_radio">
+                  <Radio name="report-book" value={book} className="book_radio2">
                     <List.Item key={book.isbn13}>
                       <List.Item.Meta 
                         avatar={<Avatar src={book.cover} shape="square" size={64} />}

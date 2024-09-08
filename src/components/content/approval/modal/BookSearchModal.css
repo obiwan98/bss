@@ -31,3 +31,17 @@
     width: 16px;
     flex-grow: 1;
 }
+
+.bookSearch_modal2 {
+    height: 340px;
+    overflow: auto;
+}
+
+.book_radio2 {
+    width: 100%;
+    margin: 0;
+}
+
+.book_radio2 > span:last-child {
+    width: 900px;
+}

@@ -10,16 +10,13 @@ const Test = () => {
     };
 
     useEffect(() => {
-        if(data !== undefined){
-        const p = document.getElementById("testResult");
-        p.innerText = data.title;
-    }
-    });
+        setResult(JSON.stringify(data));
+    },[data]);
 
     return (
         <>
             <BookSearchModal getData={getData} />
-            <p id="testResult">{result}</p>
+            <p>{result}</p>
         </>
     );
 };
