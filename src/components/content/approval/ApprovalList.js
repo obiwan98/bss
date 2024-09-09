@@ -56,6 +56,7 @@ const ApprovalList = () => {
           <Radio.Group value={state} onChange={handleSizeChange}>
             <Radio.Button value="1">승인요청</Radio.Button>
             <Radio.Button value="2">승인완료</Radio.Button>
+            <Radio.Button value="4">구매완료</Radio.Button>
             <Radio.Button value="3">반려</Radio.Button>
           </Radio.Group>
         </Space>

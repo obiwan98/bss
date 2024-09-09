@@ -22,7 +22,7 @@ const ApprovalItem = ({ data }) => {
         item.regdate.length >= 19
           ? item.regdate.substring(0, 10) + ' ' + item.regdate.substring(11, 19)
           : '',
-      state: item.state === '2' ? (typeof item.payment === 'undefined' ? '2' : '4') : item.state,
+      state: item.state,
     };
 
     return data;
@@ -138,7 +138,7 @@ const ApprovalItem = ({ data }) => {
       key: 'date',
     },
     {
-      title: '요청상태',
+      title: '',
       dataIndex: 'state',
       render: (state) => {
         let color;
@@ -154,7 +154,7 @@ const ApprovalItem = ({ data }) => {
           color = 'volcano';
           text = '반려';
         } else if (state === '4') {
-          color = 'volcano';
+          color = 'green';
           text = '구매완료';
         }
 
