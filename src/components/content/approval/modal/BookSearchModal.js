@@ -211,13 +211,6 @@ const BookSearchModal = ({ getData }) => {
     },
   ];
 
-  useEffect(() => {
-    if (inputTitle !== '') {
-      setRadioValue({title: inputTitle});
-      console.log(radioValue);
-    }
-  }, [radioValue]);
-
   /** 등록 버튼 */
   const handleOk = () => {
     // radioValue.title,       // 상품명
@@ -231,6 +224,9 @@ const BookSearchModal = ({ getData }) => {
     // radioValue.publisher,   // 출판사(제작사/출시사)
     if(radioValue !== undefined){
       getData(radioValue);
+    } else if (inputTitle !== '') {
+      //setRadioValue({title: inputTitle});
+      //console.log(radioValue);
     }
     setIsModalOpen(false);
   };
