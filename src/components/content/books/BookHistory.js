@@ -1,5 +1,11 @@
-import { Button, Table } from "antd";
 import { useState } from "react";
+
+import { Table, Button } from "antd";
+import { EditOutlined } from "@ant-design/icons";
+
+import "./css/BookHistory.css";
+
+import BookReviewWrite from "./BookReviewWrite";
 
 const historyRawData = [
   {
@@ -12,14 +18,36 @@ const historyRawData = [
   {
     id: 1,
     user: "정경진",
-    startDate: "2024-08-27",
-    endDate: "20240-09-01",
+    startDate: "2024-09-01",
+    endDate: "20240-09-08",
+    state: false,
+  },
+  {
+    id: 2,
+    user: "김미란",
+    startDate: "2024-09-09",
+    endDate: "20240-09-20",
+    state: true,
+  },
+  {
+    id: 3,
+    user: "고범준",
+    startDate: "2024-09-21",
+    endDate: "20240-09-30",
     state: true,
   },
 ];
 
 const BookHistory = () => {
   const [historyData, setHistoryData] = useState(historyRawData);
+  const [expandedRowKey, setExpandedRowKey] = useState(null);
+
+  const expandedRowRender = (record) => <BookReviewWrite id={record.id} />;
+
+  const handleReviewClick = (id) =>
+    setExpandedRowKey((prevExpandedRowKey) =>
+      prevExpandedRowKey === id ? null : id
+    );
 
   const columns = [
     {
@@ -50,9 +78,14 @@ const BookHistory = () => {
       title: "비고",
       key: "action",
       render: (_, recode) =>
-        recode.state ? null : (
-          <Button type="primary" onClick={() => {}}>
-            리뷰 쓰기
+        !recode.state && (
+          <Button
+            type="primary"
+            size="small"
+            icon={<EditOutlined />}
+            onClick={() => handleReviewClick(recode.id)}
+          >
+            리뷰 작성
           </Button>
         ),
       align: "center",
@@ -60,11 +93,18 @@ const BookHistory = () => {
   ];
 
   return (
-    <div>
+    <div className="bookHistory-container">
       <Table
-        dataSource={historyData}
         columns={columns}
         rowKey={(record) => record.id}
+        expandable={{
+          expandedRowRender: expandedRowRender,
+          expandedRowKeys: expandedRowKey === null ? [] : [expandedRowKey],
+          onExpand: (expanded, record) => {
+            setExpandedRowKey(expanded ? record.id : null);
+          },
+        }}
+        dataSource={historyData}
         pagination={{ pageSize: 5 }}
       />
     </div>

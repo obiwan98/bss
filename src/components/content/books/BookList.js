@@ -83,6 +83,7 @@ const BookList = () => {
           .delete(`${process.env.REACT_APP_API_URL}/api/books/bookDelete/${id}`)
           .then(() => {
             message.success("삭제 성공");
+
             handleSearch();
           })
           .catch((error) => {
@@ -116,6 +117,7 @@ const BookList = () => {
 
   const handleCancel = (refresh) => {
     bookAddRef?.current.resetForm();
+
     setActiveTabKey("DetailView");
     setIsModalVisible(false);
 
@@ -199,9 +201,9 @@ const BookList = () => {
           </Button>
         </div>
         <Table
-          dataSource={bookList}
           columns={columns}
           rowKey={(record) => record._id}
+          dataSource={bookList}
           pagination={{ pageSize: 5 }}
         />
         <Modal

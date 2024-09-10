@@ -1,0 +1,28 @@
+.bookHistory-container {
+  .ant-table {
+    .ant-table-container {
+      .ant-table-content {
+        .ant-table-expand-icon-col {
+          display: none;
+        }
+
+        .ant-table-thead {
+          .ant-table-row-expand-icon-cell {
+            display: none;
+          }
+        }
+
+        .ant-table-tbody {
+          .ant-table-row-expand-icon-cell {
+            display: none;
+          }
+
+          .ant-btn {
+            height: 35px;
+            background-color: #5055b1;
+          }
+        }
+      }
+    }
+  }
+}

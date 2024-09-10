@@ -28,6 +28,8 @@ import dayjs from "dayjs";
 
 import "./css/BookAdd.css";
 
+const allowedImageTypes = new Set(["image/jpeg", "image/png", "image/gif"]);
+
 const BookAdd = forwardRef(({ bookData, onClose }, ref) => {
   const navigate = useNavigate();
 
@@ -79,8 +81,17 @@ const BookAdd = forwardRef(({ bookData, onClose }, ref) => {
       }
     } catch (error) {}
   };
-  const handleUploadChange = ({ fileList: newFileList }) =>
-    setFileList(newFileList);
+
+  const handleUploadChange = ({ file, fileList: newFileList }) => {
+    const isFileRemoved = file.status === "removed";
+    const isFileValid = allowedImageTypes.has(file.type);
+
+    isFileRemoved
+      ? message.info(`${file.name} 파일이 삭제되었습니다.`)
+      : !isFileValid && message.error("이미지 파일만 업로드할 수 있습니다.");
+
+    setFileList(isFileRemoved || isFileValid ? newFileList : []);
+  };
 
   const handleBookAdd = async (values) => {
     try {
@@ -107,9 +118,7 @@ const BookAdd = forwardRef(({ bookData, onClose }, ref) => {
 
       message.success(response.data.message);
 
-      onReset();
-
-      if (onClose) onClose(true);
+      onClose(true);
     } catch (error) {
       console.log("error: ", error);
     }
@@ -131,11 +140,11 @@ const BookAdd = forwardRef(({ bookData, onClose }, ref) => {
       );
 
       message.success(response.data.message);
+
+      onClose(true);
     } catch (error) {
       message.error("도서 정보 변경에 실패했습니다.");
     }
-
-    onClose(true);
   };
 
   const onReset = useCallback(async () => {
