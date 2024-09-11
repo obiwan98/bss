@@ -1,3 +1,13 @@
+.ant-modal-header {
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+
+.ant-modal-body{
+    margin-top: 20px;
+}
+
 .bookSearch_method {
     margin-bottom: 15px;
     text-align: center;
@@ -8,7 +18,7 @@
 }
 
 .bookSearch_modal {
-    height: 340px;
+    height: 400px;
     overflow: auto;
 }
 
@@ -22,7 +32,7 @@
 }
 
 .book_radio > span:last-child {
-    width: 920px;
+    width: 900px;
 }
 
 .bookSearch_Descriptions .ant-descriptions-row .ant-descriptions-item-label {

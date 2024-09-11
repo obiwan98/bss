@@ -73,6 +73,13 @@ const ApprovalEdit = () => {
   const [showInput, setShowInput] = useState(false);
   const [inputValue, setInputValue] = useState('');
 
+  /** 모달 */
+  const [isModalOpen, setIsModalOpen] = useState({open:'', type:''});
+  /** 모달 열기 */
+  const showModal1 = () => setIsModalOpen({open:true, type:'1'});
+  /** 모달 닫기 */
+  const hideModal = () => setIsModalOpen({...isModalOpen, open:false});
+
   // 렌더링 시 초기 세팅
   useEffect(() => {
     // 로그인 체크
@@ -300,14 +307,16 @@ const ApprovalEdit = () => {
           </a>
           <br />
           <br />
-          <BookSearchModal getData={handleDataChange} />
+          <BookSearchModal isModalOpen={isModalOpen} handleCancel={hideModal} getData={handleDataChange}/>
+          <Button type="primary" onClick={showModal1}>도서검색</Button>
         </div>
       );
     }
 
     // 신규 작성일 때 도서조회 API 활성화
     if (param === 'new') {
-      return <BookSearchModal getData={handleDataChange} />;
+      return (<><BookSearchModal isModalOpen={isModalOpen} handleCancel={hideModal} getData={handleDataChange}/>
+      <Button type="primary" onClick={showModal1}>도서검색</Button></>);
     }
 
     // 기존 데이터 + 승인 요청 상태일 때 도서조회 API 활성화
@@ -320,7 +329,8 @@ const ApprovalEdit = () => {
           판매가 : {bookPrice || 0}원
           <br />
           <br />
-          <BookSearchModal getData={handleDataChange} />
+          <BookSearchModal isModalOpen={isModalOpen} handleCancel={hideModal} getData={handleDataChange}/>
+          <Button type="primary" onClick={showModal1}>도서검색</Button>
         </div>
       );
     }
