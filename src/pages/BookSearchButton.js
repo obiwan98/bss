@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Button } from 'antd';
-import BookSearchModal from "./BookSearchModal";
+import BookSearchModal from "../components/content/approval/modal/BookSearchModal";
 
 const BookSearchButton = () => {
     const [isModalOpen, setIsModalOpen] = useState({open:'', type:''});

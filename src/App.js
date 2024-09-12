@@ -5,7 +5,7 @@ import React, { useEffect } from 'react';
 import { Route, Routes, useNavigate } from 'react-router-dom';
 import ApprovalEdit from './components/content/approval/ApprovalEdit';
 import ApprovalList from './components/content/approval/ApprovalList';
-import BookSearchButton from './components/content/approval/modal/BookSearchButton';
+import BookSearchButton from './pages/BookSearchButton';
 import LogoText from './components/logoText/LogoText';
 import AppMenu from './components/menu/AppMenu';
 import Navbar from './components/navbar/Navbar';
@@ -86,7 +86,7 @@ const App = () => {
             <Route path="/users/UserList" element={<UserList />} />
             <Route path="/approval/list" element={<ApprovalList />} />
             <Route path="/approval/edit/:param" element={<ApprovalEdit />} />
-            <Route path="/approval/bookSearch" element={<BookSearchButton />} />
+            <Route path="/BookSearchButton" element={<BookSearchButton />} />
           </Routes>
         </Content>
         <Footer style={{ textAlign: 'center' }}>BSS ©2024 Created with Ant Design</Footer>
