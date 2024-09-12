@@ -1,53 +1,12 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Form, Input, Select } from 'antd';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React from 'react';
 
 const { Option } = Select;
 
-const SignUp = () => {
-  const navigate = useNavigate();
-  const [roles, setRoles] = useState([]);
-  const [groups, setGroups] = useState([]);
-  const [errorMessage, setErrorMessage] = useState('');
-
-  useEffect(() => {
-    const fetchRolesAndGroups = async () => {
-      try {
-        const rolesResponse = await axios.get(process.env.REACT_APP_API_URL + '/api/roles');
-        const groupsResponse = await axios.get(process.env.REACT_APP_API_URL + '/api/groups');
-        setRoles(rolesResponse.data);
-        setGroups(groupsResponse.data);
-      } catch (error) {
-        console.error('Error fetching roles and groups:', error);
-        setErrorMessage('Error fetching roles and groups');
-      }
-    };
-
-    fetchRolesAndGroups();
-  }, []);
-
-  const onFinish = async (values) => {
-    try {
-      const response = await axios.post(process.env.REACT_APP_API_URL + '/api/users/signup', {
-        email: values.email,
-        name: values.name,
-        password: values.password,
-        role: values.role,
-        group: values.group,
-      });
-      alert(response.data.message);
-      navigate('/home');
-    } catch (error) {
-      console.error('Error during signup:', error.response ? error.response.data : error.message);
-      setErrorMessage(`Error signing up: ${error.response ? error.response.data.error : error.message}`);
-    }
-  };
-
+const SignUpForm = ({ roles, groups, errorMessage, onFinish }) => {
   return (
-    <div className="signup-container">
-      <h2 className="signup-title">회원가입</h2>
+    <div>
       {errorMessage && <Alert message={errorMessage} type="error" showIcon />}
       <Form
         name="signup"
@@ -108,4 +67,4 @@ const SignUp = () => {
   );
 }
 
-export default SignUp;
+export default SignUpForm;
