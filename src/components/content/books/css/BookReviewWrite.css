@@ -1,0 +1,87 @@
+.bookReviewWrite-container {
+  .bookReviewWrite-form {
+    .ant-form {
+      display: flex;
+      flex-direction: column;
+
+      .ant-form-item {
+        flex: 1;
+        margin-bottom: 10px;
+
+        .ant-flex {
+          justify-content: center;
+
+          .ant-tag {
+            color: #d9d9d9;
+            background-color: inherit;
+
+            .tag-content {
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+
+              .tag-icon {
+                font-size: 40px;
+              }
+
+              .tag-text {
+                font-size: 12px;
+              }
+            }
+
+            &:hover,
+            &.ant-tag-checkable-checked {
+              color: inherit;
+
+              .grate {
+                color: green;
+              }
+
+              .good {
+                color: gold;
+              }
+
+              .neutral {
+                color: gray;
+              }
+
+              .poor {
+                color: orange;
+              }
+
+              .bad {
+                color: red;
+              }
+            }
+          }
+        }
+      }
+
+      .mentions-form {
+        display: flex;
+        gap: 5px;
+
+        .mentions-body {
+          border: 1px solid #d9d9d9;
+          border-radius: 5px;
+
+          .ant-mentions-affix-wrapper {
+            border: none;
+          }
+
+          .mentions-footer {
+            display: flex;
+            justify-content: flex-end;
+            padding: 4px 11px;
+
+            .total {
+              &::before {
+                content: "/";
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

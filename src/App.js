@@ -6,6 +6,7 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import ApprovalEdit from './components/content/approval/ApprovalEdit';
 import ApprovalList from './components/content/approval/ApprovalList';
 import BookSearchButton from './components/content/approval/modal/BookSearchButton';
+import BookList from './components/content/books/BookList';
 import LogoText from './components/logoText/LogoText';
 import AppMenu from './components/menu/AppMenu';
 import Navbar from './components/navbar/Navbar';
@@ -83,6 +84,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/home" element={<Home />} />
             <Route path="/" element={<Home />} />
+            <Route path="/books/BookList" element={<BookList />} />
             <Route path="/users/UserList" element={<UserList />} />
             <Route path="/approval/list" element={<ApprovalList />} />
             <Route path="/approval/edit/:param" element={<ApprovalEdit />} />

@@ -1,0 +1,48 @@
+.bookAdd-container {
+  .bookAdd-form {
+    padding: 10px;
+
+    .ant-form {
+      .ant-row {
+        .ant-col {
+          img {
+            width: 100%;
+            height: auto;
+          }
+
+          .ant-form-item {
+            .ant-upload {
+              width: 100%;
+              height: 50px !important;
+
+              button {
+                border: 0;
+                background: none;
+                font-size: 12px;
+              }
+            }
+
+            .ant-upload-list-item {
+              margin-top: 0;
+            }
+
+            .ant-picker {
+              width: 100%;
+            }
+          }
+        }
+      }
+
+      .ant-space {
+        display: flex;
+        justify-content: flex-end;
+
+        .ant-btn {
+          &.ant-btn-primary {
+            background-color: #5055b1;
+          }
+        }
+      }
+    }
+  }
+}
