@@ -1,6 +1,15 @@
-.bookSearch_tag {
-    margin-top: 5px;
-    margin-bottom: 5px;
+.ant-modal-header {
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-bottom: 20px;
+}
+
+.ant-modal-body{
+    margin-top: 20px;
+}
+
+.bookSearch_method {
+    margin-bottom: 15px;
     text-align: center;
 }
 
@@ -8,19 +17,14 @@
     padding: 20;
 }
 
-.bookSearch_method {
-    margin-bottom: 20;
-    text-align: center;
-}
-
 .bookSearch_modal {
-    height: 340px;
+    height: 400px;
     overflow: auto;
 }
 
 .book_radio {
-    width: 100%;
-    margin: 0;
+    width: auto;
+    margin-top: 15px;
 }
 
 .book_radio > span:first-child {
@@ -28,20 +32,10 @@
 }
 
 .book_radio > span:last-child {
-    width: 16px;
-    flex-grow: 1;
-}
-
-.bookSearch_modal2 {
-    height: 340px;
-    overflow: auto;
-}
-
-.book_radio2 {
-    width: 100%;
-    margin: 0;
-}
-
-.book_radio2 > span:last-child {
     width: 900px;
+}
+
+.bookSearch_Descriptions .ant-descriptions-row .ant-descriptions-item-label {
+    width: 220px;
+    padding: 5px 5px;
 }
