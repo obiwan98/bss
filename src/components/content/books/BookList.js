@@ -65,7 +65,7 @@ const BookList = () => {
       );
 
       setGroups(response.data);
-    } catch (error) {}
+    } catch (error) {console.log(error);}
   };
 
   const handleSearch = async (value) => {
@@ -81,7 +81,9 @@ const BookList = () => {
       );
 
       setBookList(response.data);
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleDelete = (id) => {
