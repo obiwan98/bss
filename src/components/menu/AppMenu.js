@@ -23,15 +23,14 @@ const AppMenu = () => {
       key: 'sub2',
       icon: <AppstoreOutlined />,
       children: [
-        { label: '승인 요청', key: '4', path: '/approval/edit/new' },
-        { label: '승인 관리', key: '5', path: '/approval/list' },
+        { label: '승인 관리', key: '4', path: '/approval/list' },
       ],
     },
     {
       label: '사용자 관리',
       key: 'sub3',
       icon: <TeamOutlined />,
-      children: [{ label: '사용자 목록', key: '7', path: '/users/UserList' }],
+      children: [{ label: '사용자 목록', key: '5', path: '/users/UserList' }],
     },
   ];
 
