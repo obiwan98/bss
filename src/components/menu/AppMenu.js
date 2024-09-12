@@ -22,30 +22,24 @@ const AppMenu = () => {
       key: 'sub2',
       icon: <AppstoreOutlined />,
       children: [
-        { label: '승인 요청', key: '4', path: '/approvals/pending' },
-        { label: '승인 완료', key: '5', path: '/approvals/approved' },
-        { label: '반려', key: '6', path: '/approvals/rejected' },
+        { label: '승인 관리', key: '4', path: '/approval/list' },
       ],
     },
     {
       label: '사용자 관리',
       key: 'sub3',
       icon: <TeamOutlined />,
-      children: [
-        { label: '사용자 목록', key: '7', path: '/users/UserList' },
-      ],
+      children: [{ label: '사용자 목록', key: '5', path: '/users/UserList' }],
     },
   ];
 
   const onClick = (e) => {
     setCurrent(e.key);
     // 여기에 경로 변경 로직 추가
-    const item = items
-      .flatMap((group) => group.children)
-      .find((child) => child.key === e.key);
-      if (item && item.path) {
-        navigate(item.path); // useNavigate로 경로 변경
-      }
+    const item = items.flatMap((group) => group.children).find((child) => child.key === e.key);
+    if (item && item.path) {
+      navigate(item.path); // useNavigate로 경로 변경
+    }
   };
 
   return <Menu onClick={onClick} selectedKeys={[current]} mode="inline" items={items} />;
