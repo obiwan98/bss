@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Radio, Space, Button, Flex } from 'antd';
-import ApprovalItem from './ApprovalItem';
+import { Button, Radio, Space } from 'antd';
 import axios from 'axios';
-import { useUser } from '../../../contexts/UserContext';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useUser } from '../../../contexts/UserContext';
+import ApprovalItem from './ApprovalItem';
 
 const ApprovalList = () => {
   const [dataList, setDataList] = useState([]); // 필터링된 사용자 데이터를 저장
@@ -60,6 +60,8 @@ const ApprovalList = () => {
             <Radio.Button value="3">반려</Radio.Button>
           </Radio.Group>
         </Space>
+        
+        {state === '1' && (
         <Button
           type="primary"
           style={{ float: 'right' }}
@@ -67,6 +69,7 @@ const ApprovalList = () => {
         >
           요청하기
         </Button>
+        )}
         <ApprovalItem data={dataList}></ApprovalItem>
       </div>
     </>
