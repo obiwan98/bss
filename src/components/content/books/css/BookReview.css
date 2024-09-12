@@ -2,65 +2,61 @@
   .ant-list {
     .ant-list-items {
       .ant-list-item {
-        .ant-list-item-meta-avatar {
-          .ant-avatar {
-            background-color: #5055b1;
-          }
+        .ant-avatar {
+          background-color: #5055b1;
         }
 
-        .ant-list-item-meta-content {
-          .ant-list-item-meta-title {
+        .ant-list-item-meta-title {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+
+          .ant-rate {
+            font-size: 13px;
+
+            .ant-rate-star {
+              margin-right: 0;
+            }
+          }
+
+          .gap {
+            color: #767676;
+            font-size: 13px;
+          }
+
+          .tag-content {
             display: flex;
-            align-items: center;
             gap: 5px;
+            margin-top: 3px;
+            color: #767676;
+            font-size: 13px;
+            font-weight: bold;
 
-            .ant-rate {
-              font-size: 12px;
-
-              .ant-rate-star {
-                margin-right: 0;
-              }
+            &.grate {
+              color: green;
             }
 
-            .tag-gap {
-              color: #767676;
-              font-size: 12px;
+            &.good {
+              color: gold;
             }
 
-            .tag-content {
-              display: flex;
-              gap: 5px;
-              color: #767676;
-              font-size: 12px;
-              font-weight: bold;
-
-              &.grate {
-                color: green;
-              }
-
-              &.good {
-                color: gold;
-              }
-
-              &.neutral {
-                color: gray;
-              }
-
-              &.poor {
-                color: orange;
-              }
-
-              &.bad {
-                color: red;
-              }
+            &.neutral {
+              color: gray;
             }
 
-            > span {
-              flex: 1;
-              color: #767676;
-              font-size: 12px;
-              text-align: end;
+            &.poor {
+              color: orange;
             }
+
+            &.bad {
+              color: red;
+            }
+          }
+
+          > span {
+            margin-left: auto;
+            color: #767676;
+            font-size: 13px;
           }
         }
       }

@@ -61,13 +61,13 @@ const BookReview = () => {
         pagination={{ pageSize: 3 }}
         dataSource={reviewData}
         renderItem={(item) => (
-          <List.Item>
+          <List.Item key={item.id}>
             <List.Item.Meta
               avatar={<Avatar size={40}>{item.user}</Avatar>}
               title={
                 <>
                   <Rate value={item.rate} allowHalf disabled />
-                  <div className="tag-gap">/</div>
+                  <div className="gap">/</div>
                   <div className={`tag-content ${tagsData[item.tagKey].class}`}>
                     <div className="tag-icon">{tagsData[item.tagKey].icon}</div>
                     <div className="tag-text">{tagsData[item.tagKey].text}</div>

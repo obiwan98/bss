@@ -1,4 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import {
+  useState,
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
 
 import { Form, Rate, Flex, Tag, Mentions, Button, message } from "antd";
 import { FrownOutlined, MehOutlined, SmileOutlined } from "@ant-design/icons";
@@ -15,7 +21,7 @@ const tagsData = [
 
 const maxLength = 1000;
 
-const BookReviewWrite = ({ id }) => {
+const BookReviewWrite = forwardRef(({ id }, ref) => {
   const [form] = Form.useForm();
   const [selectedTag, setSelectedTag] = useState(null);
   const [labelHeight, setLabelHeight] = useState(0);
@@ -25,6 +31,16 @@ const BookReviewWrite = ({ id }) => {
 
   const labelRef = useRef(null);
   const mentionsRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    resetForm: () => {
+      form.resetFields();
+      
+      setSelectedTag(null);
+      setValue("");
+      setCount(0);
+    },
+  }));
 
   const handleTagChange = (key) => {
     const newSelectedTag = selectedTag === key ? null : key;
@@ -114,6 +130,6 @@ const BookReviewWrite = ({ id }) => {
       </div>
     </div>
   );
-};
+});
 
 export default BookReviewWrite;

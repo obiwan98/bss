@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, forwardRef, useImperativeHandle } from "react";
 
 import { Table, Button } from "antd";
 import { EditOutlined } from "@ant-design/icons";
@@ -38,11 +38,25 @@ const historyRawData = [
   },
 ];
 
-const BookHistory = () => {
+const BookHistory = forwardRef((_, ref) => {
   const [historyData, setHistoryData] = useState(historyRawData);
   const [expandedRowKey, setExpandedRowKey] = useState(null);
 
-  const expandedRowRender = (record) => <BookReviewWrite id={record.id} />;
+  const bookReviewWriteRef = useRef(null);
+
+  useImperativeHandle(ref, () => ({
+    resetForm: () => {
+      if (expandedRowKey !== null) {
+        handleReviewClick(expandedRowKey);
+
+        bookReviewWriteRef?.current.resetForm();
+      }
+    },
+  }));
+
+  const expandedRowRender = (record) => (
+    <BookReviewWrite ref={bookReviewWriteRef} id={record.id} />
+  );
 
   const handleReviewClick = (id) =>
     setExpandedRowKey((prevExpandedRowKey) =>
@@ -109,6 +123,6 @@ const BookHistory = () => {
       />
     </div>
   );
-};
+});
 
 export default BookHistory;
