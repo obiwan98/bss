@@ -7,6 +7,7 @@ import { Select, Input, Button, message } from 'antd';
 import axios from 'axios';
 
 import BookList from './BookList';
+import BookModal from './BookModal';
 
 import './css/BookSearch.css';
 
@@ -19,7 +20,9 @@ const BookSearch = () => {
 
   const [groups, setGroups] = useState([]);
   const [activeGroup, setActiveGroup] = useState('');
+  const [bookData, setBookData] = useState(null);
   const [bookList, setBookList] = useState('');
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const fetchGroups = async () => {
     try {
@@ -46,6 +49,16 @@ const BookSearch = () => {
     }
   };
 
+  const handleShowModal = (recode) => {
+    setBookData(recode);
+    setIsModalVisible(true);
+  };
+
+  const handleCloseModal = (refresh) => {
+    setIsModalVisible(false);
+    refresh && handleBookSearch();
+  };
+
   useEffect(() => {
     if (!user) {
       navigate('/login');
@@ -67,9 +80,12 @@ const BookSearch = () => {
           ))}
         </Select>
         <Search placeholder="도서명을 입력해 주세요." onSearch={handleBookSearch} enterButton />
-        <Button type="primary">추가</Button>
+        <Button type="primary" onClick={() => handleShowModal(null)}>
+          추가
+        </Button>
       </div>
-      <BookList bookList={bookList} />
+      <BookList bookList={bookList} onClick={handleShowModal} />
+      <BookModal bookData={bookData} open={isModalVisible} onCancel={handleCloseModal} />
     </div>
   );
 };

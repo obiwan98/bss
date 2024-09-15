@@ -12,7 +12,7 @@ import './css/BookAdd.css';
 
 const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/gif']);
 
-const BookAdd = forwardRef(({ bookData, onClose }, ref) => {
+const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
   const navigate = useNavigate();
 
   const { user, setUser } = useUser();
@@ -59,7 +59,7 @@ const BookAdd = forwardRef(({ bookData, onClose }, ref) => {
         setUsers(groupUsers);
       }
     } catch (error) {
-      message.error("그룹 정보를 가져오는데 실패하였습니다.");
+      message.error('그룹 정보를 가져오는데 실패하였습니다.');
     }
   };
 
@@ -98,7 +98,7 @@ const BookAdd = forwardRef(({ bookData, onClose }, ref) => {
 
       message.success(response.data.message);
 
-      onClose(true);
+      onCancel(true);
     } catch (error) {
       console.log('error: ', error);
     }
@@ -121,7 +121,7 @@ const BookAdd = forwardRef(({ bookData, onClose }, ref) => {
 
       message.success(response.data.message);
 
-      onClose(true);
+      onCancel(true);
     } catch (error) {
       message.error('도서 정보 변경에 실패했습니다.');
     }
@@ -160,7 +160,9 @@ const BookAdd = forwardRef(({ bookData, onClose }, ref) => {
 
         resizeObserver.observe(coverTarget);
 
-        return () => resizeObserver.disconnect();
+        return () => {
+          resizeObserver.disconnect();
+        };
       }
     }
   }, [user, navigate, onReset]);

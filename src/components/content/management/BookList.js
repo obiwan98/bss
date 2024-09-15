@@ -1,6 +1,19 @@
-import { List, Image } from 'antd';
+import { List, Image, Rate, Space, Button } from 'antd';
+import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
 
-const BookList = ({ bookList }) => {
+import dayjs from 'dayjs';
+
+import './css/BookList.css';
+
+const tagsData = [
+  { key: 0, class: 'grate', text: '추천', icon: <SmileOutlined /> },
+  { key: 1, class: 'good', text: '최고', icon: <SmileOutlined /> },
+  { key: 2, class: 'neutral', text: '보통', icon: <MehOutlined /> },
+  { key: 3, class: 'poor', text: '별로', icon: <FrownOutlined /> },
+  { key: 4, class: 'bad', text: '최악', icon: <FrownOutlined /> },
+];
+
+const BookList = ({ bookList, onClick }) => {
   return (
     <div className="bookList-container">
       <div className="bookList-form">
@@ -22,8 +35,46 @@ const BookList = ({ bookList }) => {
                   />
                 </div>
               </div>
-              <div className="bookList-body"></div>
-              <div className="bookList-footer"></div>
+              <div className="bookList-body">
+                <div className="title">
+                  <h2>{item.title}</h2>
+                </div>
+                <div className="author">
+                  {item.author}
+                  <span>저자</span>
+                </div>
+                <div className="publish-content">
+                  <span className="publisher">{item.publisher}</span>
+                  <span className="gap">·</span>
+                  <span className="pubDate">{`${dayjs(item.pubDate).format(
+                    'YYYY년 MM월 DD일'
+                  )}`}</span>
+                </div>
+                <div className="count">{`수량: ${item.count}`}</div>
+                <div className="rate-tag-form">
+                  <div className="rate-content">
+                    <Rate value={3.5} count={1} allowHalf disabled />
+                    <span>{(3.5).toFixed(1)}</span>
+                  </div>
+                  <span className="gap">/</span>
+                  <div className={`tag-content ${tagsData[0].class}`}>
+                    <span className="tag-icon">{tagsData[0].icon}</span>
+                    <span className="tag-text">{tagsData[0].text}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="bookList-state">
+                <div className="state blink">대여 가능</div>
+                <div className="remainCount">{`잔여 수량: ${item.count}`}</div>
+              </div>
+              <div className="bookList-footer">
+                <Space>
+                  <Button type="primary" onClick={() => onClick(item)}>
+                    수정
+                  </Button>
+                  <Button danger>삭제</Button>
+                </Space>
+              </div>
             </List.Item>
           )}
         />
