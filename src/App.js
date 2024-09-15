@@ -6,7 +6,6 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import ApprovalEdit from './components/content/approval/ApprovalEdit';
 import ApprovalList from './components/content/approval/ApprovalList';
 import BookSearchButton from './components/content/approval/modal/BookSearchButton';
-import BookList from './components/content/books/BookList';
 import LogoText from './components/logoText/LogoText';
 import AppMenu from './components/menu/AppMenu';
 import Navbar from './components/navbar/Navbar';
@@ -17,6 +16,7 @@ import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import Test from './pages/test';
 import UserList from './pages/users/UserList';
+import BookSearch from './components/content/management/BookSearch';
 
 const { Header, Content, Sider, Footer } = Layout;
 
@@ -84,7 +84,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/home" element={<Home />} />
             <Route path="/" element={<Home />} />
-            <Route path="/books/BookList" element={<BookList />} />
+            <Route path="/management/BookSearch" element={<BookSearch />} />
             <Route path="/users/UserList" element={<UserList />} />
             <Route path="/approval/list" element={<ApprovalList />} />
             <Route path="/approval/edit/:param" element={<ApprovalEdit />} />
