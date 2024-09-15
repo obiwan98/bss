@@ -6,7 +6,7 @@ import { Select, Input, Button, message } from 'antd';
 
 import axios from 'axios';
 
-/* import BookList from './BookListNew'; */
+import BookList from './BookList';
 
 import './css/BookSearch.css';
 
@@ -69,7 +69,7 @@ const BookSearch = () => {
         <Search placeholder="도서명을 입력해 주세요." onSearch={handleBookSearch} enterButton />
         <Button type="primary">추가</Button>
       </div>
-      {/* <BookList bookList={bookList} /> */}
+      <BookList bookList={bookList} />
     </div>
   );
 };
