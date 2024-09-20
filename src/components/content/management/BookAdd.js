@@ -15,12 +15,10 @@ const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/gif']);
 const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
   const navigate = useNavigate();
 
-  const { user, setUser } = useUser();
+  const { user } = useUser();
   const { Option } = Select;
 
   const [form] = Form.useForm();
-  const [groups, setGroups] = useState([]);
-  const [users, setUsers] = useState([]);
   const [fileList, setFileList] = useState([]);
   const [coverHeight, setCoverHeight] = useState(0);
 
@@ -31,37 +29,6 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
   useImperativeHandle(ref, () => ({
     resetForm: () => onReset(),
   }));
-
-  const fetchGroups = async () => {
-    try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/groups`);
-
-      setGroups(response.data);
-    } catch (error) {
-      message.error('그룹 정보를 가져오는데 실패하였습니다.');
-    }
-  };
-
-  const handleGroupChange = async (value) => {
-    try {
-      const token = localStorage.getItem('token');
-
-      if (token) {
-        const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        const allUsers = response.data;
-        const groupUsers = allUsers.filter((user) => user.group._id === value);
-
-        setUsers(groupUsers);
-      }
-    } catch (error) {
-      message.error('그룹 정보를 가져오는데 실패하였습니다.');
-    }
-  };
 
   const handleUploadChange = ({ file, fileList: newFileList }) => {
     const isFileRemoved = file.status === 'removed';
@@ -75,19 +42,24 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
   };
 
   const handleBookAdd = async (values) => {
+    const { group } = user;
+
     try {
-      const { title, author, cover, publisher, registrationDate, group } = values;
+      const { title, author, cover, publisher, publicationDate, count } = values;
       const newFileList = cover?.fileList || [];
 
       const response = await axios.post(
-        process.env.REACT_APP_API_URL + '/api/books/bookAdd',
+        `${process.env.REACT_APP_API_URL}/api/management/bookAdd`,
         {
           title,
           author,
           cover: newFileList[0]?.originFileObj || '',
           publisher,
-          group,
-          registDate: registrationDate,
+          publicationDate,
+          count,
+          registrationDate: dayjs(),
+          group: group._id,
+          registeredBy: user.name,
         },
         {
           headers: {
@@ -100,22 +72,24 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
 
       onCancel(true);
     } catch (error) {
-      console.log('error: ', error);
+      message.error('도서 등록을 실패하였습니다.');
     }
   };
 
   const handleBookUpdate = async (values) => {
-    const { id, title, author, publisher, group } = values;
+    const { id, title, author, cover, publisher, publicationDate, count } = values;
+    const newFileList = cover?.fileList || [];
 
     try {
       const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/books/bookUpdate/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/management/bookUpdate/${id}`,
         {
           title,
           author,
+          cover: newFileList[0]?.originFileObj || '',
           publisher,
-          group,
-          registDate: dayjs(),
+          publicationDate,
+          count,
         }
       );
 
@@ -123,15 +97,11 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
 
       onCancel(true);
     } catch (error) {
-      message.error('도서 정보 변경에 실패했습니다.');
+      message.error('도서 변경을 실패하였습니다.');
     }
   };
 
   const onReset = useCallback(async () => {
-    const { group } = user;
-
-    await handleGroupChange(group._id);
-
     form.resetFields();
     form.setFieldsValue({
       id: bookData?._id || '',
@@ -139,12 +109,10 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
       author: bookData?.author || '',
       cover: setFileList([]),
       publisher: bookData?.publisher || '',
+      publicationDate: dayjs(bookData?.publicationDate) || dayjs(),
       count: bookData?.count || 1,
-      registrationDate: dayjs(),
-      group: group._id,
-      registeredBy: user.name,
     });
-  }, [user, form, bookData]);
+  }, [form, bookData]);
 
   useEffect(() => {
     if (!user) {
@@ -152,7 +120,6 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
     } else {
       const coverTarget = coverRef?.current;
 
-      fetchGroups();
       onReset();
 
       if (coverTarget) {
@@ -175,7 +142,7 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
           layout="vertical"
           form={form}
           variant="filled"
-          onFinish={isDetailView ? handleBookUpdate : handleBookAdd}
+          onFinish={!isDetailView ? handleBookAdd : handleBookUpdate}
         >
           <Row gutter={16}>
             <Col span={12}>
@@ -187,6 +154,9 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
                 name="title"
                 rules={[{ required: true, message: '도서명을 입력해 주세요.' }]}
               >
+                <Input />
+              </Form.Item>
+              <Form.Item label="저자" name="author">
                 <Input />
               </Form.Item>
               <div ref={coverRef}>
@@ -206,7 +176,19 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
                   </Upload>
                 </Form.Item>
               </div>
-              <Form.Item label="수량" name="count" rules={[{ required: true }]}>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="출판사" name="publisher">
+                <Input />
+              </Form.Item>
+              <Form.Item
+                label="발행일"
+                name="publicationDate"
+                rules={[{ required: true, message: '발행일을 입력해 주세요.' }]}
+              >
+                <DatePicker />
+              </Form.Item>
+              <Form.Item label="수량" name="count" style={{ height: `${coverHeight}px` }}>
                 <Select>
                   {new Array(5).fill(null).map((_, index) => (
                     <Option key={index + 1} value={index + 1}>
@@ -215,44 +197,11 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
                   ))}
                 </Select>
               </Form.Item>
-              <Form.Item
-                label="팀"
-                name="group"
-                rules={[{ required: true, message: '팀을 선택해 주세요.' }]}
-              >
-                <Select onChange={(value) => handleGroupChange(value)}>
-                  {groups.map((group) => (
-                    <Option key={group._id} value={group._id}>
-                      {group.team}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item label="저자" name="author">
-                <Input />
-              </Form.Item>
-              <Form.Item label="출판사" name="publisher" style={{ height: `${coverHeight}px` }}>
-                <Input />
-              </Form.Item>
-              <Form.Item label="등록일" name="registrationDate" rules={[{ required: true }]}>
-                <DatePicker />
-              </Form.Item>
-              <Form.Item label="등록자" name="registeredBy" rules={[{ required: true }]}>
-                <Select>
-                  {users.map((user) => (
-                    <Option key={user._id} value={user.name}>
-                      {user.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
             </Col>
           </Row>
           <Space>
             <Button type="primary" htmlType="submit">
-              {isDetailView ? '변경' : '등록'}
+              {!isDetailView ? '등록' : '변경'}
             </Button>
             <Button type="default" onClick={onReset}>
               초기화

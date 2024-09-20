@@ -36,7 +36,7 @@ const BookSearch = () => {
 
   const handleBookSearch = async (value) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/books/bookList`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/management/bookList`, {
         params: {
           title: value,
           group: activeGroup,
@@ -84,7 +84,7 @@ const BookSearch = () => {
           추가
         </Button>
       </div>
-      <BookList bookList={bookList} onClick={handleShowModal} />
+      <BookList bookList={bookList} onClick={handleShowModal} onRefresh={handleBookSearch} />
       <BookModal bookData={bookData} open={isModalVisible} onCancel={handleCloseModal} />
     </div>
   );

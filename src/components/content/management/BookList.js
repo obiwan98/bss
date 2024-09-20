@@ -1,6 +1,7 @@
-import { List, Image, Rate, Space, Button } from 'antd';
+import { List, Image, Rate, Space, Button, Modal, message } from 'antd';
 import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
 
+import axios from 'axios';
 import dayjs from 'dayjs';
 
 import './css/BookList.css';
@@ -13,7 +14,32 @@ const tagsData = [
   { key: 4, class: 'bad', text: '최악', icon: <FrownOutlined /> },
 ];
 
-const BookList = ({ bookList, onClick }) => {
+const BookList = ({ bookList, onClick, onRefresh }) => {
+  const handleBookDelete = (id) => {
+    Modal.confirm({
+      title: '해당 도서를 삭제하시겠습니까?',
+      content: '이 작업은 되돌릴 수 없습니다.',
+      okText: '삭제',
+      okType: 'danger',
+      cancelText: '취소',
+      onOk() {
+        axios
+          .delete(`${process.env.REACT_APP_API_URL}/api/management/bookDelete/${id}`)
+          .then(() => {
+            message.success('도서를 삭제하였습니다.');
+
+            onRefresh();
+          })
+          .catch((error) => {
+            console.error('도서 삭제를 실패하였습니다.');
+          });
+      },
+      onCancel() {
+        message.info('도서 삭제를 취소하였습니다.');
+      },
+    });
+  };
+
   return (
     <div className="bookList-container">
       <div className="bookList-form">
@@ -72,7 +98,9 @@ const BookList = ({ bookList, onClick }) => {
                   <Button type="primary" onClick={() => onClick(item)}>
                     수정
                   </Button>
-                  <Button danger>삭제</Button>
+                  <Button onClick={() => handleBookDelete(item._id)} danger>
+                    삭제
+                  </Button>
                 </Space>
               </div>
             </List.Item>

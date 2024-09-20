@@ -58,7 +58,7 @@
               .tag-content {
                 display: flex;
                 gap: 5px;
-                padding-top: 1px;
+                padding-top: 2px;
 
                 &.grate {
                   color: green;
