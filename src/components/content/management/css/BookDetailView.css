@@ -1,0 +1,10 @@
+.bookDetailView-container {
+  .bookDetailView-form {
+    display: flex;
+    gap: 5px;
+
+    .ant-tabs {
+      flex: 1;
+    }
+  }
+}

@@ -27,10 +27,9 @@
           .tag-content {
             display: flex;
             gap: 5px;
-            margin-top: 3px;
+            padding-top: 2px;
             color: #767676;
             font-size: 13px;
-            font-weight: bold;
 
             &.grate {
               color: green;
