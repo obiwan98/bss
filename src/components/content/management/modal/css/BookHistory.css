@@ -1,0 +1,28 @@
+.bookHistory-container {
+  .bookHistory-form {
+    .ant-table {
+      .ant-table-container {
+        .ant-table-content {
+          .ant-table-expand-icon-col {
+            display: none;
+          }
+
+          .ant-table-thead,
+          .ant-table-tbody {
+            .ant-table-cell {
+              padding: 20px 10px;
+
+              &.ant-table-row-expand-icon-cell {
+                display: none;
+              }
+
+              .ant-btn {
+                background-color: #5055b1;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

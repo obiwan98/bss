@@ -18,19 +18,18 @@ const UserList = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
   const { confirm } = Modal;
-	const { roles, groups, loading, errorMessage } = useFetchRolesAndGroups();
+  const { roles, groups, loading, errorMessage } = useFetchRolesAndGroups();
 
   useEffect(() => {
     if (!user) {
       navigate('/login');
       return;
     }
-		setIsAdmin(user.role.role === 'Admin');
-
+    setIsAdmin(user.role.role === 'Admin');
   }, [user, navigate, roles, groups, loading]);
 
-	if (loading) {
-    return <div>로딩 중...</div>;  // 로딩 중일 때는 로딩 메시지 표시
+  if (loading) {
+    return <div>로딩 중...</div>; // 로딩 중일 때는 로딩 메시지 표시
   }
 
   const getFilteredUser = async () => {
@@ -71,18 +70,19 @@ const UserList = () => {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        axios.delete(`${process.env.REACT_APP_API_URL}/api/users/${id}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
-        .then(() => {
-          setFilteredUsers(filteredUsers.filter((user) => user._id !== id));
-          message.success('사용자 정보가 삭제되었습니다.', 2);
-        })
-        .catch((error) => {
-          console.error('Error deleting user:', error);
-        });
+        axios
+          .delete(`${process.env.REACT_APP_API_URL}/api/users/${id}`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+          .then(() => {
+            setFilteredUsers(filteredUsers.filter((user) => user._id !== id));
+            message.success('사용자 정보가 삭제되었습니다.', 2);
+          })
+          .catch((error) => {
+            console.error('Error deleting user:', error);
+          });
       },
       onCancel() {
         console.log('삭제 취소됨');
@@ -110,14 +110,18 @@ const UserList = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
 
-      await axios.put(`${process.env.REACT_APP_API_URL}/api/users/${selectedUser._id}`, {
-        role: values.role,
-        group: values.group,
-      }, {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/users/${selectedUser._id}`,
+        {
+          role: values.role,
+          group: values.group,
         },
-      });
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setUser((prevUser) => ({
         ...prevUser,

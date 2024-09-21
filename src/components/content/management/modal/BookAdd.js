@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useUser } from '../../../contexts/UserContext';
+import { useUser } from '../../../../contexts/UserContext';
 
 import { Row, Col, Form, Input, Upload, Select, DatePicker, Space, Button, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
@@ -12,9 +11,7 @@ import './css/BookAdd.css';
 
 const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/gif']);
 
-const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
-  const navigate = useNavigate();
-
+const BookAdd = forwardRef(({ bookData }, ref) => {
   const { user } = useUser();
   const { Option } = Select;
 
@@ -27,7 +24,7 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
   const isDetailView = !!bookData;
 
   useImperativeHandle(ref, () => ({
-    resetForm: () => onReset(),
+    resetForm: () => handleBookReset(),
   }));
 
   const handleUploadChange = ({ file, fileList: newFileList }) => {
@@ -41,67 +38,41 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
     setFileList(isFileRemoved || isFileValid ? newFileList : []);
   };
 
-  const handleBookAdd = async (values) => {
-    const { group } = user;
+  const handleBookSave = async (values) => {
+    const { group, name } = user;
 
     try {
-      const { title, author, cover, publisher, publicationDate, count } = values;
+      const { id, title, author, cover, publisher, publicationDate, count } = values;
       const newFileList = cover?.fileList || [];
 
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/management/bookAdd`,
-        {
+      const response = await axios({
+        method: !isDetailView ? 'post' : 'put',
+        url: `${process.env.REACT_APP_API_URL}/api/management/${!isDetailView ? 'bookAdd' : `bookUpdate/${id}`}`,
+        data: {
           title,
           author,
           cover: newFileList[0]?.originFileObj || '',
           publisher,
           publicationDate,
           count,
-          registrationDate: dayjs(),
-          group: group._id,
-          registeredBy: user.name,
+          ...(!isDetailView && {
+            registrationDate: dayjs(),
+            group: group._id,
+            registeredBy: name,
+          }),
         },
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
 
       message.success(response.data.message);
-
-      onCancel(true);
     } catch (error) {
-      message.error('도서 등록을 실패하였습니다.');
+      message.error(`도서 ${!isDetailView ? '등록' : '변경'}을 실패하였습니다.`);
     }
   };
 
-  const handleBookUpdate = async (values) => {
-    const { id, title, author, cover, publisher, publicationDate, count } = values;
-    const newFileList = cover?.fileList || [];
-
-    try {
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/management/bookUpdate/${id}`,
-        {
-          title,
-          author,
-          cover: newFileList[0]?.originFileObj || '',
-          publisher,
-          publicationDate,
-          count,
-        }
-      );
-
-      message.success(response.data.message);
-
-      onCancel(true);
-    } catch (error) {
-      message.error('도서 변경을 실패하였습니다.');
-    }
-  };
-
-  const onReset = useCallback(async () => {
+  const handleBookReset = useCallback(async () => {
     form.resetFields();
     form.setFieldsValue({
       id: bookData?._id || '',
@@ -115,35 +86,26 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
   }, [form, bookData]);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-    } else {
-      const coverTarget = coverRef?.current;
+    const coverTarget = coverRef?.current;
 
-      onReset();
+    handleBookReset();
 
-      if (coverTarget) {
-        const resizeObserver = new ResizeObserver(() => setCoverHeight(coverTarget.offsetHeight));
+    if (coverTarget) {
+      const resizeObserver = new ResizeObserver(() => setCoverHeight(coverTarget.offsetHeight));
 
-        resizeObserver.observe(coverTarget);
+      resizeObserver.observe(coverTarget);
 
-        return () => {
-          resizeObserver.disconnect();
-        };
-      }
+      return () => {
+        resizeObserver.disconnect();
+      };
     }
-  }, [user, navigate, onReset]);
+  }, [user, handleBookReset]);
 
   return (
     <div className="bookAdd-container">
       {!isDetailView && <h2>도서 등록</h2>}
       <div className="bookAdd-form">
-        <Form
-          layout="vertical"
-          form={form}
-          variant="filled"
-          onFinish={!isDetailView ? handleBookAdd : handleBookUpdate}
-        >
+        <Form layout="vertical" form={form} variant="filled" onFinish={handleBookSave}>
           <Row gutter={16}>
             <Col span={12}>
               <Form.Item label="" name="id" hidden>
@@ -203,7 +165,7 @@ const BookAdd = forwardRef(({ bookData, onCancel }, ref) => {
             <Button type="primary" htmlType="submit">
               {!isDetailView ? '등록' : '변경'}
             </Button>
-            <Button type="default" onClick={onReset}>
+            <Button type="default" onClick={handleBookReset}>
               초기화
             </Button>
           </Space>

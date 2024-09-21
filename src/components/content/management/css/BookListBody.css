@@ -1,18 +1,19 @@
-.bookList-container {
-  .bookList-form {
+.bookList-body-container {
+  .bookList-body-form {
     .ant-list {
       .ant-list-items {
         .ant-list-item {
           display: flex;
           justify-content: flex-start;
+          align-items: flex-start;
           gap: 50px;
           padding: 30px 50px;
 
-          .bookList-header {
+          .bookData-header {
             width: 12%;
           }
 
-          .bookList-body {
+          .bookData-body {
             display: flex;
             flex-direction: column;
             gap: 10px;
@@ -83,7 +84,8 @@
             }
           }
 
-          .bookList-state {
+          .bookData-state {
+            align-self: center;
             margin-left: auto;
             text-align: end;
 
@@ -101,7 +103,8 @@
             }
           }
 
-          .bookList-footer {
+          .bookData-footer {
+            align-self: center;
             margin-left: auto;
 
             .ant-space {

@@ -4,8 +4,8 @@ import { Tabs } from 'antd';
 
 import BookCover from './BookCover';
 import BookAdd from './BookAdd';
-import BookHistory from './BookHistory';
 import BookReview from './BookReview';
+import BookHistory from './BookHistory';
 
 import './css/BookDetailView.css';
 

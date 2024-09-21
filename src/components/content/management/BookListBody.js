@@ -1,10 +1,9 @@
-import { List, Image, Rate, Space, Button, Modal, message } from 'antd';
+import { List, Image, Rate, Space, Button } from 'antd';
 import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
 
-import axios from 'axios';
 import dayjs from 'dayjs';
 
-import './css/BookList.css';
+import './css/BookListBody.css';
 
 const tagsData = [
   { key: 0, class: 'grate', text: '추천', icon: <SmileOutlined /> },
@@ -14,40 +13,15 @@ const tagsData = [
   { key: 4, class: 'bad', text: '최악', icon: <FrownOutlined /> },
 ];
 
-const BookList = ({ bookList, onClick, onRefresh }) => {
-  const handleBookDelete = (id) => {
-    Modal.confirm({
-      title: '해당 도서를 삭제하시겠습니까?',
-      content: '이 작업은 되돌릴 수 없습니다.',
-      okText: '삭제',
-      okType: 'danger',
-      cancelText: '취소',
-      onOk() {
-        axios
-          .delete(`${process.env.REACT_APP_API_URL}/api/management/bookDelete/${id}`)
-          .then(() => {
-            message.success('도서를 삭제하였습니다.');
-
-            onRefresh();
-          })
-          .catch((error) => {
-            console.error('도서 삭제를 실패하였습니다.');
-          });
-      },
-      onCancel() {
-        message.info('도서 삭제를 취소하였습니다.');
-      },
-    });
-  };
-
+const BookListBody = ({ bookListBody: { bookList, handleShowModal, handleBookDelete } }) => {
   return (
-    <div className="bookList-container">
-      <div className="bookList-form">
+    <div className="bookList-body-container">
+      <div className="bookList-body-form">
         <List
           dataSource={bookList}
           renderItem={(item) => (
             <List.Item key={item._id}>
-              <div className="bookList-header">
+              <div className="bookData-header">
                 <div className="cover">
                   <Image
                     src={
@@ -61,7 +35,7 @@ const BookList = ({ bookList, onClick, onRefresh }) => {
                   />
                 </div>
               </div>
-              <div className="bookList-body">
+              <div className="bookData-body">
                 <div className="title">
                   <h2>{item.title}</h2>
                 </div>
@@ -72,7 +46,7 @@ const BookList = ({ bookList, onClick, onRefresh }) => {
                 <div className="publish-content">
                   <span className="publisher">{item.publisher}</span>
                   <span className="gap">·</span>
-                  <span className="pubDate">{`${dayjs(item.pubDate).format(
+                  <span className="publicationDate">{`${dayjs(item.publicationDate).format(
                     'YYYY년 MM월 DD일'
                   )}`}</span>
                 </div>
@@ -89,13 +63,13 @@ const BookList = ({ bookList, onClick, onRefresh }) => {
                   </div>
                 </div>
               </div>
-              <div className="bookList-state">
+              <div className="bookData-state">
                 <div className="state blink">대여 가능</div>
                 <div className="remainCount">{`잔여 수량: ${item.count}`}</div>
               </div>
-              <div className="bookList-footer">
+              <div className="bookData-footer">
                 <Space>
-                  <Button type="primary" onClick={() => onClick(item)}>
+                  <Button type="primary" onClick={() => handleShowModal(item)}>
                     수정
                   </Button>
                   <Button onClick={() => handleBookDelete(item._id)} danger>
@@ -111,4 +85,4 @@ const BookList = ({ bookList, onClick, onRefresh }) => {
   );
 };
 
-export default BookList;
+export default BookListBody;
