@@ -13,7 +13,7 @@ import BookListModal from '../../components/content/management/BookListModal';
 const BookList = () => {
   const navigate = useNavigate();
 
-  const { user } = useUser;
+  const { user } = useUser();
 
   const [groups, setGroups] = useState([]);
   const [activeGroup, setActiveGroup] = useState('');
@@ -84,12 +84,11 @@ const BookList = () => {
   };
 
   useEffect(() => {
-    /* if (!user) {
+    if (!user) {
       navigate('/login');
     } else {
       fetchGroups();
-    } */
-    fetchGroups();
+    }
   }, [user, navigate]);
 
   return (

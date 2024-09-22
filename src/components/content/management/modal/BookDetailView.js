@@ -15,14 +15,14 @@ const tabConfigurations = [
   { id: 'history', label: '열람 이력', component: BookHistory },
 ];
 
-const BookDetailView = ({ bookData, onCancel }) => {
+const BookDetailView = ({ bookData }) => {
   const [activeTabKey, setActiveTabKey] = useState('detailView');
   const [isActiveHistory, setIsActiveHistory] = useState(false);
 
   const bookAddRef = useRef(null);
   const bookHistoryRef = useRef(null);
 
-  const renderTabContent = (id, data, onClose) => {
+  const renderTabContent = (id) => {
     const tabConfig = tabConfigurations.find((item) => item.id === id);
 
     return (
@@ -33,8 +33,7 @@ const BookDetailView = ({ bookData, onCancel }) => {
             : tabConfig.component === BookHistory && {
                 ref: bookHistoryRef,
               })}
-          bookData={data}
-          onClose={onClose}
+          bookData={bookData}
         />
       )
     );
@@ -51,7 +50,7 @@ const BookDetailView = ({ bookData, onCancel }) => {
           items={tabConfigurations.map((tab) => ({
             label: tab.label,
             key: tab.id,
-            children: renderTabContent(tab.id, bookData, onCancel),
+            children: renderTabContent(tab.id),
           }))}
           onChange={(key) => {
             setActiveTabKey(key);

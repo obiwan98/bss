@@ -1,32 +1,32 @@
-import {
-  useState,
-  useEffect,
-  useRef,
-  forwardRef,
-  useImperativeHandle,
-} from "react";
+import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { useUser } from '../../../../contexts/UserContext';
 
-import { Form, Rate, Flex, Tag, Mentions, Button, message } from "antd";
-import { FrownOutlined, MehOutlined, SmileOutlined } from "@ant-design/icons";
+import { Form, Rate, Flex, Tag, Mentions, Button, message } from 'antd';
+import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
 
-import "./css/BookReviewWrite.css";
+import axios from 'axios';
+import dayjs from 'dayjs';
+
+import './css/BookReviewWrite.css';
 
 const tagsData = [
-  { key: 0, class: "grate", text: "추천", icon: <SmileOutlined /> },
-  { key: 1, class: "good", text: "최고", icon: <SmileOutlined /> },
-  { key: 2, class: "neutral", text: "보통", icon: <MehOutlined /> },
-  { key: 3, class: "poor", text: "별로", icon: <FrownOutlined /> },
-  { key: 4, class: "bad", text: "최악", icon: <FrownOutlined /> },
+  { key: 5, class: 'grate', text: '추천', icon: <SmileOutlined /> },
+  { key: 4, class: 'good', text: '최고', icon: <SmileOutlined /> },
+  { key: 3, class: 'neutral', text: '보통', icon: <MehOutlined /> },
+  { key: 2, class: 'poor', text: '별로', icon: <FrownOutlined /> },
+  { key: 1, class: 'bad', text: '최악', icon: <FrownOutlined /> },
 ];
 
 const maxLength = 1000;
 
 const BookReviewWrite = forwardRef(({ id }, ref) => {
+  const { user } = useUser();
+
   const [form] = Form.useForm();
   const [selectedTag, setSelectedTag] = useState(null);
   const [labelHeight, setLabelHeight] = useState(0);
   const [mentionsHeight, setMentionsHeight] = useState(0);
-  const [value, setValue] = useState("");
+  const [value, setValue] = useState('');
   const [count, setCount] = useState(0);
 
   const labelRef = useRef(null);
@@ -35,9 +35,9 @@ const BookReviewWrite = forwardRef(({ id }, ref) => {
   useImperativeHandle(ref, () => ({
     resetForm: () => {
       form.resetFields();
-      
+
       setSelectedTag(null);
-      setValue("");
+      setValue('');
       setCount(0);
     },
   }));
@@ -58,7 +58,30 @@ const BookReviewWrite = forwardRef(({ id }, ref) => {
     }
   };
 
-  const handleBookReviewWrite = (values) => {};
+  const handleBookReviewWrite = async (values) => {
+    const { _id, group, name } = user;
+
+    try {
+      const { rate, tag, comment } = values;
+
+      const response = await axios.put(
+        `${process.env.REACT_APP_API_URL}/api/management/reviewWrite/${id}`,
+        {
+          user: _id,
+          group: group._id,
+          rate,
+          tag,
+          comment,
+          registrationDate: dayjs(),
+          registeredBy: name,
+        }
+      );
+
+      message.success(response.data.message);
+    } catch (error) {
+      message.error('리뷰 작성을 실패하였습니다.');
+    }
+  };
 
   useEffect(() => {
     const labelTarget = labelRef?.current;
@@ -78,7 +101,7 @@ const BookReviewWrite = forwardRef(({ id }, ref) => {
           <Form.Item
             label="추천 태그"
             name="tag"
-            rules={[{ required: true, message: "추천 태그를 선택해 주세요." }]}
+            rules={[{ required: true, message: '추천 태그를 선택해 주세요.' }]}
           >
             <Flex gap={20} align="center" wrap>
               {tagsData.map((tag) => (
@@ -99,7 +122,7 @@ const BookReviewWrite = forwardRef(({ id }, ref) => {
             <Form.Item
               label={<span ref={labelRef}>리뷰 작성</span>}
               name="comment"
-              rules={[{ required: true, message: "후기를 작성해 주세요." }]}
+              rules={[{ required: true, message: '후기를 작성해 주세요.' }]}
             >
               <div ref={mentionsRef} className="mentions-body">
                 <Mentions
