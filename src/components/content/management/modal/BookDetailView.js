@@ -1,0 +1,55 @@
+import { useState, useRef } from 'react';
+
+import { Tabs } from 'antd';
+
+import BookCover from './BookCover';
+import BookAdd from './BookAdd';
+import BookReview from './BookReview';
+import BookHistory from './BookHistory';
+
+import './css/BookDetailView.css';
+
+const tabConfigurations = [
+  { id: 'detailView', label: '도서 정보', component: BookAdd },
+  { id: 'review', label: '후기', component: BookReview },
+  { id: 'history', label: '열람 이력', component: BookHistory },
+];
+
+const BookDetailView = ({ bookData }) => {
+  const [activeTabKey, setActiveTabKey] = useState('detailView');
+  const [isActiveHistory, setIsActiveHistory] = useState(false);
+
+  const bookAddRef = useRef(null);
+  const bookHistoryRef = useRef(null);
+
+  return (
+    <div className="bookDetailView-container">
+      <h2>도서 상세정보</h2>
+      <div className="bookDetailView-form">
+        <BookCover bookData={bookData} />
+        <Tabs
+          type="card"
+          activeKey={activeTabKey}
+          items={tabConfigurations.map((tab) => ({
+            label: tab.label,
+            key: tab.id,
+            children: (
+              <tab.component
+                {...(tab.component === BookAdd
+                  ? { ref: bookAddRef }
+                  : tab.component === BookHistory && { ref: bookHistoryRef })}
+                bookData={bookData}
+              />
+            ),
+          }))}
+          onChange={(key) => {
+            setActiveTabKey(key);
+            key === 'history' && setIsActiveHistory(true);
+          }}
+        />
+      </div>
+    </div>
+  );
+};
+
+export default BookDetailView;
