@@ -9,14 +9,14 @@ import BookHistory from './BookHistory';
 
 import './css/BookDetailView.css';
 
-const tabConfigurations = [
-  { id: 'detailView', label: '도서 정보', component: BookAdd },
+const tabConfig = [
+  { id: 'add', label: '도서 정보', component: BookAdd },
   { id: 'review', label: '후기', component: BookReview },
   { id: 'history', label: '열람 이력', component: BookHistory },
 ];
 
 const BookDetailView = ({ bookData }) => {
-  const [activeTabKey, setActiveTabKey] = useState('detailView');
+  const [activeTabKey, setActiveTabKey] = useState('add');
   const [isActiveHistory, setIsActiveHistory] = useState(false);
 
   const bookAddRef = useRef(null);
@@ -30,7 +30,7 @@ const BookDetailView = ({ bookData }) => {
         <Tabs
           type="card"
           activeKey={activeTabKey}
-          items={tabConfigurations.map((tab) => ({
+          items={tabConfig.map((tab) => ({
             label: tab.label,
             key: tab.id,
             children: (

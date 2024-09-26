@@ -5,11 +5,6 @@
     .ant-form {
       .ant-row {
         .ant-col {
-          img {
-            width: 100%;
-            height: auto;
-          }
-
           .ant-form-item {
             .ant-upload {
               width: 100%;

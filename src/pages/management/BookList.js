@@ -19,6 +19,7 @@ const BookList = () => {
   const [activeGroup, setActiveGroup] = useState('');
   const [bookData, setBookData] = useState(null);
   const [bookList, setBookList] = useState('');
+  const [modalType, setModalType] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const fetchGroups = async () => {
@@ -73,7 +74,8 @@ const BookList = () => {
     });
   };
 
-  const handleShowModal = (bookData) => {
+  const handleShowModal = (modalType, bookData) => {
+    setModalType(modalType);
     setBookData(bookData);
     setIsModalVisible(true);
   };
@@ -105,7 +107,7 @@ const BookList = () => {
           }}
         />
         <BookListBody bookListBody={{ bookList, handleShowModal, handleBookDelete }} />
-        <BookListModal bookListModal={{ bookData, isModalVisible, handleCloseModal }} />
+        <BookListModal bookListModal={{ modalType, bookData, isModalVisible, handleCloseModal }} />
       </div>
     </div>
   );
