@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '../../../../contexts/UserContext';
 
-import { Button, Calendar, message } from 'antd';
+import { Button, Calendar, Modal, message } from 'antd';
 
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -99,10 +99,7 @@ const BookRental = ({ bookData }) => {
       calendarDate.isAfter(bookStartDate, 'day') &&
       calendarDate.isBefore(bookEndDate, 'day');
 
-    let className = '';
-    if (isStart) className = 'start-date';
-    else if (isEnd) className = 'end-date';
-    else if (isRange) className = 'range-date';
+    const className = isStart ? 'start-date' : isEnd ? 'end-date' : isRange ? 'range-date' : '';
 
     return (
       <div className={`calendar-cell ${className}`}>
@@ -136,21 +133,31 @@ const BookRental = ({ bookData }) => {
   const handleBookRental = async () => {
     const { _id, name } = user;
 
-    try {
-      const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/management/bookHistory/${bookData._id}`,
-        {
-          user: _id,
-          startDate: bookStartDate,
-          endDate: bookEndDate,
-          registeredBy: name,
-        }
-      );
-
-      message.success(response.data.message);
-    } catch (error) {
-      message.error('도서 대여를 실패하였습니다.');
-    }
+    Modal.confirm({
+      title: '도서를 대여하시겠습니까?',
+      content: `대여 기간: ${dayjs(bookStartDate).format('YYYY-MM-DD')} ~ ${dayjs(bookEndDate).format('YYYY-MM-DD')}`,
+      okType: 'primary',
+      okText: '확인',
+      cancelText: '취소',
+      onOk() {
+        axios
+          .put(`${process.env.REACT_APP_API_URL}/api/management/bookHistory/${bookData._id}`, {
+            user: _id,
+            startDate: bookStartDate,
+            endDate: bookEndDate,
+            registeredBy: name,
+          })
+          .then(() => {
+            message.success('도서를 대여하였습니다.');
+          })
+          .catch((error) => {
+            console.error('도서 대여를 실패하였습니다.');
+          });
+      },
+      onCancel() {
+        message.info('도서 대여를 취소하였습니다.');
+      },
+    });
   };
 
   useEffect(() => {
@@ -171,9 +178,11 @@ const BookRental = ({ bookData }) => {
           fullCellRender={handleCellRender}
           onSelect={handleCalendarSelect}
         />
-        <Button type="primary" onClick={handleBookRental}>
-          신청
-        </Button>
+        {bookStartDate && bookEndDate && (
+          <Button type="primary" onClick={handleBookRental}>
+            신청
+          </Button>
+        )}
       </div>
     </div>
   );

@@ -51,10 +51,10 @@ const BookList = () => {
 
   const handleBookDelete = (id) => {
     Modal.confirm({
-      title: '해당 도서를 삭제하시겠습니까?',
+      title: '도서를 삭제하시겠습니까?',
       content: '이 작업은 되돌릴 수 없습니다.',
-      okText: '삭제',
       okType: 'danger',
+      okText: '삭제',
       cancelText: '취소',
       onOk() {
         axios

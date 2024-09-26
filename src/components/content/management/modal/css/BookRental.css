@@ -7,9 +7,11 @@
     .ant-picker-calendar {
       .ant-picker-cell {
         &.ant-picker-cell-selected {
-          background-color: #e6f4ff;
           color: #1677ff;
+          background-color: #e6f4ff;
+        }
 
+        &.ant-picker-cell-today {
           .calendar-cell {
             border-top: 2px solid #1677ff;
           }
@@ -28,9 +30,8 @@
           &.start-date,
           &.range-date,
           &.end-date {
-            border-top: 2px solid #1677ff;
-            background-color: #e6f4ff;
             color: #1677ff;
+            background-color: #e6f4ff;
           }
 
           .calendar-date {
