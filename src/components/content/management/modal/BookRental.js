@@ -80,39 +80,72 @@ const BookRental = ({ bookData }) => {
   };
 
   const handleEventRender = () => {
-    return history.map((event) => {
-      const startDate = dayjs(event.startDate).format('YYYY-MM-DD');
-      const endDate = dayjs(event.endDate).format('YYYY-MM-DD');
+    const isOverlap = (event1, event2) =>
+      event1.startDate <= event2.endDate && event1.endDate >= event2.startDate;
+    const assignEventLevels = (events) => {
+      const rows = []; // 각 줄은 배열로 구성
 
-      const eventWeeks = calendarWeeks.filter((week) =>
-        week.some((day) => startDate <= day.date && day.date <= endDate)
-      );
+      events.forEach((event) => {
+        // 각 이벤트를 배치할 수 있는 빈 줄을 찾음
+        let placed = false;
 
-      return eventWeeks.map((week, weekIndex) => {
-        const firstDay =
-          week.find((day) => day.date === startDate) || week.find((day) => day.isFirstDayOfWeek);
-        const lastDay =
-          week.find((day) => day.date === endDate) || week.find((day) => day.isLastDayOfWeek);
+        for (let i = 0; i < rows.length; i++) {
+          // 현재 줄에 있는 이벤트들과 겹치는지 확인
+          if (!rows[i].some((rowEvent) => isOverlap(rowEvent, event))) {
+            rows[i].push(event); // 겹치지 않으면 해당 줄에 이벤트를 추가
+            placed = true;
+            break;
+          }
+        }
 
-        const eventWidth = lastDay.left - firstDay.left + firstDay.width;
-
-        return (
-          firstDay && (
-            <div
-              className="event"
-              key={`${event._id}-${weekIndex}`}
-              style={{
-                top: firstDay.top + 30,
-                left: firstDay.left,
-                width: eventWidth,
-              }}
-            >
-              {event.registeredBy}
-            </div>
-          )
-        );
+        if (!placed) {
+          rows.push([event]); // 겹치는 줄이 없으면 새 줄을 추가하고 이벤트 배치
+        }
       });
-    });
+
+      return rows;
+    };
+
+    const sortedHistory = assignEventLevels(
+      [...history].sort((a, b) => dayjs(a.startDate).diff(dayjs(b.startDate)))
+    );
+
+    return sortedHistory.map((rowEvents, rowIndex) =>
+      rowEvents.map((event) => {
+        const startDate = dayjs(event.startDate).format('YYYY-MM-DD');
+        const endDate = dayjs(event.endDate).format('YYYY-MM-DD');
+
+        const eventWeeks = calendarWeeks.filter((week) =>
+          week.some((day) => startDate <= day.date && day.date <= endDate)
+        );
+
+        return eventWeeks.map((week) => {
+          const firstDay =
+            week.find((day) => day.date === startDate) || week.find((day) => day.isFirstDayOfWeek);
+          const lastDay =
+            week.find((day) => day.date === endDate) || week.find((day) => day.isLastDayOfWeek);
+
+          const eventWidth = lastDay.left - firstDay.left + firstDay.width;
+
+          return (
+            firstDay && (
+              <div
+                className="event"
+                key={`${event._id}-${rowIndex}`}
+                style={{
+                  position: 'absolute', // absolute로 위치 설정
+                  top: firstDay.top + rowIndex * 30 + 30, // rowIndex를 사용하여 위치 조정
+                  left: firstDay.left,
+                  width: eventWidth,
+                }}
+              >
+                {event.registeredBy}
+              </div>
+            )
+          );
+        });
+      })
+    );
   };
 
   const handleCalendarSelect = (date) => {
