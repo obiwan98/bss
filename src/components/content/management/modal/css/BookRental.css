@@ -11,12 +11,6 @@
           background-color: #e6f4ff;
         }
 
-        &.ant-picker-cell-today {
-          .calendar-cell {
-            border-top: 2px solid #1677ff;
-          }
-        }
-
         .calendar-cell {
           margin: 0 4px;
           padding: 4px 8px 0;
@@ -34,6 +28,10 @@
             background-color: #e6f4ff;
           }
 
+          &.today {
+            border-top: 2px solid #1677ff;
+          }
+
           .calendar-date {
             line-height: 24px;
           }
@@ -45,6 +43,17 @@
             text-align: start;
           }
         }
+      }
+    }
+
+    .bookEvent-content {
+      position: absolute;
+
+      .event {
+        position: absolute;
+        padding: 2px 5px;
+        border-radius: 4px;
+        background-color: #ffe6e6;
       }
     }
 

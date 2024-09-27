@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useUser } from '../../../../contexts/UserContext';
 
 import { Button, Calendar, Modal, message } from 'antd';
@@ -13,13 +13,22 @@ const BookRental = ({ bookData }) => {
 
   const { history } = bookData;
 
+  const [mode, setMode] = useState('month');
   const [calendarWeeks, setCalendarWeeks] = useState([]);
+  const [calendarMonth, setCalendarMonth] = useState(null);
   const [bookStartDate, setBookStartDate] = useState(null);
   const [bookEndDate, setBookEndDate] = useState(null);
 
+  const calendarContentRef = useRef(null);
+
   const today = dayjs();
 
-  /* const handlePanelChange = () => {
+  const isMonthMode = mode === 'month';
+  const isBookRental = bookStartDate && bookEndDate;
+
+  const handlePanelChange = (_, mode) => setMode(mode);
+
+  const handleCalendarWeeks = () => {
     const cells = document.querySelectorAll('.ant-picker-cell');
 
     let week = [];
@@ -33,8 +42,8 @@ const BookRental = ({ bookData }) => {
 
       week.push({
         top: cell.offsetTop,
-        left: cell.offsetLeft,
-        width: cell.offsetWidth,
+        left: cell.offsetLeft + 12,
+        width: cell.offsetWidth - 24,
         isFirstDayOfWeek: index % 7 === 0,
         isLastDayOfWeek: index % 7 === 6,
         date: dayjs().startOf('month').add(index, 'day').format('YYYY-MM-DD'),
@@ -47,10 +56,31 @@ const BookRental = ({ bookData }) => {
     }
 
     setCalendarWeeks(weeks);
-  }; */
+  };
 
-  /* const handleRenderEvent = () => {
-    return history.map((event, index) => {
+  const handleCellRender = (calendarDate) => {
+    const isToday = calendarDate.isSame(today, 'day');
+    const isStart = bookStartDate && calendarDate.isSame(bookStartDate, 'day');
+    const isEnd = bookEndDate && calendarDate.isSame(bookEndDate, 'day');
+    const isRange =
+      isBookRental &&
+      calendarDate.isAfter(bookStartDate, 'day') &&
+      calendarDate.isBefore(bookEndDate, 'day');
+
+    const className = `${isStart ? 'start-date' : isEnd ? 'end-date' : isRange ? 'range-date' : ''} ${isToday ? 'today' : ''}`;
+
+    return (
+      <div className={`calendar-cell ${className}`}>
+        <div className="calendar-date">
+          {isMonthMode ? calendarDate.format('DD') : calendarDate.format('MMM')}
+        </div>
+        <div className="calendar-content" ref={calendarContentRef}></div>
+      </div>
+    );
+  };
+
+  const handleEventRender = () => {
+    return history.map((event) => {
       const startDate = dayjs(event.startDate).format('YYYY-MM-DD');
       const endDate = dayjs(event.endDate).format('YYYY-MM-DD');
 
@@ -58,7 +88,7 @@ const BookRental = ({ bookData }) => {
         week.some((day) => startDate <= day.date && day.date <= endDate)
       );
 
-      return eventWeeks.map((week) => {
+      return eventWeeks.map((week, weekIndex) => {
         const firstDay =
           week.find((day) => day.date === startDate) || week.find((day) => day.isFirstDayOfWeek);
         const lastDay =
@@ -70,16 +100,11 @@ const BookRental = ({ bookData }) => {
           firstDay && (
             <div
               className="event"
-              key={`${event._id}-${index}`}
+              key={`${event._id}-${weekIndex}`}
               style={{
-                position: 'absolute',
-                padding: '2px 5px',
-                top: firstDay.top + index * 30 + 30,
+                top: firstDay.top + 30,
                 left: firstDay.left,
                 width: eventWidth,
-                backgroundColor: '#ffe6e6',
-                borderRadius: '4px',
-                zIndex: 2,
               }}
             >
               {event.registeredBy}
@@ -88,46 +113,32 @@ const BookRental = ({ bookData }) => {
         );
       });
     });
-  }; */
-
-  const handleCellRender = (calendarDate) => {
-    const isStart = bookStartDate && calendarDate.isSame(bookStartDate, 'day');
-    const isEnd = bookEndDate && calendarDate.isSame(bookEndDate, 'day');
-    const isRange =
-      bookStartDate &&
-      bookEndDate &&
-      calendarDate.isAfter(bookStartDate, 'day') &&
-      calendarDate.isBefore(bookEndDate, 'day');
-
-    const className = isStart ? 'start-date' : isEnd ? 'end-date' : isRange ? 'range-date' : '';
-
-    return (
-      <div className={`calendar-cell ${className}`}>
-        <div className="calendar-date">{calendarDate.format('DD')}</div>
-        <div className="calendar-content"></div>
-      </div>
-    );
   };
 
   const handleCalendarSelect = (date) => {
     const minDays = 1;
     const maxDays = 14;
 
-    const [start, end] = !bookStartDate
-      ? [date, null]
-      : !bookEndDate
-        ? !date.isSame(bookStartDate, 'day')
-          ? date.isAfter(bookStartDate)
-            ? date.diff(bookStartDate, 'day') >= minDays &&
-              date.diff(bookStartDate, 'day') <= maxDays
-              ? [bookStartDate, date]
-              : [bookStartDate, null]
-            : [date, null]
-          : [null, null]
-        : [date, null];
+    const [start, end] = isMonthMode
+      ? !bookStartDate
+        ? [date, null]
+        : !bookEndDate
+          ? !date.isSame(bookStartDate, 'day')
+            ? date.isAfter(bookStartDate)
+              ? date.diff(bookStartDate, 'day') >= minDays &&
+                date.diff(bookStartDate, 'day') <= maxDays
+                ? [bookStartDate, date]
+                : [bookStartDate, null]
+              : [date, null]
+            : [null, null]
+          : [date, null]
+      : [null, null];
 
-    setBookStartDate(start);
-    setBookEndDate(end);
+    isMonthMode
+      ? (setBookStartDate(start), setBookEndDate(end))
+      : setCalendarMonth((prevCalendarMonth) =>
+          prevCalendarMonth?.isSame(date, 'month') ? null : date
+        );
   };
 
   const handleBookRental = async () => {
@@ -161,24 +172,22 @@ const BookRental = ({ bookData }) => {
   };
 
   useEffect(() => {
-    // handlePanelChange();
-    /* window.addEventListener('resize', handlePanelChange);
-
-    return () => {
-      window.removeEventListener('resize', handlePanelChange);
-    }; */
-  }, []);
+    isMonthMode && handleCalendarWeeks();
+  }, [isMonthMode]);
 
   return (
     <div className="bookRental-container">
       <h2>도서 대여</h2>
       <div className="bookRental-form">
         <Calendar
-          value={bookStartDate || today}
+          mode={mode}
+          value={(isMonthMode && bookStartDate) || calendarMonth || today}
+          onPanelChange={handlePanelChange}
           fullCellRender={handleCellRender}
           onSelect={handleCalendarSelect}
         />
-        {bookStartDate && bookEndDate && (
+        <div className="bookEvent-content">{isMonthMode && handleEventRender()}</div>
+        {isBookRental && (
           <Button type="primary" onClick={handleBookRental}>
             신청
           </Button>
