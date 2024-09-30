@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useUser } from '../../../../contexts/UserContext';
 
-import { Form, Rate, Flex, Tag, Mentions, Button, message } from 'antd';
 import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
+import { Button, Flex, Form, Mentions, message, Rate, Tag } from 'antd';
 
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -65,7 +65,7 @@ const BookReviewWrite = forwardRef(({ id }, ref) => {
       const { rate, tag, comment } = values;
 
       const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/management/reviewWrite/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/management/bookReviewWrite/${id}`,
         {
           user: _id,
           group: group._id,

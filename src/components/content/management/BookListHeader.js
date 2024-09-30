@@ -1,4 +1,4 @@
-import { Select, Input, Button } from 'antd';
+import { Button, Input, Select } from 'antd';
 
 import './css/BookListHeader.css';
 
@@ -20,7 +20,7 @@ const BookListHeader = ({
           ))}
         </Select>
         <Search placeholder="도서명을 입력해 주세요." onSearch={handleBookSearch} enterButton />
-        <Button type="primary" onClick={() => handleShowModal(null)}>
+        <Button type="primary" onClick={() => handleShowModal('registration', null)}>
           추가
         </Button>
       </div>

@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useUser } from '../../../../contexts/UserContext';
 
-import { Table, Button } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
+import { Button, Table } from 'antd';
 
 import dayjs from 'dayjs';
 
@@ -66,20 +66,22 @@ const BookHistory = forwardRef(({ bookData }, ref) => {
       align: 'center',
     },
     {
-      title: '비고',
+      title: '후기',
       key: 'action',
       render: (_, record) => {
         const isCurrentUser = user._id === record.user;
+        const isExpired = dayjs(record.endDate).isBefore(dayjs());
 
         return (
-          isCurrentUser && (
+          isCurrentUser &&
+          isExpired && (
             <Button
               type="primary"
               size="small"
               icon={<EditOutlined />}
               onClick={() => handleReviewClick(record._id)}
             >
-              리뷰 작성
+              작성
             </Button>
           )
         );

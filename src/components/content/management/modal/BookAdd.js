@@ -1,8 +1,8 @@
-import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useUser } from '../../../../contexts/UserContext';
 
-import { Row, Col, Form, Input, Upload, Select, DatePicker, Space, Button, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { Button, Col, DatePicker, Form, Input, message, Row, Select, Space, Upload } from 'antd';
 
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -11,7 +11,7 @@ import './css/BookAdd.css';
 
 const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/gif']);
 
-const BookAdd = forwardRef(({ bookData }, ref) => {
+const BookAdd = forwardRef(({ bookData, autoBookData }, ref) => {
   const { user } = useUser();
   const { Option } = Select;
 
@@ -76,14 +76,14 @@ const BookAdd = forwardRef(({ bookData }, ref) => {
     form.resetFields();
     form.setFieldsValue({
       id: bookData?._id || '',
-      title: bookData?.title || '',
-      author: bookData?.author || '',
+      title: bookData?.title || autoBookData?.title || '',
+      author: bookData?.author || autoBookData?.author || '',
       cover: setFileList([]),
-      publisher: bookData?.publisher || '',
-      publicationDate: dayjs(bookData?.publicationDate) || dayjs(),
+      publisher: bookData?.publisher || autoBookData?.publisher || '',
+      publicationDate: dayjs(bookData?.publicationDate) || autoBookData?.pubDate || dayjs(),
       count: bookData?.count || 1,
     });
-  }, [form, bookData]);
+  }, [form, bookData, autoBookData]);
 
   useEffect(() => {
     const coverTarget = coverRef?.current;
@@ -103,7 +103,6 @@ const BookAdd = forwardRef(({ bookData }, ref) => {
 
   return (
     <div className="bookAdd-container">
-      {!isDetailView && <h2>도서 등록</h2>}
       <div className="bookAdd-form">
         <Form layout="vertical" form={form} variant="filled" onFinish={handleBookSave}>
           <Row gutter={16}>
