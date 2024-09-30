@@ -46,7 +46,7 @@ const BookRental = ({ bookData }) => {
         width: cell.offsetWidth - 24,
         isFirstDayOfWeek: index % 7 === 0,
         isLastDayOfWeek: index % 7 === 6,
-        date: dayjs().startOf('month').add(index, 'day').format('YYYY-MM-DD'),
+        date: dayjs().startOf('month').add(index, 'day'),
       });
     });
 
@@ -80,72 +80,79 @@ const BookRental = ({ bookData }) => {
   };
 
   const handleEventRender = () => {
-    const isOverlap = (event1, event2) =>
-      event1.startDate <= event2.endDate && event1.endDate >= event2.startDate;
-    const assignEventLevels = (events) => {
-      const rows = []; // 각 줄은 배열로 구성
+    const sortedHistory = history.sort((a, b) => dayjs(a.startDate).diff(dayjs(b.startDate)));
 
-      events.forEach((event) => {
-        // 각 이벤트를 배치할 수 있는 빈 줄을 찾음
-        let placed = false;
+    let levelEventMap = [];
 
-        for (let i = 0; i < rows.length; i++) {
-          // 현재 줄에 있는 이벤트들과 겹치는지 확인
-          if (!rows[i].some((rowEvent) => isOverlap(rowEvent, event))) {
-            rows[i].push(event); // 겹치지 않으면 해당 줄에 이벤트를 추가
-            placed = true;
-            break;
-          }
+    sortedHistory.map((event) => {
+      const startDate = dayjs(event.startDate);
+      const endDate = dayjs(event.endDate);
+
+      let eventLevel = 0;
+
+      if (levelEventMap.length > 0) {
+        for (let i = 0; i < levelEventMap.length; i++) {
+          const prevEvent = levelEventMap[i].event;
+          const prevStartDate = dayjs(prevEvent.startDate);
+          const prevEndDate = dayjs(prevEvent.endDate);
+
+          if (
+            (startDate.isSame(prevEndDate, 'day') || startDate.isBefore(prevEndDate, 'day')) &&
+            endDate.isAfter(prevStartDate, 'day')
+          )
+            eventLevel++;
         }
+      }
 
-        if (!placed) {
-          rows.push([event]); // 겹치는 줄이 없으면 새 줄을 추가하고 이벤트 배치
-        }
+      levelEventMap.push({
+        event,
+        level: eventLevel,
+      });
+    });
+
+    const bookEventComponent = levelEventMap.map(({ event, level }) => {
+      const startDate = dayjs(event.startDate);
+      const endDate = dayjs(event.endDate);
+
+      const eventWeeks = calendarWeeks.filter((week) =>
+        week.some(
+          (day) =>
+            (day.date.isSame(startDate, 'day') || day.date.isAfter(startDate, 'day')) &&
+            (day.date.isSame(endDate, 'day') || day.date.isBefore(endDate, 'day'))
+        )
+      );
+
+      const eventContent = eventWeeks.map((week, weekIndex) => {
+        const firstDay =
+          week.find((day) => day.date.isSame(startDate, 'day')) ||
+          week.find((day) => day.isFirstDayOfWeek);
+        const lastDay =
+          week.find((day) => day.date.isSame(endDate, 'day')) ||
+          week.find((day) => day.isLastDayOfWeek);
+
+        const eventWidth = lastDay.left - firstDay.left + firstDay.width;
+
+        return (
+          firstDay && (
+            <div
+              className="event"
+              key={`${event._id}-${weekIndex}`}
+              style={{
+                top: firstDay.top + level * 30 + 30,
+                left: firstDay.left,
+                width: eventWidth,
+              }}
+            >
+              {event.registeredBy}
+            </div>
+          )
+        );
       });
 
-      return rows;
-    };
+      return eventContent;
+    });
 
-    const sortedHistory = assignEventLevels(
-      [...history].sort((a, b) => dayjs(a.startDate).diff(dayjs(b.startDate)))
-    );
-
-    return sortedHistory.map((rowEvents, rowIndex) =>
-      rowEvents.map((event) => {
-        const startDate = dayjs(event.startDate).format('YYYY-MM-DD');
-        const endDate = dayjs(event.endDate).format('YYYY-MM-DD');
-
-        const eventWeeks = calendarWeeks.filter((week) =>
-          week.some((day) => startDate <= day.date && day.date <= endDate)
-        );
-
-        return eventWeeks.map((week) => {
-          const firstDay =
-            week.find((day) => day.date === startDate) || week.find((day) => day.isFirstDayOfWeek);
-          const lastDay =
-            week.find((day) => day.date === endDate) || week.find((day) => day.isLastDayOfWeek);
-
-          const eventWidth = lastDay.left - firstDay.left + firstDay.width;
-
-          return (
-            firstDay && (
-              <div
-                className="event"
-                key={`${event._id}-${rowIndex}`}
-                style={{
-                  position: 'absolute', // absolute로 위치 설정
-                  top: firstDay.top + rowIndex * 30 + 30, // rowIndex를 사용하여 위치 조정
-                  left: firstDay.left,
-                  width: eventWidth,
-                }}
-              >
-                {event.registeredBy}
-              </div>
-            )
-          );
-        });
-      })
-    );
+    return bookEventComponent;
   };
 
   const handleCalendarSelect = (date) => {
