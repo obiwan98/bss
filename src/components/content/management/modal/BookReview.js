@@ -26,9 +26,11 @@ const getTagData = (key) => {
 };
 
 const BookReview = ({ bookData }) => {
-  const [reviewData, setReviewData] = useState([]);
+  const { reviews } = bookData;
 
-  useEffect(() => setReviewData(bookData.review), [bookData]);
+  const [review, setReview] = useState([]);
+
+  useEffect(() => setReview(reviews), [reviews]);
 
   return (
     <div className="bookReview-container">
@@ -36,7 +38,7 @@ const BookReview = ({ bookData }) => {
         <List
           itemLayout="vertical"
           size="small"
-          dataSource={reviewData}
+          dataSource={review}
           pagination={{ pageSize: 3 }}
           renderItem={(item) => {
             const tagData = getTagData(item.tag);

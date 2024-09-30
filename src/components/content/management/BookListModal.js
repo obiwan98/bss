@@ -1,14 +1,23 @@
 import { Modal } from 'antd';
 
-import BookAdd from './modal/BookAdd';
+import BookRegistration from './modal/BookRegistration';
 import BookDetailView from './modal/BookDetailView';
+import BookRental from './modal/BookRental';
 
-const BookListModal = ({ bookListModal: { bookData, isModalVisible, handleCloseModal } }) => {
-  const ModalComponent = !bookData ? BookAdd : BookDetailView;
+const modalConfig = {
+  registration: { width: 1000, component: BookRegistration },
+  detailView: { width: 800, component: BookDetailView },
+  rental: { width: 800, component: BookRental },
+};
+
+const BookListModal = ({
+  bookListModal: { modalType, bookData, isModalVisible, handleCloseModal },
+}) => {
+  const { width: modalWidth, component: ModalComponent } = modalConfig[modalType] || {};
 
   return (
-    <Modal width={800} open={isModalVisible} footer={null} onCancel={handleCloseModal}>
-      <ModalComponent bookData={bookData} />
+    <Modal width={modalWidth} open={isModalVisible} footer={null} onCancel={handleCloseModal}>
+      {ModalComponent && <ModalComponent bookData={bookData} />}
     </Modal>
   );
 };

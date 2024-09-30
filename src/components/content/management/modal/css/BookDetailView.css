@@ -3,6 +3,10 @@
     display: flex;
     gap: 5px;
 
+    .bookCover-container {
+      width: 35%;
+    }
+
     .ant-tabs {
       flex: 1;
     }

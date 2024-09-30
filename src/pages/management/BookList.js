@@ -19,6 +19,7 @@ const BookList = () => {
   const [activeGroup, setActiveGroup] = useState('');
   const [bookData, setBookData] = useState(null);
   const [bookList, setBookList] = useState('');
+  const [modalType, setModalType] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const fetchGroups = async () => {
@@ -50,10 +51,10 @@ const BookList = () => {
 
   const handleBookDelete = (id) => {
     Modal.confirm({
-      title: '해당 도서를 삭제하시겠습니까?',
+      title: '도서를 삭제하시겠습니까?',
       content: '이 작업은 되돌릴 수 없습니다.',
-      okText: '삭제',
       okType: 'danger',
+      okText: '삭제',
       cancelText: '취소',
       onOk() {
         axios
@@ -73,7 +74,8 @@ const BookList = () => {
     });
   };
 
-  const handleShowModal = (bookData) => {
+  const handleShowModal = (modalType, bookData) => {
+    setModalType(modalType);
     setBookData(bookData);
     setIsModalVisible(true);
   };
@@ -105,7 +107,7 @@ const BookList = () => {
           }}
         />
         <BookListBody bookListBody={{ bookList, handleShowModal, handleBookDelete }} />
-        <BookListModal bookListModal={{ bookData, isModalVisible, handleCloseModal }} />
+        <BookListModal bookListModal={{ modalType, bookData, isModalVisible, handleCloseModal }} />
       </div>
     </div>
   );

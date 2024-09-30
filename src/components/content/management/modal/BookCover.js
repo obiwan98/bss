@@ -4,15 +4,43 @@ import { Image, Rate } from 'antd';
 import './css/BookCover.css';
 
 const BookCover = ({ bookData }) => {
-  const [imageUrl, setImageUrl] = useState('');
-  const [rating, setRating] = useState(0);
+  const { reviews } = bookData;
+
+  const [imageUrl, setImageUrl] = useState(null);
+  const [rate, setRate] = useState(0);
+
+  const handleImageCheck = async (url) => {
+    try {
+      const response = await fetch(url, { method: 'HEAD' });
+
+      response.ok && setImageUrl(url);
+    } catch (error) {
+      setImageUrl(null);
+    }
+  };
+
+  const handleRateAverage = (reviews) => {
+    const average =
+      reviews.length !== 0
+        ? Math.round((reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length) * 2) /
+          2
+        : 0;
+
+    setRate(average);
+  };
+
+  const handleCoverReset = () => {
+    setImageUrl(null);
+    setRate(0);
+  };
 
   useEffect(() => {
-    setImageUrl(
-      bookData?.cover ? `${process.env.REACT_APP_API_URL}/uploads/${bookData.cover}` : ''
-    );
-    setRating(3.5);
-  }, [bookData]);
+    handleCoverReset();
+
+    bookData?.cover &&
+      handleImageCheck(`${process.env.REACT_APP_API_URL}/uploads/${bookData.cover}`);
+    reviews && handleRateAverage(reviews);
+  }, [bookData, reviews]);
 
   return (
     <div className="bookCover-container">
@@ -22,15 +50,15 @@ const BookCover = ({ bookData }) => {
             <Image src={imageUrl} preview={false} alt="책표지" />
             <div className="rate-form">
               <span>리뷰 평점:</span>
-              <Rate value={rating} allowHalf disabled />
-              <span>{rating.toFixed(1)}</span>
+              <Rate value={rate} allowHalf disabled />
+              <span>{rate.toFixed(1)}</span>
             </div>
           </>
         ) : (
           <div className="rate-form-noImage">
             <span className="rating-label">리뷰 평점</span>
-            <span className="rating-value">{rating.toFixed(1)}</span>
-            <Rate value={rating} allowHalf disabled />
+            <span className="rating-value">{rate.toFixed(1)}</span>
+            <Rate value={rate} allowHalf disabled />
           </div>
         )}
       </div>

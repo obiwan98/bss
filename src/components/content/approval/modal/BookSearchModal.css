@@ -1,41 +1,62 @@
 .ant-modal-header {
-    margin-top: 20px;
-    margin-left: 20px;
-    margin-bottom: 20px;
+  margin-top: 20px;
+  margin-left: 20px;
+  margin-bottom: 20px;
 }
 
-.ant-modal-body{
-    margin-top: 20px;
+.ant-modal-body {
+  margin-top: 20px;
 }
 
 .bookSearch_method {
-    margin-bottom: 15px;
-    text-align: center;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
-.bookSearch_searchbar {
-    padding: 20;
+.bookSearchAPI-container {
+  .bookSearchAPI-form {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+
+    .bookSearch-header {
+      display: flex;
+      gap: 5px;
+
+      .bookSearch_searchbar {
+        padding: 20;
+      }
+
+      .ant-btn {
+        &.ant-btn-primary {
+          background-color: #5055b1;
+        }
+      }
+    }
+  }
 }
 
 .bookSearch_modal {
-    height: 400px;
-    overflow: auto;
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  overflow: auto;
 }
 
 .book_radio {
-    width: auto;
-    margin-top: 15px;
+  width: auto;
+  margin-top: 15px;
 }
 
 .book_radio > span:first-child {
-    width: 16px;
+  width: 16px;
 }
 
 .book_radio > span:last-child {
-    width: 900px;
+  width: 900px;
 }
 
 .bookSearch_Descriptions .ant-descriptions-row .ant-descriptions-item-label {
-    width: 220px;
-    padding: 5px 5px;
+  width: 220px;
+  padding: 5px 5px;
 }

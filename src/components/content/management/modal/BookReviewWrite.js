@@ -65,7 +65,7 @@ const BookReviewWrite = forwardRef(({ id }, ref) => {
       const { rate, tag, comment } = values;
 
       const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/management/reviewWrite/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/management/bookReviewWrite/${id}`,
         {
           user: _id,
           group: group._id,

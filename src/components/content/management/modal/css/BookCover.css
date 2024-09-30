@@ -1,6 +1,4 @@
 .bookCover-container {
-  width: 35%;
-
   .bookCover-form {
     display: flex;
     flex-direction: column;
