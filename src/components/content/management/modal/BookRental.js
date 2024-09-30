@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import './css/BookRental.css';
 
 const BookRental = ({ bookData }) => {
-  const { user } = useUser();``
+  const { user } = useUser();
 
   const { history } = bookData;
 
@@ -88,7 +88,7 @@ const BookRental = ({ bookData }) => {
       const startDate = dayjs(event.startDate);
       const endDate = dayjs(event.endDate);
     
-      let eventLevel = 0; 
+      let eventLevel = 0;
     
       // 가장 낮은 레벨부터 겹치지 않는 레벨을 찾기
       for (let level = 0; level <= levelEventMap.length; level++) {
