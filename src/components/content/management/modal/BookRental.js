@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useUser } from '../../../../contexts/UserContext';
 
 import { Button, Calendar, Modal, message } from 'antd';
@@ -9,7 +9,7 @@ import dayjs from 'dayjs';
 import './css/BookRental.css';
 
 const BookRental = ({ bookData }) => {
-  const { user } = useUser();
+  const { user } = useUser();``
 
   const { history } = bookData;
 
@@ -84,30 +84,37 @@ const BookRental = ({ bookData }) => {
 
     let levelEventMap = [];
 
-    sortedHistory.map((event) => {
+    sortedHistory.forEach((event) => {
       const startDate = dayjs(event.startDate);
       const endDate = dayjs(event.endDate);
-
-      let eventLevel = 0;
-
-      if (levelEventMap.length > 0) {
-        for (let i = 0; i < levelEventMap.length; i++) {
-          const prevEvent = levelEventMap[i].event;
+    
+      let eventLevel = 0; 
+    
+      // 가장 낮은 레벨부터 겹치지 않는 레벨을 찾기
+      for (let level = 0; level <= levelEventMap.length; level++) {
+        const isOverlap = levelEventMap.some(({ event: prevEvent, level: prevLevel }) => {
           const prevStartDate = dayjs(prevEvent.startDate);
           const prevEndDate = dayjs(prevEvent.endDate);
-
-          if (
-            (startDate.isSame(prevEndDate, 'day') || startDate.isBefore(prevEndDate, 'day')) &&
-            endDate.isAfter(prevStartDate, 'day')
-          )
-            eventLevel++;
+    
+          // 같은 레벨에 있는 이벤트 중 겹치는 이벤트가 있는지
+          return (
+            level === prevLevel && // 같은 레벨인지
+            startDate.isBefore(prevEndDate) && endDate.isAfter(prevStartDate) // 겹치는지
+          );
+        });
+    
+        // 겹치지 않는 레벨을 찾으면 해당 레벨을 할당
+        if (!isOverlap) {
+          eventLevel = level;
+          break;
         }
       }
-
+    
       levelEventMap.push({
         event,
         level: eventLevel,
       });
+      console.log(levelEventMap);
     });
 
     const bookEventComponent = levelEventMap.map(({ event, level }) => {
