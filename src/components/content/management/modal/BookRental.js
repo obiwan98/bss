@@ -11,7 +11,7 @@ import './css/BookRental.css';
 const BookRental = ({ bookData }) => {
   const { user } = useUser();
 
-  const { history } = bookData;
+  const { _id, history } = bookData;
 
   const [mode, setMode] = useState('month');
   const [value, setValue] = useState(dayjs());
@@ -27,6 +27,43 @@ const BookRental = ({ bookData }) => {
     setValue(value);
     setBookStartDate(null);
     setBookEndDate(null);
+  };
+
+  const handleCellRender = (calendarDate) => {
+    const isToday = calendarDate.isSame(dayjs(), isMonthMode ? 'day' : 'month');
+    const isStart = bookStartDate && calendarDate.isSame(bookStartDate, 'day');
+    const isEnd = bookEndDate && calendarDate.isSame(bookEndDate, 'day');
+    const isRange =
+      isBookRental &&
+      calendarDate.isAfter(bookStartDate, 'day') &&
+      calendarDate.isBefore(bookEndDate, 'day');
+
+    const className = `${isStart ? 'start-date' : isEnd ? 'end-date' : isRange ? 'range-date' : ''} ${isToday ? 'today' : ''}`;
+
+    return (
+      <div
+        className={`calendar-cell ${className}`}
+        onClick={() => handleCalendarSelect(calendarDate)}
+      >
+        <div className="calendar-date">
+          {isMonthMode ? calendarDate.format('DD') : calendarDate.format('MMM')}
+        </div>
+        <div className="calendar-content"></div>
+      </div>
+    );
+  };
+
+  const handleBookEvent = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/management/bookHistory/${_id}`,
+        {
+          params: {},
+        }
+      );
+    } catch (error) {
+      message.error('도서 대여 정보를 가져오는데 실패하였습니다.');
+    }
   };
 
   const handleCalendarWeeks = () => {
@@ -66,30 +103,6 @@ const BookRental = ({ bookData }) => {
     }
 
     setCalendarWeeks(weeks);
-  };
-
-  const handleCellRender = (calendarDate) => {
-    const isToday = calendarDate.isSame(dayjs(), isMonthMode ? 'day' : 'month');
-    const isStart = bookStartDate && calendarDate.isSame(bookStartDate, 'day');
-    const isEnd = bookEndDate && calendarDate.isSame(bookEndDate, 'day');
-    const isRange =
-      isBookRental &&
-      calendarDate.isAfter(bookStartDate, 'day') &&
-      calendarDate.isBefore(bookEndDate, 'day');
-
-    const className = `${isStart ? 'start-date' : isEnd ? 'end-date' : isRange ? 'range-date' : ''} ${isToday ? 'today' : ''}`;
-
-    return (
-      <div
-        className={`calendar-cell ${className}`}
-        onClick={() => handleCalendarSelect(calendarDate)}
-      >
-        <div className="calendar-date">
-          {isMonthMode ? calendarDate.format('DD') : calendarDate.format('MMM')}
-        </div>
-        <div className="calendar-content"></div>
-      </div>
-    );
   };
 
   const handleEventRender = () => {
