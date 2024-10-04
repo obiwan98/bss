@@ -54,11 +54,17 @@
         padding: 2px 5px;
         border-radius: 4px;
         background-color: #ffe6e6;
+
+        &.active {
+          color: #e6f4ff;
+          background-color: #5055b1;
+        }
       }
     }
 
     .ant-btn {
       margin-left: auto;
+      background-color: #5055b1;
     }
   }
 }

@@ -11,6 +11,8 @@ import './css/BookRental.css';
 const BookRental = ({ bookData }) => {
   const { user } = useUser();
 
+  const { _id, name } = user;
+
   const [mode, setMode] = useState('month');
   const [value, setValue] = useState(dayjs());
   const [calendarWeeks, setCalendarWeeks] = useState([]);
@@ -189,10 +191,12 @@ const BookRental = ({ bookData }) => {
 
         const eventWidth = lastDay.left - firstDay.left + firstDay.width;
 
+        const className = event.user === _id ? 'active' : '';
+
         return (
           firstDay && (
             <div
-              className="event"
+              className={`event ${className}`}
               key={`${event._id}-${index}`}
               style={{
                 top: firstDay.top + level * 30 + 30,
@@ -237,8 +241,6 @@ const BookRental = ({ bookData }) => {
   };
 
   const handleBookRental = async () => {
-    const { _id, name } = user;
-
     Modal.confirm({
       title: '도서를 대여하시겠습니까?',
       content: `대여 기간: ${dayjs(bookStartDate).format('YYYY-MM-DD')} ~ ${dayjs(bookEndDate).format('YYYY-MM-DD')}`,
