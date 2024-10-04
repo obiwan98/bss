@@ -11,11 +11,10 @@ import './css/BookRental.css';
 const BookRental = ({ bookData }) => {
   const { user } = useUser();
 
-  const { _id, history } = bookData;
-
   const [mode, setMode] = useState('month');
   const [value, setValue] = useState(dayjs());
   const [calendarWeeks, setCalendarWeeks] = useState([]);
+  const [bookHistory, setBookHistory] = useState([]);
   const [bookStartDate, setBookStartDate] = useState(null);
   const [bookEndDate, setBookEndDate] = useState(null);
 
@@ -27,6 +26,8 @@ const BookRental = ({ bookData }) => {
     setValue(value);
     setBookStartDate(null);
     setBookEndDate(null);
+
+    mode === 'month' && handleBookHistory(value);
   };
 
   const handleCellRender = (calendarDate) => {
@@ -53,33 +54,60 @@ const BookRental = ({ bookData }) => {
     );
   };
 
-  const handleBookEvent = async () => {
+  const handleBookHistory = async (value) => {
+    const firstDayOfMonth = value?.startOf('month') || dayjs().startOf('month');
+    const lastDayOfMonth = value?.endOf('month') || dayjs().endOf('month');
+
     try {
       const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/management/bookHistory/${_id}`,
-        {
-          params: {},
-        }
+        `${process.env.REACT_APP_API_URL}/api/management/bookHistory/${bookData._id}`
       );
+
+      const filteredHistory = response.data.filter(
+        (event) =>
+          (dayjs(event.startDate).isSame(firstDayOfMonth, 'day') ||
+            dayjs(event.startDate).isAfter(firstDayOfMonth, 'day')) &&
+          (dayjs(event.endDate).isSame(lastDayOfMonth, 'day') ||
+            dayjs(event.endDate).isBefore(lastDayOfMonth, 'day'))
+      );
+
+      const sortedBookHistory = filteredHistory.sort((a, b) => {
+        const startDateDiff = dayjs(a.startDate)
+          .startOf('day')
+          .diff(dayjs(b.startDate).startOf('day'));
+
+        if (startDateDiff !== 0) return startDateDiff;
+
+        const durationA = dayjs(a.endDate).diff(dayjs(a.startDate));
+        const durationB = dayjs(b.endDate).diff(dayjs(b.startDate));
+
+        return durationB - durationA;
+      });
+
+      setValue(value || dayjs());
+      setBookHistory(sortedBookHistory);
+      setBookStartDate(null);
+      setBookEndDate(null);
+
+      handleCalendarWeeks(firstDayOfMonth);
     } catch (error) {
       message.error('도서 대여 정보를 가져오는데 실패하였습니다.');
     }
   };
 
-  const handleCalendarWeeks = () => {
+  const handleCalendarWeeks = (firstDayOfMonth) => {
     const cells = document.querySelectorAll('.ant-picker-cell');
 
     let week = [];
     const weeks = [];
 
-    const firstDayOfMonth = dayjs().startOf('month');
     const firstDayOfWeekIndex = firstDayOfMonth.day();
-    const prevMonthLastDay = firstDayOfMonth.subtract(1, 'month').endOf('month');
+    const prevLastDayOfMonth = firstDayOfMonth.subtract(1, 'month').endOf('month');
 
     Array.from(cells).forEach((cell, index) => {
       const date =
         index < firstDayOfWeekIndex
-          ? prevMonthLastDay.subtract(firstDayOfWeekIndex - index - 1, 'day')
+          ? prevLastDayOfMonth.subtract(firstDayOfWeekIndex - index - 1, 'day')
           : firstDayOfMonth.add(index - firstDayOfWeekIndex, 'day');
 
       if (index % 7 === 0 && week.length) {
@@ -106,11 +134,9 @@ const BookRental = ({ bookData }) => {
   };
 
   const handleEventRender = () => {
-    const sortedHistory = history.sort((a, b) => dayjs(a.startDate).diff(dayjs(b.startDate)));
-
     let levelEventMap = [];
 
-    sortedHistory.forEach((event) => {
+    bookHistory.forEach((event) => {
       const startDate = dayjs(event.startDate);
       const endDate = dayjs(event.endDate);
 
@@ -229,6 +255,8 @@ const BookRental = ({ bookData }) => {
           })
           .then(() => {
             message.success('도서를 대여하였습니다.');
+
+            handleBookHistory();
           })
           .catch((error) => {
             console.error('도서 대여를 실패하였습니다.');
@@ -241,8 +269,8 @@ const BookRental = ({ bookData }) => {
   };
 
   useEffect(() => {
-    isMonthMode && handleCalendarWeeks();
-  }, [isMonthMode]);
+    handleBookHistory();
+  }, []);
 
   return (
     <div className="bookRental-container">
@@ -254,7 +282,7 @@ const BookRental = ({ bookData }) => {
           onPanelChange={handlePanelChange}
           fullCellRender={handleCellRender}
         />
-        <div className="bookEvent-content">{isMonthMode && handleEventRender()}</div>
+        {isMonthMode && <div className="bookEvent-content">{handleEventRender()}</div>}
         {isBookRental && (
           <Button type="primary" onClick={handleBookRental}>
             신청
