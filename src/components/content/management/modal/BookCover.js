@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
 import { Image, Rate } from 'antd';
+import { useEffect, useState } from 'react';
 
 import './css/BookCover.css';
 

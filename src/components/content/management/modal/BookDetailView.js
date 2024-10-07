@@ -1,11 +1,11 @@
-import { useState, useRef } from 'react';
+import { useRef, useState } from 'react';
 
 import { Tabs } from 'antd';
 
-import BookCover from './BookCover';
 import BookAdd from './BookAdd';
-import BookReview from './BookReview';
+import BookCover from './BookCover';
 import BookHistory from './BookHistory';
+import BookReview from './BookReview';
 
 import './css/BookDetailView.css';
 

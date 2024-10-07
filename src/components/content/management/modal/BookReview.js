@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import { List, Avatar, Rate } from 'antd';
 import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
+import { Avatar, List, Rate } from 'antd';
 
 import dayjs from 'dayjs';
 
