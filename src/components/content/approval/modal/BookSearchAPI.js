@@ -24,6 +24,7 @@ const BookSearchAPI = ({ handleAutoBookData }) => {
         })
         .then((response) => {
           setBooks(response.data);
+          setErrorMessage1();
         })
         .catch((error) => {
           console.error('Error fetching books:', error);
