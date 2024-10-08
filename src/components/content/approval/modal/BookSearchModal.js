@@ -11,7 +11,13 @@ const BookSearchModal = ({ isModalOpen, handleCancel, getData }) => {
   };
 
   return (
-    <Modal width={1000} open={isModalOpen.open} footer={null} onCancel={handleCancel}>
+    <Modal
+      width={1000}
+      open={isModalOpen.open}
+      footer={null}
+      onCancel={handleCancel}
+      destroyOnClose={true}
+    >
       <BookSearchAPI handleAutoBookData={handleAutoBookData} />
     </Modal>
   );
