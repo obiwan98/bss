@@ -4,14 +4,13 @@ import axios from 'axios';
 import './BookSearchModal.css';
 
 const BookSearchAPI = ({ handleAutoBookData }) => {
-  /** 검색방법1 - 제목+저자+ISBN */
   const { Search } = Input;
   const [loading, setLoading] = useState(false);
   const [radioValue, setRadioValue] = useState('');
   const [searchValue, setSearchValue] = useState('');
   const [selectedTitle, setSelectedTitle] = useState('');
   const [books, setBooks] = useState([]);
-  const [errorMessage1, setErrorMessage1] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   /** 제목+저자 조회 */
   useEffect(() => {
@@ -25,11 +24,11 @@ const BookSearchAPI = ({ handleAutoBookData }) => {
         })
         .then((response) => {
           setBooks(response.data);
-          setErrorMessage1();
+          setErrorMessage();
         })
         .catch((error) => {
           console.error('Error fetching books:', error);
-          setErrorMessage1(
+          setErrorMessage(
             `Error fetching books: ${error.response ? error.response.data.error : error.message}`
           );
         })
@@ -57,7 +56,7 @@ const BookSearchAPI = ({ handleAutoBookData }) => {
 
   return (
     <div className="bookSearchAPI-container">
-      <h2>도서 검색 제목 / 저자 / ISBN</h2>
+      <h2>도서 검색 (제목 / 저자 / ISBN)</h2>
       <div className="bookSearchAPI-form">
         <div className="bookSearch-header">
           <Search
@@ -71,7 +70,7 @@ const BookSearchAPI = ({ handleAutoBookData }) => {
           </Button>
         </div>
         <div className="bookSearch-body">
-          {errorMessage1 && <Alert message={errorMessage1} type="error" showIcon />}
+          {errorMessage && <Alert message={errorMessage} type="error" showIcon />}
           <div className="bookSearch_modal">
             {loading ? (
               <div

@@ -1,7 +1,5 @@
 import { Modal } from 'antd';
-
 import BookSearchAPI from './BookSearchAPI';
-
 import './BookSearchModal.css';
 
 const BookSearchModal = ({ isModalOpen, handleCancel, getData }) => {
