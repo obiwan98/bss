@@ -33,27 +33,33 @@
         }
       }
     }
+
+    .bookSearch-body {
+      width: 100%;
+      height: auto;
+
+      .bookSearch_modal {
+        display: flex;
+        flex-direction: column;
+        width: auto;
+        height: 335px;
+        overflow: auto;
+
+        .book_radio {
+          margin-top: 15px;
+          width: 98%;
+
+          > span:first-child {
+            width: 16px;
+          }
+
+          > span:last-child {
+            width: 100%;
+          }
+        }
+      }
+    }
   }
-}
-
-.bookSearch_modal {
-  display: flex;
-  flex-direction: column;
-  height: 400px;
-  overflow: auto;
-}
-
-.book_radio {
-  width: auto;
-  margin-top: 15px;
-}
-
-.book_radio > span:first-child {
-  width: 16px;
-}
-
-.book_radio > span:last-child {
-  width: 900px;
 }
 
 .bookSearch_Descriptions .ant-descriptions-row .ant-descriptions-item-label {

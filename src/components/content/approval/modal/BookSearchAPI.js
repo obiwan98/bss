@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert, Avatar, List, Spin, Radio, Input, Button } from 'antd';
+import { Alert, Avatar, List, Spin, Radio, Input, Button, message } from 'antd';
 import axios from 'axios';
 import './BookSearchModal.css';
 
@@ -7,7 +7,8 @@ const BookSearchAPI = ({ handleAutoBookData }) => {
   /** 검색방법1 - 제목+저자+ISBN */
   const { Search } = Input;
   const [loading, setLoading] = useState(false);
-  const [radioValue, setRadioValue] = useState();
+  const [radioValue, setRadioValue] = useState('');
+  const [searchValue, setSearchValue] = useState('');
   const [selectedTitle, setSelectedTitle] = useState('');
   const [books, setBooks] = useState([]);
   const [errorMessage1, setErrorMessage1] = useState('');
@@ -24,6 +25,7 @@ const BookSearchAPI = ({ handleAutoBookData }) => {
         })
         .then((response) => {
           setBooks(response.data);
+          setErrorMessage1();
         })
         .catch((error) => {
           console.error('Error fetching books:', error);
@@ -37,18 +39,34 @@ const BookSearchAPI = ({ handleAutoBookData }) => {
     }
   }, [selectedTitle]);
 
-  const handleRadioChange = (e) => {
-    console.log('radio checked', e.target.value);
-    setRadioValue(e.target.value);
+  const handleAutoSave = () => {
+    if (!radioValue) {
+      message.info('도서를 선택해주세요.');
+    } else {
+      handleAutoBookData(radioValue);
+
+      // useState 초기화
+      setBooks([]);
+      setRadioValue('');
+      setSearchValue('');
+      setSelectedTitle('');
+    }
   };
+
+  const handleRadioChange = (e) => setRadioValue(e.target.value);
 
   return (
     <div className="bookSearchAPI-container">
       <h2>도서 검색 제목 / 저자 / ISBN</h2>
       <div className="bookSearchAPI-form">
         <div className="bookSearch-header">
-          <Search className="bookSearch_searchbar" onSearch={setSelectedTitle} />
-          <Button type="primary" onClick={() => handleAutoBookData(radioValue)}>
+          <Search
+            className="bookSearch_searchbar"
+            value={searchValue}
+            onChange={(e) => setSearchValue(e.target.value)}
+            onSearch={setSelectedTitle}
+          />
+          <Button type="primary" onClick={handleAutoSave}>
             저장
           </Button>
         </div>

@@ -1,5 +1,5 @@
 import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
-import { Button, Image, List, Rate, Space } from 'antd';
+import { List, Image, Rate, Space, Button } from 'antd';
 
 import dayjs from 'dayjs';
 
@@ -74,12 +74,14 @@ const BookListBody = ({ bookListBody: { bookList, handleShowModal, handleBookDel
                 </div>
                 <div className="bookData-body">
                   <div className="title">
-                    <h2>{item.title}</h2>
+                    <h2>
+                      <a href={item.link} target="_blank" rel="noopener noreferrer">
+                        {item.title}
+                      </a>
+                    </h2>
                   </div>
-                  <div className="author">
-                    {item.author}
-                    <span>저자</span>
-                  </div>
+                  <div className="description">{item.description}</div>
+                  <div className="author">{item.author}</div>
                   <div className="publish-content">
                     <span className="publisher">{item.publisher}</span>
                     <span className="gap">·</span>

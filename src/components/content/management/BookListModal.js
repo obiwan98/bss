@@ -16,7 +16,13 @@ const BookListModal = ({
   const { width: modalWidth, component: ModalComponent } = modalConfig[modalType] || {};
 
   return (
-    <Modal width={modalWidth} open={isModalVisible} footer={null} onCancel={handleCloseModal}>
+    <Modal
+      width={modalWidth}
+      open={isModalVisible}
+      footer={null}
+      onCancel={handleCloseModal}
+      destroyOnClose={true}
+    >
       {ModalComponent && <ModalComponent bookData={bookData} />}
     </Modal>
   );

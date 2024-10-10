@@ -6,6 +6,12 @@
       .ant-row {
         .ant-col {
           .ant-form-item {
+            #title,
+            #description,
+            #author {
+              text-overflow: ellipsis;
+            }
+
             .ant-upload {
               width: 100%;
               height: 50px !important;
