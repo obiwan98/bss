@@ -32,9 +32,6 @@ const App = () => {
         const decodedPayload = JSON.parse(atob(payloadBase64)); // Base64 디코딩
         const expirationTime = decodedPayload.exp * 1000; // exp는 초 단위이므로 밀리초로 변환
 
-        console.log("Date.now()     : " + Date.now());
-        console.log("expirationTime : " + expirationTime);
-
         return Date.now() > expirationTime; // 현재 시간과 만료 시간을 비교
       } catch (error) {
         console.error('Invalid token', error);

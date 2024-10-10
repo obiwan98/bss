@@ -12,8 +12,7 @@ const useFetchBooksByQuery = (query) => {
         setLoading(true);
         try {
           const booksData = await fetchBooksByQuery(query);
-					console.log(booksData);
-          setBooks(booksData);
+          setBooks(booksData.books);
         } catch (error) {
           setErrorMessage('Error fetching books');
         } finally {

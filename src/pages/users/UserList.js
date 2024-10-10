@@ -1,4 +1,4 @@
-import { Form, message, Modal } from 'antd';
+import { Form, message, Modal, Spin } from 'antd';
 import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -30,21 +30,19 @@ const UserList = () => {
   }, [user, navigate, roles, groups, loading]);
 
 	if (loading) {
-    return <div>로딩 중...</div>;  // 로딩 중일 때는 로딩 메시지 표시
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><Spin size="large" /></div>;  // 로딩 중일 때는 로딩 메시지 표시
   }
 
   const getFilteredUser = async () => {
     try {
       const token = localStorage.getItem('token');
       if (!token) return;
-
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/users`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-      const allUsers = response.data;
-
+      const allUsers = response.data.users;
       if (selectedTeam) {
         const filtered = allUsers.filter((user) => user.group._id === selectedTeam);
         setFilteredUsers(filtered);
