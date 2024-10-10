@@ -14,8 +14,8 @@ const SignUp = () => {
       try {
         const rolesResponse = await axios.get(process.env.REACT_APP_API_URL + '/api/roles');
         const groupsResponse = await axios.get(process.env.REACT_APP_API_URL + '/api/groups');
-        setRoles(rolesResponse.data);
-        setGroups(groupsResponse.data);
+        setRoles(rolesResponse.data.roles);
+        setGroups(groupsResponse.data.groups);
       } catch (error) {
         console.error('Error fetching roles and groups:', error);
         setErrorMessage('Error fetching roles and groups');

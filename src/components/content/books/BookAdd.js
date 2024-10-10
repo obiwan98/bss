@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef, useCallback, forwardRef, useImperativeHandle } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../../contexts/UserContext';
 
-import { Row, Col, Form, Input, Upload, Select, DatePicker, Space, Button, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
+import { Button, Col, DatePicker, Form, Input, message, Row, Select, Space, Upload } from 'antd';
 
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -36,7 +36,7 @@ const BookAdd = forwardRef(({ bookData, onClose }, ref) => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/groups`);
 
-      setGroups(response.data);
+      setGroups(response.data.groups);
     } catch (error) {
       console.log('error: ', error);
     }
@@ -53,7 +53,7 @@ const BookAdd = forwardRef(({ bookData, onClose }, ref) => {
           },
         });
 
-        const allUsers = response.data;
+        const allUsers = response.data.users;
         const groupUsers = allUsers.filter((user) => user.group._id === value);
 
         setUsers(groupUsers);

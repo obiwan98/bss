@@ -64,7 +64,7 @@ const BookList = () => {
         `${process.env.REACT_APP_API_URL}/api/groups`
       );
 
-      setGroups(response.data);
+      setGroups(response.data.groups);
     } catch (error) {console.log(error);}
   };
 
@@ -80,7 +80,7 @@ const BookList = () => {
         }
       );
 
-      setBookList(response.data);
+      setBookList(response.data.books);
     } catch (error) {
       console.log(error);
     }

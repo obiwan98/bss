@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { Alert, Avatar, List, Spin, Radio, Input, Button, message } from 'antd';
+import { Alert, Avatar, Button, Input, List, message, Radio, Spin } from 'antd';
 import axios from 'axios';
+import React, { useEffect, useState } from 'react';
 import './BookSearchModal.css';
 
 const BookSearchAPI = ({ handleAutoBookData }) => {
@@ -23,7 +23,8 @@ const BookSearchAPI = ({ handleAutoBookData }) => {
           maxResults: '50',
         })
         .then((response) => {
-          setBooks(response.data);
+          console.log(response.data.books);
+          setBooks(response.data.books);
           setErrorMessage();
         })
         .catch((error) => {
