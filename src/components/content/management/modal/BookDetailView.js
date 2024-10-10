@@ -19,9 +19,6 @@ const BookDetailView = ({ bookData }) => {
   const [activeTabKey, setActiveTabKey] = useState('add');
   const [isActiveHistory, setIsActiveHistory] = useState(false);
 
-  const bookAddRef = useRef(null);
-  const bookHistoryRef = useRef(null);
-
   return (
     <div className="bookDetailView-container">
       <h2>도서 상세정보</h2>
@@ -33,14 +30,7 @@ const BookDetailView = ({ bookData }) => {
           items={tabConfig.map((tab) => ({
             label: tab.label,
             key: tab.id,
-            children: (
-              <tab.component
-                {...(tab.component === BookAdd
-                  ? { ref: bookAddRef }
-                  : tab.component === BookHistory && { ref: bookHistoryRef })}
-                bookData={bookData}
-              />
-            ),
+            children: <tab.component bookData={bookData} />,
           }))}
           onChange={(key) => {
             setActiveTabKey(key);

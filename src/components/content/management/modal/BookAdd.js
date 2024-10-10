@@ -1,8 +1,8 @@
-import { forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useUser } from '../../../../contexts/UserContext';
 
+import { Form, Row, Col, Input, Upload, DatePicker, Select, Space, Button, message } from 'antd';
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, Col, DatePicker, Form, Input, message, Row, Select, Space, Upload } from 'antd';
 
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -11,21 +11,18 @@ import './css/BookAdd.css';
 
 const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/gif']);
 
-const BookAdd = forwardRef(({ bookData, autoBookData }, ref) => {
+const BookAdd = ({ bookData, autoBookData }) => {
   const { user } = useUser();
   const { Option } = Select;
 
   const [form] = Form.useForm();
   const [fileList, setFileList] = useState([]);
   const [coverHeight, setCoverHeight] = useState(0);
+  const [activeBookData, setActiveBookData] = useState(null);
 
   const coverRef = useRef(null);
 
   const isDetailView = !!bookData;
-
-  useImperativeHandle(ref, () => ({
-    resetForm: () => handleBookReset(),
-  }));
 
   const handleUploadChange = ({ file, fileList: newFileList }) => {
     const isFileRemoved = file.status === 'removed';
@@ -38,11 +35,34 @@ const BookAdd = forwardRef(({ bookData, autoBookData }, ref) => {
     setFileList(isFileRemoved || isFileValid ? newFileList : []);
   };
 
+  const handleBookData = async () => {
+    try {
+      const response = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/management/bookList/${bookData._id}`
+      );
+
+      setActiveBookData(response.data);
+    } catch (error) {
+      message.error('도서 정보를 가져오는데 실패하였습니다.');
+    }
+  };
+
   const handleBookSave = async (values) => {
     const { group, name } = user;
 
     try {
-      const { id, title, author, cover, publisher, publicationDate, count } = values;
+      const {
+        id,
+        title,
+        link,
+        description,
+        author,
+        cover,
+        isbn,
+        publisher,
+        publicationDate,
+        count,
+      } = values;
       const newFileList = cover?.fileList || [];
 
       const response = await axios({
@@ -50,8 +70,11 @@ const BookAdd = forwardRef(({ bookData, autoBookData }, ref) => {
         url: `${process.env.REACT_APP_API_URL}/api/management/${!isDetailView ? 'bookAdd' : `bookUpdate/${id}`}`,
         data: {
           title,
+          link,
+          description,
           author,
           cover: newFileList[0]?.originFileObj || '',
+          isbn,
           publisher,
           publicationDate,
           count,
@@ -67,23 +90,34 @@ const BookAdd = forwardRef(({ bookData, autoBookData }, ref) => {
       });
 
       message.success(response.data.message);
+
+      !isDetailView ? setActiveBookData(null) : handleBookData();
     } catch (error) {
       message.error(`도서 ${!isDetailView ? '등록' : '변경'}을 실패하였습니다.`);
     }
   };
 
-  const handleBookReset = useCallback(async () => {
+  const handleBookReset = useCallback(() => {
     form.resetFields();
     form.setFieldsValue({
-      id: bookData?._id || '',
-      title: bookData?.title || autoBookData?.title || '',
-      author: bookData?.author || autoBookData?.author || '',
+      id: activeBookData?._id || '',
+      link: activeBookData?.link || '',
+      title: activeBookData?.title || '',
+      description: activeBookData?.description || '',
+      author: activeBookData?.author || '',
       cover: setFileList([]),
-      publisher: bookData?.publisher || autoBookData?.publisher || '',
-      publicationDate: dayjs(bookData?.publicationDate) || autoBookData?.pubDate || dayjs(),
-      count: bookData?.count || 1,
+      isbn: activeBookData?.isbn || '',
+      publisher: activeBookData?.publisher || '',
+      publicationDate: activeBookData?.publicationDate
+        ? dayjs(activeBookData.publicationDate)
+        : activeBookData?.pubDate
+          ? dayjs(activeBookData.pubDate)
+          : dayjs(),
+      count: activeBookData?.count || 1,
     });
-  }, [form, bookData, autoBookData]);
+  }, [form, activeBookData]);
+
+  useEffect(() => setActiveBookData(bookData || autoBookData), [bookData, autoBookData]);
 
   useEffect(() => {
     const coverTarget = coverRef?.current;
@@ -99,7 +133,7 @@ const BookAdd = forwardRef(({ bookData, autoBookData }, ref) => {
         resizeObserver.disconnect();
       };
     }
-  }, [user, handleBookReset]);
+  }, [activeBookData, handleBookReset]);
 
   return (
     <div className="bookAdd-container">
@@ -110,11 +144,17 @@ const BookAdd = forwardRef(({ bookData, autoBookData }, ref) => {
               <Form.Item label="" name="id" hidden>
                 <Input disabled />
               </Form.Item>
+              <Form.Item label="" name="link" hidden>
+                <Input disabled />
+              </Form.Item>
               <Form.Item
                 label="도서명"
                 name="title"
                 rules={[{ required: true, message: '도서명을 입력해 주세요.' }]}
               >
+                <Input />
+              </Form.Item>
+              <Form.Item label="책 소개" name="description">
                 <Input />
               </Form.Item>
               <Form.Item label="저자" name="author">
@@ -139,6 +179,9 @@ const BookAdd = forwardRef(({ bookData, autoBookData }, ref) => {
               </div>
             </Col>
             <Col span={12}>
+              <Form.Item label="도서번호" name="isbn">
+                <Input />
+              </Form.Item>
               <Form.Item label="출판사" name="publisher">
                 <Input />
               </Form.Item>
@@ -164,7 +207,10 @@ const BookAdd = forwardRef(({ bookData, autoBookData }, ref) => {
             <Button type="primary" htmlType="submit">
               {!isDetailView ? '등록' : '변경'}
             </Button>
-            <Button type="default" onClick={handleBookReset}>
+            <Button
+              type="default"
+              onClick={() => (!isDetailView ? setActiveBookData(null) : handleBookReset())}
+            >
               초기화
             </Button>
           </Space>
@@ -172,6 +218,6 @@ const BookAdd = forwardRef(({ bookData, autoBookData }, ref) => {
       </div>
     </div>
   );
-});
+};
 
 export default BookAdd;

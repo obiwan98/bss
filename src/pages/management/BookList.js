@@ -82,7 +82,7 @@ const BookList = () => {
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
-    // handleBookSearch();
+    handleBookSearch();
   };
 
   useEffect(() => {

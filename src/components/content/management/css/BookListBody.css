@@ -19,12 +19,9 @@
             gap: 10px;
             width: 50%;
 
-            .author {
-              display: flex;
-              gap: 5px;
-
-              span {
-                color: #767676;
+            .title {
+              a {
+                color: #000000;
               }
             }
 
@@ -33,7 +30,7 @@
               gap: 5px;
 
               .gap,
-              .pubDate {
+              .publicationDate {
                 color: #767676;
               }
             }
