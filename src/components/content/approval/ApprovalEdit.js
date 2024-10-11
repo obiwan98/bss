@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { Badge, Button, Descriptions, Divider, Input, Form, message, Modal, Upload } from 'antd';
-import { UploadOutlined } from '@ant-design/icons';
+import { ConsoleSqlOutlined, UploadOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -51,6 +51,7 @@ const ApprovalEdit = () => {
     userDept: 'N/A',
     userEmail: 'N/A',
     regDate: formatDate(new Date()),
+
     // 신청 정보 - 도서 정보
     bookTitle: 'N/A',
     bookPrice: 0,
@@ -64,7 +65,7 @@ const ApprovalEdit = () => {
     // 결재 정보
     confirmUserName: 'N/A',
     confirmDate: formatDate(new Date()),
-    confirmComment: 'N/A',
+    confirmComment: '',
 
     // 구매 정보
     paymentUserName: 'N/A',
@@ -131,6 +132,7 @@ const ApprovalEdit = () => {
         : (state?.group.part || 'N/A') + '/' + (state?.group.team || 'N/A'),
       userEmail: isNew ? user?.email || 'N/A' : state?.user.email || 'N/A',
       regDate: isNew ? formatDate(new Date()) : formatDate(state?.regdate || new Date()),
+
       // 신청 정보 - 도서 정보
       bookTitle: isNew ? 'N/A' : state?.book?.name || 'N/A',
       bookPrice: isNew ? 0 : state?.book?.price || 0,
@@ -142,86 +144,22 @@ const ApprovalEdit = () => {
       badgeValue: isNew ? defaultBadgeValue : badgeState,
 
       // 결재 정보
-      confirmUserName: isNew
-        ? 'N/A'
-        : badgeState === 1 && (user.role.role === 'Admin' || user.role.role === 'TeamLeader')
+      confirmUserName:
+        badgeState === 1 && (user.role.role === 'Admin' || user.role.role === 'TeamLeader')
           ? user?.name || 'N/A'
           : state?.confirm?.user?.name || 'N/A',
-      confirmDate: isNew ? formatDate(new Date()) : formatDate(state?.confirm?.date || new Date()),
-      confirmComment: isNew ? 'N/A' : state?.confirm?.comment || 'N/A',
+      confirmDate:
+        badgeState === 1 ? formatDate(new Date()) : formatDate(state?.confirm?.date || new Date()),
+      confirmComment: badgeState === 1 ? '' : state?.confirm?.comment || 'N/A',
 
       // 구매 정보
-      paymentUserName: isNew
-        ? 'N/A'
-        : badgeState === 2
-          ? user?.name || 'N/A'
-          : state?.payment?.user?.name || 'N/A',
-      paymentDate: isNew
-        ? formatDate(new Date())
-        : badgeState === 2
-          ? formatDate(new Date())
-          : formatDate(state?.payment?.date || new Date()),
-      paymentPrice: isNew ? 0 : badgeState === 2 ? 0 : state?.payment?.price || 0,
-      paymentReceiptImgUrl: isNew
-        ? 'N/A'
-        : badgeState === 4
-          ? state?.payment?.receiptImgUrl || 'N/A'
-          : 'N/A',
+      paymentUserName: badgeState === 2 ? user?.name || 'N/A' : state?.payment?.user?.name || 'N/A',
+      paymentDate:
+        badgeState === 2 ? formatDate(new Date()) : formatDate(state?.payment?.date || new Date()),
+      paymentPrice: badgeState === 2 ? 0 : state?.payment?.price || 0,
+      paymentReceiptInfo: badgeState === 4 ? state?.payment?.receiptImgUrl || 'N/A' : 'N/A',
     }));
   }, [param, state, user, navigate]);
-
-  // Image upload function
-  const uploadImage = async (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-
-    try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/api/approvals/upload`,
-        formData,
-        {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
-        }
-      );
-
-      if (response.data && response.data.filePath) {
-        message.success(`File uploaded successfully: ${response.data.filePath}`);
-        setImageInfo({
-          url: response.data.filePath,
-          name: file.name,
-          size: file.size,
-          type: file.type,
-        });
-      } else {
-        throw new Error('Failed to retrieve the file path.');
-      }
-    } catch (error) {
-      message.error(error.message);
-    }
-  };
-
-  const handleUpload = ({ file, onSuccess, onError }) => {
-    uploadImage(file)
-      .then(() => {
-        onSuccess(file);
-      })
-      .catch((err) => {
-        onError(err);
-      });
-  };
-
-  // const handleDownload = () => {
-  //   // if (imageUrl) {
-  //   const a = document.createElement('a');
-  //   a.href = 'D:/uploads/lion.png';
-  //   a.download = 'D:/uploads/lion.png'; // Set default file name
-  //   document.body.appendChild(a);
-  //   a.click();
-  //   document.body.removeChild(a);
-  //   // }
-  // };
 
   const {
     approvalTitle,
@@ -324,6 +262,77 @@ const ApprovalEdit = () => {
   // 구매 정보 - 구매금액
   const handlePaymentPriceChange = (e) =>
     setStateData((prevState) => ({ ...prevState, paymentPrice: e.target.value }));
+  // 구매 정보 업로드
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/approvals/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      if (response.data && response.data.filePath) {
+        message.success(`이미지가 정상적으로 업로드 되었습니다. : ${response.data.filePath}`);
+        setImageInfo({
+          url: response.data.filePath,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+        });
+      } else {
+        throw new Error('파일 경로를 다시 확인하시기 바랍니다.');
+      }
+    } catch (error) {
+      message.error(error.message);
+    }
+  };
+
+  const handleImageUpload = ({ file, onSuccess, onError }) => {
+    uploadImage(file)
+      .then(() => {
+        onSuccess(file);
+      })
+      .catch((err) => {
+        onError(err);
+      });
+  };
+
+  const handleImageDownload = (alt) => {
+    const fileUrl = `${process.env.REACT_APP_API_URL}/downloads/${alt}`;
+
+    fetch(fileUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/octet-stream',
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.blob();
+      })
+      .then((blob) => {
+        const link = document.createElement('a');
+        const url = window.URL.createObjectURL(blob);
+        link.href = url;
+        link.setAttribute('download', alt || 'downloaded-image');
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link); // 링크 삭제
+        window.URL.revokeObjectURL(url); // 메모리 정리
+      })
+      .catch((error) => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
+  };
 
   const renderBookContent = () => {
     // 도서조회 모달 창에서 작업이 끝난 데이터를 반환
@@ -422,16 +431,16 @@ const ApprovalEdit = () => {
       return (
         <div>
           <Upload
-            customRequest={handleUpload}
+            customRequest={handleImageUpload}
             accept="image/*" // Accept only image files
             showUploadList={false} // Hide the default upload list
           >
             <Button type="primary" icon={<UploadOutlined />}>
-              Upload Image
+              첨부파일 업로드
             </Button>
           </Upload>
 
-          <div style={{ marginTop: '20px' }}>첨부파일 경로: {imageInfo?.url}</div>
+          <div style={{ marginTop: '20px' }}>첨부파일 : {imageInfo?.url}</div>
         </div>
       );
     }
@@ -439,9 +448,8 @@ const ApprovalEdit = () => {
     if (badgeValue === 4) {
       return (
         <div>
-          첨부파일 경로:{' '}
-          <a href={process.env.REACT_APP_IMAGE_URL + 'lion.png'}>{paymentReceiptImgUrl}</a>
-          {/* <Image url={process.env.REACT_APP_IMAGE_URL + 'lion.png'}></Image>; */}
+          첨부파일 :
+          <a onClick={() => handleImageDownload(paymentReceiptInfo)}>{paymentReceiptInfo}</a>
         </div>
       );
     }
@@ -465,7 +473,7 @@ const ApprovalEdit = () => {
       children: regDate,
     },
     {
-      key: 'bookinfo',
+      key: 'bookInfo',
       label: '도서정보',
       // 도서 정보는 현재 샘플 데이터로 넣고, 모달 창 작업 완료됐을 때 모달에서 받은 값을 JSON으로 치환할 것
       // children: JSON.stringify({ bookName: 'TESTBOOK' }),
@@ -545,20 +553,66 @@ const ApprovalEdit = () => {
       ),
     },
     {
-      key: 'paymentReceiptImgUrl',
+      key: 'paymentReceiptInfo',
       label: '구매정보(사진)',
       children: renderPaymentContent(),
     },
   ];
 
+  // 유효성 체크
+  const validateApprovalItems = (item) => {
+    if (item.key === 'bookInfo') {
+      if (inputValue === '') {
+        return '도서정보 입력은 필수입니다.';
+      }
+    }
+
+    if (item.key === 'confirmComment') {
+      if (confirmComment === '') {
+        return '결재의견 입력은 필수입니다.';
+      }
+    }
+
+    if (item.key === 'paymentPrice') {
+      if (paymentPrice === 0) {
+        return '구매금액 입력은 필수입니다.';
+      }
+
+      if (parseInt(bookPrice) !== parseInt(paymentPrice)) {
+        return '판매가와 구매금액이 상이합니다.';
+      }
+    }
+
+    if (item.key === 'paymentReceiptInfo') {
+      if (imageInfo === null) {
+        return '구매정보 입력은 필수입니다.';
+      }
+    }
+
+    return null;
+  };
+
   // 요청서 작성(신규)
   const onClickSave = () => {
     try {
-      const approval = reqItems.map((item) => ({
-        key: item.key,
-        label: item.label,
-        value: item.inputValue || item.children.props?.value || item.children,
-      }));
+      const approval = reqItems.map((item) => {
+        const validationMessage = validateApprovalItems(item);
+        if (validationMessage) {
+          message.warning(validationMessage, 5);
+          return null;
+        }
+
+        return {
+          key: item.key,
+          label: item.label,
+          value:
+            item.inputValue ||
+            (item.children.props?.value === '' ? 'No Comment' : item.children.props?.value) ||
+            item.children,
+        };
+      });
+
+      console.log(approval);
 
       const totItem = {
         reqItems: approval,
@@ -574,13 +628,52 @@ const ApprovalEdit = () => {
         .then((response) => {
           alert(response.data.message);
           navigate('/approval/list');
+
+          // Send-mail 예비 로직
+          // if (response.status === 201) {
+          //   let senderContent = {
+          //     applicantName: 'TESTER',
+          //   };
+
+          //   let recipientContent = {
+          //     to: 'seulbeom.choi@cj.net',
+          //     subject: 'SEND TEST',
+          //   };
+
+          //   let bookInfoContent = {
+          //     title: 'SAMPLE TITLE',
+          //   };
+
+          //   let approvalInfoContent = {
+          //     status: '승인',
+          //   };
+
+          //   let sender = JSON.stringify(senderContent);
+          //   let recipient = JSON.stringify(recipientContent);
+          //   let bookInfo = JSON.stringify(bookInfoContent);
+          //   let approvalInfo = JSON.stringify(approvalInfoContent);
+
+          //   console.log('before');
+          //   return axios
+          //     .post(process.env.REACT_APP_API_URL + '/api/send-email', {
+          //       sender,
+          //       recipient,
+          //       bookInfo,
+          //       approvalInfo,
+          //     })
+          //     .then((emailResponse) => {
+          //       console.log('after');
+          //       // Handle the response from /api/send-email
+          //       alert(emailResponse.data.message); // Assuming the email response has a message
+          //     });
+          // }
         })
         .catch((error) => {
           console.error('Error saving data:', error);
         });
     } catch (error) {
       console.error('Error updating approval:', error);
-      message.error('승인 정보를 업데이트하는 중 오류가 발생했습니다.', 2);
+      // message.error('승인 정보를 업데이트하는 중 오류가 발생했습니다.', 2);
     }
   };
 
@@ -623,15 +716,18 @@ const ApprovalEdit = () => {
       const itemsToMap = approvalType !== 'payment' ? confirmItems : paymentItems;
 
       const approval = itemsToMap.map((item) => {
-        let filePath = item.key === 'paymentReceiptImgUrl' ? imageInfo.url : undefined;
+        const validationMessage = validateApprovalItems(item);
+        if (validationMessage) {
+          message.warning(validationMessage, 5);
+          return null;
+        }
+
+        let filePath = item.key === 'paymentReceiptInfo' ? imageInfo.name : undefined;
 
         return {
           key: item.key,
           label: item.label,
-          value:
-            filePath || item.children.props?.value === undefined
-              ? 0
-              : item.children.props?.value || item.children,
+          value: filePath || item.children.props?.value || item.children,
         };
       });
 
@@ -656,7 +752,7 @@ const ApprovalEdit = () => {
         });
     } catch (error) {
       console.error('Error updating approval:', error);
-      message.error('승인 정보를 업데이트하는 중 오류가 발생했습니다.', 2);
+      // message.error('승인 정보를 업데이트하는 중 오류가 발생했습니다.', 2);
     }
   };
 
