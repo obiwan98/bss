@@ -1,0 +1,129 @@
+.bookList-body-container {
+  .bookList-body-form {
+    .ant-list {
+      .ant-list-items {
+        .ant-list-item {
+          display: flex;
+          justify-content: flex-start;
+          align-items: flex-start;
+          gap: 50px;
+          padding: 30px 50px;
+
+          .bookData-header {
+            width: 12%;
+          }
+
+          .bookData-body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            width: 50%;
+
+            .title {
+              a {
+                color: #000000;
+              }
+            }
+
+            .publish-content {
+              display: flex;
+              gap: 5px;
+
+              .gap,
+              .publicationDate {
+                color: #767676;
+              }
+            }
+
+            .rate-tag-form {
+              display: flex;
+              gap: 5px;
+
+              .rate-content {
+                display: flex;
+                align-items: center;
+                gap: 5px;
+
+                .ant-rate {
+                  font-size: 15px;
+                }
+              }
+
+              .gap {
+                color: #767676;
+              }
+
+              .tag-content {
+                display: flex;
+                gap: 5px;
+                padding-top: 2px;
+
+                &.grate {
+                  color: green;
+                }
+
+                &.good {
+                  color: gold;
+                }
+
+                &.neutral {
+                  color: gray;
+                }
+
+                &.poor {
+                  color: orange;
+                }
+
+                &.bad {
+                  color: red;
+                }
+              }
+            }
+          }
+
+          .bookData-state {
+            align-self: center;
+            margin-left: auto;
+            text-align: end;
+
+            .state {
+              padding: 2px 10px;
+              margin-bottom: 10px;
+              background-color: #f7f7f7;
+              border: 1px solid #f7f7f7;
+              border-radius: 20px;
+              cursor: pointer;
+
+              &.blink {
+                color: #5055b1;
+                animation: blink 1s infinite;
+              }
+            }
+          }
+
+          .bookData-footer {
+            align-self: center;
+            margin-left: auto;
+
+            .ant-space {
+              display: flex;
+              flex-direction: column;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

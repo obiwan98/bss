@@ -6,7 +6,6 @@ import { Route, Routes, useNavigate } from 'react-router-dom';
 import ApprovalEdit from './components/content/approval/ApprovalEdit';
 import ApprovalList from './components/content/approval/ApprovalList';
 import BookSearchButton from './components/content/approval/modal/BookSearchButton';
-import BookList from './components/content/books/BookList';
 import LogoText from './components/logoText/LogoText';
 import AppMenu from './components/menu/AppMenu';
 import Navbar from './components/navbar/Navbar';
@@ -16,6 +15,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
 import Test from './pages/test';
+import BookList from './pages/management/BookList';
 import UserList from './pages/users/UserList';
 
 const { Header, Content, Sider, Footer } = Layout;
@@ -26,22 +26,22 @@ const App = () => {
   useEffect(() => {
     const isTokenExpired = (token) => {
       if (!token) return true; // 토큰이 없으면 만료된 것으로 간주
-    
+
       try {
         const payloadBase64 = token.split('.')[1]; // JWT의 payload 부분을 추출
         const decodedPayload = JSON.parse(atob(payloadBase64)); // Base64 디코딩
         const expirationTime = decodedPayload.exp * 1000; // exp는 초 단위이므로 밀리초로 변환
 
-        console.log("Date.now()     : " + Date.now());
-        console.log("expirationTime : " + expirationTime);
+        console.log('Date.now()     : ' + Date.now());
+        console.log('expirationTime : ' + expirationTime);
 
         return Date.now() > expirationTime; // 현재 시간과 만료 시간을 비교
       } catch (error) {
         console.error('Invalid token', error);
         return true; // 토큰이 잘못된 경우에도 만료된 것으로 간주
       }
-    }
-    
+    };
+
     const checkToken = () => {
       const token = localStorage.getItem('token');
       if (!token) return;
@@ -53,7 +53,7 @@ const App = () => {
         navigate('/login'); // 로그인 페이지로 리다이렉트
       }
     };
-  
+
     checkToken();
   }, [navigate]);
 
@@ -84,7 +84,7 @@ const App = () => {
             <Route path="/login" element={<Login />} />
             <Route path="/home" element={<Home />} />
             <Route path="/" element={<Home />} />
-            <Route path="/books/BookList" element={<BookList />} />
+            <Route path="/management/BookList" element={<BookList />} />
             <Route path="/users/UserList" element={<UserList />} />
             <Route path="/approval/list" element={<ApprovalList />} />
             <Route path="/approval/edit/:param" element={<ApprovalEdit />} />
@@ -95,5 +95,5 @@ const App = () => {
       </Layout>
     </Layout>
   );
-}
+};
 export default App;

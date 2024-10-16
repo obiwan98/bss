@@ -1,41 +1,68 @@
 .ant-modal-header {
-    margin-top: 20px;
-    margin-left: 20px;
-    margin-bottom: 20px;
+  margin-top: 20px;
+  margin-left: 20px;
+  margin-bottom: 20px;
 }
 
-.ant-modal-body{
-    margin-top: 20px;
+.ant-modal-body {
+  margin-top: 20px;
 }
 
 .bookSearch_method {
-    margin-bottom: 15px;
-    text-align: center;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
-.bookSearch_searchbar {
-    padding: 20;
-}
+.bookSearchAPI-container {
+  .bookSearchAPI-form {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
 
-.bookSearch_modal {
-    height: 400px;
-    overflow: auto;
-}
+    .bookSearch-header {
+      display: flex;
+      gap: 5px;
 
-.book_radio {
-    width: auto;
-    margin-top: 15px;
-}
+      .bookSearch_searchbar {
+        padding: 20;
+      }
 
-.book_radio > span:first-child {
-    width: 16px;
-}
+      .ant-btn {
+        &.ant-btn-primary {
+          background-color: #5055b1;
+        }
+      }
+    }
 
-.book_radio > span:last-child {
-    width: 900px;
+    .bookSearch-body {
+      width: 100%;
+      height: auto;
+
+      .bookSearch_modal {
+        display: flex;
+        flex-direction: column;
+        width: auto;
+        height: 335px;
+        overflow: auto;
+
+        .book_radio {
+          margin-top: 15px;
+          width: 98%;
+
+          > span:first-child {
+            width: 16px;
+          }
+
+          > span:last-child {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
 }
 
 .bookSearch_Descriptions .ant-descriptions-row .ant-descriptions-item-label {
-    width: 220px;
-    padding: 5px 5px;
+  width: 220px;
+  padding: 5px 5px;
 }

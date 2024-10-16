@@ -1,0 +1,20 @@
+.bookList-header-container {
+  .bookList-header-form {
+    display: flex;
+    gap: 5px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #d5d5d5;
+
+    .ant-select {
+      width: 10%;
+    }
+
+    .ant-input-group-wrapper {
+      width: 20%;
+    }
+
+    .ant-btn {
+      margin-left: auto;
+    }
+  }
+}

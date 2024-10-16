@@ -1,0 +1,19 @@
+.bookRegistration-container {
+  .bookRegistration-form {
+    display: flex;
+    gap: 5px;
+
+    .bookAdd-container {
+      width: 50%;
+    }
+
+    .bookSearchAPI-container {
+      padding-top: 11px;
+      width: 50%;
+
+      h2 {
+        font-size: 14px;
+      }
+    }
+  }
+}
