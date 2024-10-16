@@ -1,5 +1,5 @@
-import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
 import { List, Image, Rate, Space, Button } from 'antd';
+import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
 
 import dayjs from 'dayjs';
 
@@ -62,9 +62,9 @@ const BookListBody = ({ bookListBody: { bookList, handleShowModal, handleBookDel
                   <div className="cover">
                     <Image
                       src={
-                        item.cover
-                          ? `${process.env.REACT_APP_API_URL}/uploads/${item.cover}`
-                          : 'error'
+                        item.coverFile
+                          ? `${process.env.REACT_APP_API_URL}/uploads/${item.coverFile}`
+                          : item.coverUrl || 'error'
                       }
                       preview={false}
                       alt="책표지"

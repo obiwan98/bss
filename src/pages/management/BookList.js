@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
 
@@ -82,7 +82,7 @@ const BookList = () => {
 
   const handleCloseModal = () => {
     setIsModalVisible(false);
-    handleBookSearch();
+    // handleBookSearch();
   };
 
   useEffect(() => {
