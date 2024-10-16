@@ -8,7 +8,7 @@ import { useUser } from '../contexts/UserContext';
 
 const Login = () => {
   const { user, setUser } = useUser();
-  const navigate = useNavigate ();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
@@ -25,14 +25,20 @@ const Login = () => {
       });
       const token = response.data.token; // 실제 로그인 로직에서 받은 토큰을 사용하세요.
       localStorage.setItem('token', token);
-      
+
       const decodedToken = jwtDecode(token);
-      const userInfo = { email: decodedToken.email, role: decodedToken.role, group: decodedToken.group, name: decodedToken.name, loggedIn: true };
+      const userInfo = {
+        _id: decodedToken._id,
+        email: decodedToken.email,
+        role: decodedToken.role,
+        group: decodedToken.group,
+        name: decodedToken.name,
+        loggedIn: true,
+      };
       setUser(userInfo);
 
-      message.success("로그인이 성공하였습니다.", 2);
+      message.success('로그인이 성공하였습니다.', 2);
       navigate('/home');
-
     } catch (error) {
       console.error('Error during login:', error.response ? error.response.data : error.message);
       message.error(error.message, 2);
@@ -45,6 +51,6 @@ const Login = () => {
       <LoginForm onLogin={handleLogin} />
     </div>
   );
-}
+};
 
 export default Login;
