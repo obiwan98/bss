@@ -12,10 +12,9 @@ const useFetchTags = () => {
       try {
         setLoading(true);
         const tagsData = await fetchTags();
-				console.log(tagsData);
-        setTags(tagsData);
-        if (tagsData.length > 0) {
-          setSelectedTag(tagsData[0].Code); // 기본 선택 태그 설정
+        setTags(tagsData.tags);
+        if (tagsData.tags.length > 0) {
+          setSelectedTag(tagsData.tags[0].Code); // 기본 선택 태그 설정
         }
       } catch (error) {
         setErrorMessage('Error fetching tags');

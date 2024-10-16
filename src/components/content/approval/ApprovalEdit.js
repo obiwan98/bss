@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
-import { Badge, Button, Descriptions, Divider, Input, Form, message, Modal } from 'antd';
+import { Badge, Button, Descriptions, Divider, Input, Form, message, Modal, Upload } from 'antd';
+import { ConsoleSqlOutlined, UploadOutlined } from '@ant-design/icons';
 import { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -20,7 +21,7 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString(undefined, options);
 };
 
-// 초기값 난수  생성
+// 초기값 난수 생성
 function generateRandomString(length = 24) {
   const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
 
@@ -35,184 +36,181 @@ function generateRandomString(length = 24) {
 }
 
 const ApprovalEdit = () => {
-  // return "승인상세화면 공통(요청상태에 따라 UI 구성) 승인요청중 : 결제승인 & 결제반려 버튼 노출, 승인완료 : 구매완료처리 버튼, 결제의견 노출, 반려 : 결제의견 노출, 승인및구매완료 : ";
-  const { user, setUser } = useUser(); // 유저 기본정보 세팅
+  const { user } = useUser(); // 유저 기본정보 세팅
   const { param } = useParams();
   const { state } = useLocation();
   const { confirm } = Modal;
   const navigate = useNavigate();
 
-  const [approvalTitle, setApprovalTitle] = useState('승인 요청');
-  const [approvalId, setApprovalId] = useState('');
+  const [stateData, setStateData] = useState({
+    approvalTitle: '승인 요청',
+    approvalId: '',
 
-  // 신청 정보
-  const [userName, setUserName] = useState('N/A');
-  const [userDept, setUserDept] = useState('N/A');
-  const [userEmail, setUserEmail] = useState('N/A');
-  const [regDate, setRegDate] = useState(formatDate(new Date()));
-  const [bookTitle, setBookTitle] = useState('N/A');
-  const [bookPrice, setBookPrice] = useState(0);
-  const [commentValue, setCommentValue] = useState('');
-  const [badgeStatus, setBadgeStatus] = useState('processing');
-  const [badgeText, setBadgeText] = useState('승인요청');
-  const [badgeValue, setBadgeValue] = useState(1);
+    // 신청 정보
+    userName: 'N/A',
+    userDept: 'N/A',
+    userEmail: 'N/A',
+    regDate: formatDate(new Date()),
 
-  // 결재 정보
-  const [confirmUserName, setConfirmUserName] = useState('N/A');
-  const [confirmDate, setConfirmDate] = useState(formatDate(new Date()));
-  const [confirmComment, setConfirmComment] = useState('N/A');
+    // 신청 정보 - 도서 정보
+    bookTitle: 'N/A',
+    bookPrice: 0,
+    bookAuthor: 'N/A',
+    bookISBN: 'N/A',
+    commentValue: '',
+    badgeStatus: 'processing',
+    badgeText: '승인요청',
+    badgeValue: 1,
 
-  // 구매 정보
-  const [paymentUserName, setPaymentUserName] = useState('N/A');
-  const [paymentDate, setPaymentDate] = useState(formatDate(new Date()));
-  const [paymentPrice, setPaymentPrice] = useState(0);
-  const [paymentReceiptInfo, setPaymentReceiptInfo] = useState('N/A');
-  const [paymentReceiptUrl, setPaymentReceiptUrl] = useState('N/A');
+    // 결재 정보
+    confirmUserName: 'N/A',
+    confirmDate: formatDate(new Date()),
+    confirmComment: '',
 
-  // 도서정보 API
-  const [showInput, setShowInput] = useState(false);
-  const [inputValue, setInputValue] = useState('');
+    // 구매 정보
+    paymentUserName: 'N/A',
+    paymentDate: formatDate(new Date()),
+    paymentPrice: 0,
+    paymentReceiptInfo: 'N/A',
+    paymentReceiptImgUrl: 'N/A',
+
+    // 도서조회 API
+    showInput: false,
+    inputValue: '',
+  });
 
   /** 모달 */
-  const [isModalOpen, setIsModalOpen] = useState({open:'', type:''});
+  const [isModalOpen, setIsModalOpen] = useState({ open: '', type: '' });
   /** 모달 열기 */
-  const showModal1 = () => setIsModalOpen({open:true, type:'1'});
+  const showModal1 = () => setIsModalOpen({ open: true, type: '1' });
   /** 모달 닫기 */
-  const hideModal = () => setIsModalOpen({...isModalOpen, open:false});
+  const hideModal = () => setIsModalOpen({ ...isModalOpen, open: false });
 
-  // 렌더링 시 초기 세팅
+  const [imageInfo, setImageInfo] = useState(null); // State for image upload info
+
   useEffect(() => {
-    // 로그인 체크
     if (!user) {
       navigate('/login');
       return;
     }
 
-    // 신청 정보 Description Initialize
-    const updateReqItems = () => {
-      const isNew = param === 'new';
-      const record = isNew ? {} : state || {};
+    const isNew = param === 'new';
+    const record = isNew ? {} : state || {};
 
-      const defaultBadgeStatus = 'processing';
-      const defaultBadgeText = '승인요청';
-      const defaultBadgeValue = 1;
+    const defaultBadgeStatus = 'processing';
+    const defaultBadgeText = '승인요청';
+    const defaultBadgeValue = 1;
 
-      const badgeStates = {
-        1: 'processing',
-        2: 'success',
-        3: 'error',
-        4: 'success',
-      };
-
-      const badgeTexts = {
-        1: '승인요청',
-        2: '승인완료',
-        3: '반려',
-        4: '구매완료',
-      };
-
-      const rndUniqueId = generateRandomString();
-      const badgeState = parseInt(record.state) || defaultBadgeValue;
-
-      // Step 1. 신규 / 기존 데이터 구분하여 셋팅
-      setApprovalTitle(isNew ? '승인 요청' : '승인 상세');
-      setApprovalId(isNew ? rndUniqueId : state?._id);
-      setUserName(isNew ? user?.name || 'N/A' : state?.user.name || 'N/A');
-      setUserDept(
-        isNew
-          ? user?.group
-            ? `${user?.group.part || 'N/A'}/${user?.group.team || 'N/A'}`
-            : 'N/A'
-          : (state?.group.part || 'N/A') + '/' + (state?.group.team || 'N/A')
-      );
-      setUserEmail(isNew ? user?.email || 'N/A' : state?.user.email || 'N/A');
-      setRegDate(isNew ? formatDate(new Date()) : formatDate(state?.regdate || new Date()));
-      setCommentValue(isNew ? '' : state?.comment || 'N/A');
-
-      setBadgeStatus(isNew ? defaultBadgeStatus : badgeStates[badgeState] || 'default');
-      setBadgeText(isNew ? defaultBadgeText : badgeTexts[badgeState] || '');
-      setBadgeValue(isNew ? defaultBadgeValue : badgeState);
-
-      // Step 2. 상태값 및 권한에 따른 제어
-      if (!isNew) {
-        // 기존 데이터 + ( 관리자 / 팀장 ) + 승인 요청
-        if ((user.role.role === 'Admin' || user.role.role === 'TeamLeader') && badgeState === 1) {
-          setConfirmUserName(user?.name || 'N/A');
-          setConfirmDate(formatDate(new Date()));
-          setConfirmComment('');
-        }
-
-        setBookTitle(state?.book?.name || 'N/A');
-        setBookPrice(state?.book?.price || 0);
-
-        // 승인 요청 이후
-        if (badgeState !== 1) {
-          setConfirmUserName(state?.confirm?.user?.name || 'N/A');
-          setConfirmDate(formatDate(state?.confirm?.date || new Date()));
-          setConfirmComment(state?.confirm?.comment || 'N/A');
-
-          // 구매 정보는 승인완료 일때는 로그인 유저 정보 셋팅, 그 외에는 컬렉션 데이터로 바인딩
-          if (
-            user.role.role === 'Admin' ||
-            user.role.role === 'TeamLeader' ||
-            user.role.role === 'BookManager'
-          ) {
-            if (badgeState === 2) {
-              setPaymentUserName(user?.name || 'N/A');
-              setPaymentDate(formatDate(new Date()));
-              setPaymentPrice(0);
-              setPaymentReceiptInfo('N/A');
-            } else {
-              setPaymentUserName(state?.payment?.user?.name || 'N/A');
-              setPaymentDate(formatDate(state?.payment?.date || new Date()));
-              setPaymentPrice(state?.payment?.price || 0);
-              setPaymentReceiptInfo(state?.payment?.receiptInfo || 'N/A');
-            }
-          }
-        }
-      }
+    const badgeStates = {
+      1: 'processing',
+      2: 'success',
+      3: 'error',
+      4: 'success',
     };
 
-    updateReqItems();
-  }, []);
+    const badgeTexts = {
+      1: '승인요청',
+      2: '승인완료',
+      3: '반려',
+      4: '구매완료',
+    };
+
+    const rndUniqueId = generateRandomString();
+    const badgeState = parseInt(record.state) || defaultBadgeValue;
+
+    setStateData((prevState) => ({
+      ...prevState,
+      approvalTitle: isNew ? '승인 요청' : '승인 상세',
+      approvalId: isNew ? rndUniqueId : state?._id,
+
+      // 신청 정보
+      userName: isNew ? user?.name || 'N/A' : state?.user.name || 'N/A',
+      userDept: isNew
+        ? user?.group
+          ? `${user?.group.part || 'N/A'}/${user?.group.team || 'N/A'}`
+          : 'N/A'
+        : (state?.group.part || 'N/A') + '/' + (state?.group.team || 'N/A'),
+      userEmail: isNew ? user?.email || 'N/A' : state?.user.email || 'N/A',
+      regDate: isNew ? formatDate(new Date()) : formatDate(state?.regdate || new Date()),
+
+      // 신청 정보 - 도서 정보
+      bookTitle: isNew ? 'N/A' : state?.book?.name || 'N/A',
+      bookPrice: isNew ? 0 : state?.book?.price || 0,
+      bookAuthor: isNew ? 'N/A' : state?.book?.author || 'N/A',
+      bookISBN: isNew ? 'N/A' : state?.book?.ISBN || 'N/A',
+      commentValue: isNew ? '' : state?.comment || 'N/A',
+      badgeStatus: isNew ? defaultBadgeStatus : badgeStates[badgeState] || 'default',
+      badgeText: isNew ? defaultBadgeText : badgeTexts[badgeState] || '',
+      badgeValue: isNew ? defaultBadgeValue : badgeState,
+
+      // 결재 정보
+      confirmUserName:
+        badgeState === 1 && (user.role.role === 'Admin' || user.role.role === 'TeamLeader')
+          ? user?.name || 'N/A'
+          : state?.confirm?.user?.name || 'N/A',
+      confirmDate:
+        badgeState === 1 ? formatDate(new Date()) : formatDate(state?.confirm?.date || new Date()),
+      confirmComment: badgeState === 1 ? '' : state?.confirm?.comment || 'N/A',
+
+      // 구매 정보
+      paymentUserName: badgeState === 2 ? user?.name || 'N/A' : state?.payment?.user?.name || 'N/A',
+      paymentDate:
+        badgeState === 2 ? formatDate(new Date()) : formatDate(state?.payment?.date || new Date()),
+      paymentPrice: badgeState === 2 ? 0 : state?.payment?.price || 0,
+      paymentReceiptInfo: badgeState === 4 ? state?.payment?.receiptImgUrl || 'N/A' : 'N/A',
+    }));
+  }, [param, state, user, navigate]);
+
+  const {
+    approvalTitle,
+    approvalId,
+    userName,
+    userDept,
+    userEmail,
+    regDate,
+    commentValue,
+    badgeStatus,
+    badgeText,
+    badgeValue,
+    bookTitle,
+    bookPrice,
+    bookAuthor,
+    bookISBN,
+    confirmUserName,
+    confirmDate,
+    confirmComment,
+    paymentUserName,
+    paymentDate,
+    paymentPrice,
+    paymentReceiptInfo,
+    paymentReceiptImgUrl,
+    showInput,
+    inputValue,
+  } = stateData;
 
   // 권한에 따른 Description 활성화
   const descriptionDisplay = (category) => {
     // 결재 정보
     if (category === 'confirm') {
-      // 신규 데이터
-      if (param === 'new') {
-        return 'none';
-      }
-
-      // 기존 데이터 + 승인 요청
+      if (param === 'new') return 'none';
       if (param !== 'new' && badgeValue === 1) {
-        // 관리자 / 팀장
-        if (user.role.role === 'Admin' || user.role.role === 'TeamLeader') {
-          return 'block';
-        }
-        return 'none';
-      } else {
-        return 'block';
+        return user.role.role === 'Admin' || user.role.role === 'TeamLeader' ? 'block' : 'none';
       }
+      return 'block';
     }
 
     // 구매 정보
     if (category === 'payment') {
-      // 기존 데이터 + 승인 완료 이후
       if (param !== 'new' && badgeValue !== 1) {
-        // 사원
-        if (user.role.role === 'Employee') {
-          if (badgeValue === 4) return 'block';
-        }
-
-        // 관리자 / 팀장 / 도서 관리자
+        if (user.role.role === 'Employee' && badgeValue === 4) return 'block';
         if (
-          user.role.role === 'Admin' ||
-          user.role.role === 'TeamLeader' ||
-          user.role.role === 'BookManager'
-        )
+          (user.role.role === 'Admin' ||
+            user.role.role === 'TeamLeader' ||
+            user.role.role === 'BookManager') &&
+          (badgeValue !== 3 || state?.payment?.user?.name !== undefined)
+        ) {
           return 'block';
+        }
       }
       return 'none';
     }
@@ -221,74 +219,122 @@ const ApprovalEdit = () => {
   // 권한에 따른 Button 활성화
   const buttonDisplay = (approvalType) => {
     // 저장
-    // 신규 데이터
     if (approvalType === 'save') {
-      if (param === 'new') {
-        return 'block';
-      }
-      return 'none';
+      return param === 'new' ? 'block' : 'none';
     }
 
     // 삭제
-    // 기존 데이터 + 본인 + 승인 요청
-    else if (approvalType === 'delete') {
-      if (param !== 'new' && user.email === userEmail && badgeValue === 1) {
-        return 'block';
-      }
-      return 'none';
+    if (approvalType === 'delete') {
+      return param !== 'new' && user.email === userEmail && badgeValue === 1 ? 'block' : 'none';
     }
 
-    // 승인 / 반려
-    // 기존 데이터 + 관리자 / 팀장  + 승인 요청
+    // 승인, 반려
     if (approvalType === 'approve' || approvalType === 'reject') {
-      if (
-        param !== 'new' &&
+      return param !== 'new' &&
         (user.role.role === 'Admin' || user.role.role === 'TeamLeader') &&
         badgeValue === 1
-      ) {
-        return 'block';
-      }
-      return 'none';
+        ? 'block'
+        : 'none';
     }
 
     // 구매 등록
-    // 기존 데이터 + 관리자 / 팀장 / 도서관리자 + 승인 완료
     if (approvalType === 'payment') {
-      if (
-        param !== 'new' &&
+      return param !== 'new' &&
         (user.role.role === 'Admin' ||
           user.role.role === 'TeamLeader' ||
           user.role.role === 'BookManager') &&
         badgeValue === 2
-      ) {
-        return 'block';
-      }
-      return 'none';
+        ? 'block'
+        : 'none';
     }
   };
 
-  // 도서정보 핸들링
-  const handleDataChange = (data) => {
-    setShowInput(true);
-    setInputValue(data);
+  // 이벤트 핸들링
+  // 도서조회 API
+  const handleDataChange = (data) =>
+    setStateData((prevState) => ({ ...prevState, showInput: true, inputValue: data }));
+  // 신청 정보 - 요청사항
+  const handleCommentChange = (e) =>
+    setStateData((prevState) => ({ ...prevState, commentValue: e.target.value }));
+  // 결재 정보 - 결재의견
+  const handleConfirmCommentChange = (e) =>
+    setStateData((prevState) => ({ ...prevState, confirmComment: e.target.value }));
+  // 구매 정보 - 구매금액
+  const handlePaymentPriceChange = (e) =>
+    setStateData((prevState) => ({ ...prevState, paymentPrice: e.target.value }));
+  // 구매 정보 업로드
+  const uploadImage = async (file) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/approvals/upload`,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        }
+      );
+
+      if (response.data && response.data.filePath) {
+        message.success(`이미지가 정상적으로 업로드 되었습니다. : ${response.data.filePath}`);
+        setImageInfo({
+          url: response.data.filePath,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+        });
+      } else {
+        throw new Error('파일 경로를 다시 확인하시기 바랍니다.');
+      }
+    } catch (error) {
+      message.error(error.message);
+    }
   };
 
-  // 요청사항 핸들링
-  const handleCommentChange = (e) => {
-    setCommentValue(e.target.value);
+  const handleImageUpload = ({ file, onSuccess, onError }) => {
+    uploadImage(file)
+      .then(() => {
+        onSuccess(file);
+      })
+      .catch((err) => {
+        onError(err);
+      });
   };
 
-  // 결재의견 핸들링
-  const handleConfirmCommentChange = (e) => {
-    setConfirmComment(e.target.value);
+  const handleImageDownload = (alt) => {
+    const fileUrl = `${process.env.REACT_APP_API_URL}/downloads/${alt}`;
+
+    fetch(fileUrl, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/octet-stream',
+      },
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        return response.blob();
+      })
+      .then((blob) => {
+        const link = document.createElement('a');
+        const url = window.URL.createObjectURL(blob);
+        link.href = url;
+        link.setAttribute('download', alt || 'downloaded-image');
+        document.body.appendChild(link);
+        link.click();
+        link.parentNode.removeChild(link); // 링크 삭제
+        window.URL.revokeObjectURL(url); // 메모리 정리
+      })
+      .catch((error) => {
+        console.error('There was a problem with the fetch operation:', error);
+      });
   };
 
-  // 구매가격 핸들링
-  const handlePaymentPriceChange = (e) => {
-    setPaymentPrice(e.target.value);
-  };
-
-  const renderContent = () => {
+  const renderBookContent = () => {
     // 도서조회 모달 창에서 작업이 끝난 데이터를 반환
     if (showInput) {
       return (
@@ -307,16 +353,32 @@ const ApprovalEdit = () => {
           </a>
           <br />
           <br />
-          <BookSearchModal isModalOpen={isModalOpen} handleCancel={hideModal} getData={handleDataChange}/>
-          <Button type="primary" onClick={showModal1}>도서검색</Button>
+          <BookSearchModal
+            isModalOpen={isModalOpen}
+            handleCancel={hideModal}
+            getData={handleDataChange}
+          />
+          <Button type="primary" onClick={showModal1}>
+            도서검색
+          </Button>
         </div>
       );
     }
 
     // 신규 작성일 때 도서조회 API 활성화
     if (param === 'new') {
-      return (<><BookSearchModal isModalOpen={isModalOpen} handleCancel={hideModal} getData={handleDataChange}/>
-      <Button type="primary" onClick={showModal1}>도서검색</Button></>);
+      return (
+        <>
+          <BookSearchModal
+            isModalOpen={isModalOpen}
+            handleCancel={hideModal}
+            getData={handleDataChange}
+          />
+          <Button type="primary" onClick={showModal1}>
+            도서검색
+          </Button>
+        </>
+      );
     }
 
     // 기존 데이터 + 승인 요청 상태일 때 도서조회 API 활성화
@@ -326,11 +388,23 @@ const ApprovalEdit = () => {
           {bookTitle || 'N/A'}
           <br />
           <br />
+          저자 : {bookAuthor || 'N/A'}
+          <br />
+          <br />
           판매가 : {bookPrice || 0}원
           <br />
           <br />
-          <BookSearchModal isModalOpen={isModalOpen} handleCancel={hideModal} getData={handleDataChange}/>
-          <Button type="primary" onClick={showModal1}>도서검색</Button>
+          ISBN : {bookISBN || 'N/A'}
+          <br />
+          <br />
+          <BookSearchModal
+            isModalOpen={isModalOpen}
+            handleCancel={hideModal}
+            getData={handleDataChange}
+          />
+          <Button type="primary" onClick={showModal1}>
+            도서검색
+          </Button>
         </div>
       );
     }
@@ -341,9 +415,44 @@ const ApprovalEdit = () => {
         {bookTitle || 'N/A'}
         <br />
         <br />
-        판매가 : {bookPrice || 'N/A'}원
+        저자 : {bookAuthor || 'N/A'}
+        <br />
+        <br />
+        판매가 : {bookPrice || 0}원
+        <br />
+        <br />
+        ISBN : {bookISBN || 'N/A'}
       </div>
     );
+  };
+
+  const renderPaymentContent = () => {
+    if (stateData.badgeValue === 2) {
+      return (
+        <div>
+          <Upload
+            customRequest={handleImageUpload}
+            accept="image/*" // Accept only image files
+            showUploadList={false} // Hide the default upload list
+          >
+            <Button type="primary" icon={<UploadOutlined />}>
+              첨부파일 업로드
+            </Button>
+          </Upload>
+
+          <div style={{ marginTop: '20px' }}>첨부파일 : {imageInfo?.url}</div>
+        </div>
+      );
+    }
+
+    if (badgeValue === 4) {
+      return (
+        <div>
+          첨부파일 :
+          <a onClick={() => handleImageDownload(paymentReceiptInfo)}>{paymentReceiptInfo}</a>
+        </div>
+      );
+    }
   };
 
   // 신청 정보 Description Item
@@ -364,12 +473,12 @@ const ApprovalEdit = () => {
       children: regDate,
     },
     {
-      key: 'bookinfo',
+      key: 'bookInfo',
       label: '도서정보',
       // 도서 정보는 현재 샘플 데이터로 넣고, 모달 창 작업 완료됐을 때 모달에서 받은 값을 JSON으로 치환할 것
       // children: JSON.stringify({ bookName: 'TESTBOOK' }),
       inputValue: JSON.stringify({ inputValue }),
-      children: renderContent(),
+      children: renderBookContent(),
       span: 3,
     },
     {
@@ -445,19 +554,65 @@ const ApprovalEdit = () => {
     },
     {
       key: 'paymentReceiptInfo',
-      label: '구매정보',
-      children: paymentReceiptInfo,
+      label: '구매정보(사진)',
+      children: renderPaymentContent(),
     },
   ];
+
+  // 유효성 체크
+  const validateApprovalItems = (item) => {
+    if (item.key === 'bookInfo') {
+      if (inputValue === '') {
+        return '도서정보 입력은 필수입니다.';
+      }
+    }
+
+    if (item.key === 'confirmComment') {
+      if (confirmComment === '') {
+        return '결재의견 입력은 필수입니다.';
+      }
+    }
+
+    if (item.key === 'paymentPrice') {
+      if (paymentPrice === 0) {
+        return '구매금액 입력은 필수입니다.';
+      }
+
+      if (parseInt(bookPrice) !== parseInt(paymentPrice)) {
+        return '판매가와 구매금액이 상이합니다.';
+      }
+    }
+
+    if (item.key === 'paymentReceiptInfo') {
+      if (imageInfo === null) {
+        return '구매정보 입력은 필수입니다.';
+      }
+    }
+
+    return null;
+  };
 
   // 요청서 작성(신규)
   const onClickSave = () => {
     try {
-      const approval = reqItems.map((item) => ({
-        key: item.key,
-        label: item.label,
-        value: item.inputValue || item.children.props?.value || item.children,
-      }));
+      const approval = reqItems.map((item) => {
+        const validationMessage = validateApprovalItems(item);
+        if (validationMessage) {
+          message.warning(validationMessage, 5);
+          return null;
+        }
+
+        return {
+          key: item.key,
+          label: item.label,
+          value:
+            item.inputValue ||
+            (item.children.props?.value === '' ? 'No Comment' : item.children.props?.value) ||
+            item.children,
+        };
+      });
+
+      console.log(approval);
 
       const totItem = {
         reqItems: approval,
@@ -473,13 +628,52 @@ const ApprovalEdit = () => {
         .then((response) => {
           alert(response.data.message);
           navigate('/approval/list');
+
+          // Send-mail 예비 로직
+          // if (response.status === 201) {
+          //   let senderContent = {
+          //     applicantName: 'TESTER',
+          //   };
+
+          //   let recipientContent = {
+          //     to: 'seulbeom.choi@cj.net',
+          //     subject: 'SEND TEST',
+          //   };
+
+          //   let bookInfoContent = {
+          //     title: 'SAMPLE TITLE',
+          //   };
+
+          //   let approvalInfoContent = {
+          //     status: '승인',
+          //   };
+
+          //   let sender = JSON.stringify(senderContent);
+          //   let recipient = JSON.stringify(recipientContent);
+          //   let bookInfo = JSON.stringify(bookInfoContent);
+          //   let approvalInfo = JSON.stringify(approvalInfoContent);
+
+          //   console.log('before');
+          //   return axios
+          //     .post(process.env.REACT_APP_API_URL + '/api/send-email', {
+          //       sender,
+          //       recipient,
+          //       bookInfo,
+          //       approvalInfo,
+          //     })
+          //     .then((emailResponse) => {
+          //       console.log('after');
+          //       // Handle the response from /api/send-email
+          //       alert(emailResponse.data.message); // Assuming the email response has a message
+          //     });
+          // }
         })
         .catch((error) => {
           console.error('Error saving data:', error);
         });
     } catch (error) {
       console.error('Error updating approval:', error);
-      message.error('승인 정보를 업데이트하는 중 오류가 발생했습니다.', 2);
+      // message.error('승인 정보를 업데이트하는 중 오류가 발생했습니다.', 2);
     }
   };
 
@@ -521,11 +715,21 @@ const ApprovalEdit = () => {
     try {
       const itemsToMap = approvalType !== 'payment' ? confirmItems : paymentItems;
 
-      const approval = itemsToMap.map((item) => ({
-        key: item.key,
-        label: item.label,
-        value: item.children.props?.value || item.children,
-      }));
+      const approval = itemsToMap.map((item) => {
+        const validationMessage = validateApprovalItems(item);
+        if (validationMessage) {
+          message.warning(validationMessage, 5);
+          return null;
+        }
+
+        let filePath = item.key === 'paymentReceiptInfo' ? imageInfo.name : undefined;
+
+        return {
+          key: item.key,
+          label: item.label,
+          value: filePath || item.children.props?.value || item.children,
+        };
+      });
 
       const totItem = {
         data: approval,
@@ -548,7 +752,7 @@ const ApprovalEdit = () => {
         });
     } catch (error) {
       console.error('Error updating approval:', error);
-      message.error('승인 정보를 업데이트하는 중 오류가 발생했습니다.', 2);
+      // message.error('승인 정보를 업데이트하는 중 오류가 발생했습니다.', 2);
     }
   };
 

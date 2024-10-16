@@ -1,5 +1,5 @@
-import { Alert } from 'antd';
-import React, { useEffect, useState } from 'react';
+import { Alert, Spin } from 'antd';
+import React from 'react';
 import BookList from '../components/content/external/BookList';
 import SimpleBarChart from "../components/content/external/SimpleBarChart";
 import SimpleLineChart from "../components/content/external/SimpleLineChart";
@@ -9,16 +9,8 @@ import useFetchBooksByQuery from '../hooks/useFetchBooksByQuery'; // 선택된 �
 import useFetchTags from '../hooks/useFetchTags'; // 태그 데이터를 가져오는 훅
 
 const Home = () => {
-  const { tags, errorMessage: tagsError } = useFetchTags(); // 태그 데이터 훅
-  const [selectedTag, setSelectedTag] = useState('');
-
-  // 태그가 불러와진 후, 초기 선택된 태그 설정
-  useEffect(() => {
-    if (tags.length > 0 && !selectedTag) {
-      setSelectedTag(tags[0].Code); // 첫 번째 태그를 초기값으로 설정
-    }
-  }, [tags, selectedTag]);
-  
+  // useFetchTags에서 selectedTag 관리하도록 함
+  const { tags, selectedTag, setSelectedTag, loading: tagsLoading, errorMessage: tagsError } = useFetchTags();
   const { books, loading: booksLoading, errorMessage: booksError } = useFetchBooksByQuery(selectedTag); // 선택된 태그로 책 데이터를 가져오는 훅
 
   const handleTagClick = (tagCode) => {
@@ -38,11 +30,31 @@ const Home = () => {
         <h2 className="signup-title">키워드 별 도서(알라딘서점)</h2>
         {tagsError && <Alert message={tagsError} type="error" showIcon />}
         {booksError && <Alert message={booksError} type="error" showIcon />}
-        <div style={{ marginBottom: '20px' }}>
-          <TagList tags={tags} selectedTag={selectedTag} handleTagClick={handleTagClick} />
-        </div>
+        {tagsLoading ? (
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+            <Spin size="large" />
+          </div>
+        ) : (
+          Array.isArray(tags) && tags.length > 0 ? (
+            <div style={{ marginBottom: '20px' }}>
+              <TagList tags={tags} selectedTag={selectedTag} handleTagClick={handleTagClick} />
+            </div>
+          ) : (
+            <div>No tags available</div>
+          )
+        )}
         <div style={{ height: '340px', overflowY: 'auto' }}>
-          <BookList books={books} loading={booksLoading} />
+          {booksLoading ? (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+              <Spin size="large" />
+            </div>
+          ) : (
+            Array.isArray(books) && books.length > 0 ? (
+              <BookList books={books} />
+            ) : (
+              <div>No books available</div>
+            )
+          )}
         </div>
       </div>
       <div
