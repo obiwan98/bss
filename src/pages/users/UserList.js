@@ -28,13 +28,8 @@ const UserList = () => {
     setIsAdmin(user.role.role === 'Admin');
   }, [user, navigate, roles, groups, loading]);
 
-<<<<<<< HEAD
 	if (loading) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><Spin size="large" /></div>;  // 로딩 중일 때는 로딩 메시지 표시
-=======
-  if (loading) {
-    return <div>로딩 중...</div>; // 로딩 중일 때는 로딩 메시지 표시
->>>>>>> origin/main
   }
 
   const getFilteredUser = async () => {
