@@ -1,5 +1,6 @@
+import { useState, useEffect } from 'react';
+
 import { Image, Rate } from 'antd';
-import { useEffect, useState } from 'react';
 
 import './css/BookCover.css';
 
@@ -37,8 +38,9 @@ const BookCover = ({ bookData }) => {
   useEffect(() => {
     handleCoverReset();
 
-    bookData?.cover &&
-      handleImageCheck(`${process.env.REACT_APP_API_URL}/uploads/${bookData.cover}`);
+    bookData?.coverFile
+      ? handleImageCheck(`${process.env.REACT_APP_API_URL}/uploads/${bookData.coverFile}`)
+      : bookData?.coverUrl && setImageUrl(bookData.coverUrl);
     reviews && handleRateAverage(reviews);
   }, [bookData, reviews]);
 

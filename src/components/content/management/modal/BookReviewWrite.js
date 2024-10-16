@@ -1,8 +1,8 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useUser } from '../../../../contexts/UserContext';
 
-import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
 import { Button, Flex, Form, Mentions, message, Rate, Tag } from 'antd';
+import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
 
 import axios from 'axios';
 import dayjs from 'dayjs';
@@ -19,34 +19,26 @@ const tagsData = [
 
 const maxLength = 1000;
 
-const BookReviewWrite = forwardRef(({ id }, ref) => {
+const BookReviewWrite = ({ bookReviewWrite: { bookData, bookReview, handleBookData } }) => {
   const { user } = useUser();
 
   const [form] = Form.useForm();
-  const [selectedTag, setSelectedTag] = useState(null);
-  const [labelHeight, setLabelHeight] = useState(0);
-  const [mentionsHeight, setMentionsHeight] = useState(0);
+  const [activeTag, setActiveTag] = useState(0);
   const [value, setValue] = useState('');
   const [count, setCount] = useState(0);
+  const [labelHeight, setLabelHeight] = useState(0);
+  const [mentionsHeight, setMentionsHeight] = useState(0);
 
   const labelRef = useRef(null);
   const mentionsRef = useRef(null);
 
-  useImperativeHandle(ref, () => ({
-    resetForm: () => {
-      form.resetFields();
-
-      setSelectedTag(null);
-      setValue('');
-      setCount(0);
-    },
-  }));
+  const isBookReview = !!bookReview;
 
   const handleTagChange = (key) => {
-    const newSelectedTag = selectedTag === key ? null : key;
+    const newActiveTag = activeTag === key ? null : key;
 
-    setSelectedTag(newSelectedTag);
-    form.setFieldsValue({ tag: newSelectedTag });
+    setActiveTag(newActiveTag);
+    form.setFieldsValue({ tag: newActiveTag });
   };
 
   const handleMentionsChange = (text) => {
@@ -65,7 +57,7 @@ const BookReviewWrite = forwardRef(({ id }, ref) => {
       const { rate, tag, comment } = values;
 
       const response = await axios.put(
-        `${process.env.REACT_APP_API_URL}/api/management/bookReviewWrite/${id}`,
+        `${process.env.REACT_APP_API_URL}/api/management/bookReviewWrite/${bookData._id}`,
         {
           user: _id,
           group: group._id,
@@ -78,18 +70,35 @@ const BookReviewWrite = forwardRef(({ id }, ref) => {
       );
 
       message.success(response.data.message);
+
+      handleBookData();
     } catch (error) {
       message.error('리뷰 작성을 실패하였습니다.');
     }
   };
 
+  const handleBookReviewWriteReset = useCallback(() => {
+    form.resetFields();
+    form.setFieldsValue({
+      rate: bookReview?.rate || 0,
+      tag: bookReview?.tag || 0,
+      comment: bookReview?.comment || '',
+    });
+
+    setActiveTag(bookReview?.tag || 0);
+    setValue(bookReview?.comment || '');
+    setCount(bookReview?.comment.length || 0);
+  }, [form, bookReview]);
+
   useEffect(() => {
     const labelTarget = labelRef?.current;
     const mentionsTarget = mentionsRef?.current;
 
-    labelTarget && setLabelHeight(labelTarget.offsetHeight + 8);
-    mentionsTarget && setMentionsHeight(mentionsTarget.offsetHeight);
-  }, []);
+    setLabelHeight(labelTarget.offsetHeight + 8);
+    setMentionsHeight(mentionsTarget.offsetHeight);
+
+    handleBookReviewWriteReset();
+  }, [handleBookReviewWriteReset]);
 
   return (
     <div className="bookReviewWrite-container">
@@ -107,7 +116,7 @@ const BookReviewWrite = forwardRef(({ id }, ref) => {
               {tagsData.map((tag) => (
                 <Tag.CheckableTag
                   key={tag.key}
-                  checked={selectedTag === tag.key}
+                  checked={activeTag === tag.key}
                   onChange={() => handleTagChange(tag.key)}
                 >
                   <div className={`tag-content ${tag.class}`}>
@@ -142,17 +151,17 @@ const BookReviewWrite = forwardRef(({ id }, ref) => {
               type="primary"
               htmlType="submit"
               style={{
-                height: `${mentionsHeight}px`,
                 marginTop: `${labelHeight}px`,
+                height: `${mentionsHeight}px`,
               }}
             >
-              등록
+              {!isBookReview ? '등록' : '변경'}
             </Button>
           </div>
         </Form>
       </div>
     </div>
   );
-});
+};
 
 export default BookReviewWrite;

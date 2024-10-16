@@ -22,6 +22,7 @@ const BookAdd = ({ bookData, autoBookData }) => {
 
   const coverRef = useRef(null);
 
+  const isCoverUrl = !!autoBookData?.cover;
   const isDetailView = !!bookData;
 
   const handleUploadChange = ({ file, fileList: newFileList }) => {
@@ -57,13 +58,14 @@ const BookAdd = ({ bookData, autoBookData }) => {
         link,
         description,
         author,
-        cover,
+        coverUrl,
+        coverFile,
         isbn,
         publisher,
         publicationDate,
         count,
       } = values;
-      const newFileList = cover?.fileList || [];
+      const newFileList = coverFile?.fileList || [];
 
       const response = await axios({
         method: !isDetailView ? 'post' : 'put',
@@ -73,7 +75,8 @@ const BookAdd = ({ bookData, autoBookData }) => {
           link,
           description,
           author,
-          cover: newFileList[0]?.originFileObj || '',
+          coverUrl,
+          coverFile: newFileList[0]?.originFileObj || '',
           isbn,
           publisher,
           publicationDate,
@@ -105,8 +108,10 @@ const BookAdd = ({ bookData, autoBookData }) => {
       title: activeBookData?.title || '',
       description: activeBookData?.description || '',
       author: activeBookData?.author || '',
-      cover: setFileList([]),
-      isbn: activeBookData?.isbn || '',
+      ...(isCoverUrl
+        ? { coverUrl: activeBookData?.cover.replace(/coversum/g, 'cover500') || '' }
+        : { coverFile: setFileList([]) }),
+      isbn: activeBookData?.isbn13 || activeBookData?.isbn || '',
       publisher: activeBookData?.publisher || '',
       publicationDate: activeBookData?.publicationDate
         ? dayjs(activeBookData.publicationDate)
@@ -129,9 +134,7 @@ const BookAdd = ({ bookData, autoBookData }) => {
 
       resizeObserver.observe(coverTarget);
 
-      return () => {
-        resizeObserver.disconnect();
-      };
+      return () => resizeObserver.disconnect();
     }
   }, [activeBookData, handleBookReset]);
 
@@ -161,21 +164,27 @@ const BookAdd = ({ bookData, autoBookData }) => {
                 <Input />
               </Form.Item>
               <div ref={coverRef}>
-                <Form.Item label="책표지" name="cover">
-                  <Upload
-                    listType={fileList.length > 0 ? 'picture' : 'picture-card'}
-                    fileList={fileList}
-                    onChange={handleUploadChange}
-                    beforeUpload={() => false}
-                  >
-                    {fileList.length < 1 && (
-                      <button type="button">
-                        <PlusOutlined />
-                        <div>Click or Drag File to Upload</div>
-                      </button>
-                    )}
-                  </Upload>
-                </Form.Item>
+                {isCoverUrl ? (
+                  <Form.Item label="책표지" name="coverUrl">
+                    <Input />
+                  </Form.Item>
+                ) : (
+                  <Form.Item label="책표지" name="coverFile">
+                    <Upload
+                      listType={fileList.length > 0 ? 'picture' : 'picture-card'}
+                      fileList={fileList}
+                      onChange={handleUploadChange}
+                      beforeUpload={() => false}
+                    >
+                      {fileList.length < 1 && (
+                        <button type="button">
+                          <PlusOutlined />
+                          <div>Click or Drag File to Upload</div>
+                        </button>
+                      )}
+                    </Upload>
+                  </Form.Item>
+                )}
               </div>
             </Col>
             <Col span={12}>
