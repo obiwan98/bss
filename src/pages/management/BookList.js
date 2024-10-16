@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '../../contexts/UserContext';
 
@@ -26,7 +26,7 @@ const BookList = () => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/groups`);
 
-      setGroups(response.data);
+      setGroups(response.data.groups);
     } catch (error) {
       message.error('그룹 정보를 가져오는데 실패하였습니다.');
     }
