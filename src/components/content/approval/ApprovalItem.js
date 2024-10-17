@@ -10,6 +10,17 @@ const ApprovalItem = ({ data }) => {
   const [searchedColumn, setSearchedColumn] = useState('');
   const searchInput = useRef(null);
 
+  const options = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Seoul',
+  };
+
   const dataList = data.map((item, index) => {
     let data = {
       _id: item._id,
@@ -18,10 +29,7 @@ const ApprovalItem = ({ data }) => {
       email: item.user.email,
       deptname: item.group.team,
       bookname: item.book.name,
-      date:
-        item.regdate.length >= 19
-          ? item.regdate.substring(0, 10) + ' ' + item.regdate.substring(11, 19)
-          : '',
+      date: new Date(item.regdate).toLocaleDateString('ko-KR', options),
       state: item.state,
     };
 

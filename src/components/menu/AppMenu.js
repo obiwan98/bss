@@ -12,18 +12,13 @@ const AppMenu = () => {
       label: '도서 관리',
       key: 'sub1',
       icon: <BookOutlined />,
-      children: [
-        { label: '도서 조회', key: '1', path: '/books/BookList' },
-        { label: '도서 통계', key: '2', path: '/books/statistics' },
-      ],
+      children: [{ label: '도서 조회', key: '1', path: '/management/BookList' }],
     },
     {
       label: '도서 승인 관리',
       key: 'sub2',
       icon: <AppstoreOutlined />,
-      children: [
-        { label: '승인 관리', key: '4', path: '/approval/list' },
-      ],
+      children: [{ label: '승인 관리', key: '4', path: '/approval/list' }],
     },
     {
       label: '사용자 관리',

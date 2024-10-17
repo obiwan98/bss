@@ -6,7 +6,6 @@ import axios from 'axios';
 export const fetchRoles = async () => {
   try {
     const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/roles`);
-    console.log('Roles fetched:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching roles:', error);
@@ -20,7 +19,6 @@ export const fetchRoles = async () => {
 export const fetchGroups = async () => {
   try {
     const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/groups`);
-    console.log('Groups fetched:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching groups:', error);

@@ -13,8 +13,8 @@ const useFetchRolesAndGroups = () => {
 				setLoading(true);  // 데이터를 가져오기 전에 로딩 상태로 설정
         const rolesData = await fetchRoles();
         const groupsData = await fetchGroups();
-        setRoles(rolesData);
-        setGroups(groupsData);
+        setRoles(rolesData.roles);
+        setGroups(groupsData.groups);
 				
       } catch (error) {
         setErrorMessage('Error fetching roles and groups');
