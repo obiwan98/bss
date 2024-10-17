@@ -16,7 +16,7 @@ const BookSearchAPI = ({ handleAutoBookData }) => {
   useEffect(() => {
     if (selectedTitle) {
       setLoading(true);
-      // API를 호출하여 선택한 카테고리의 도서를 가져옵니다.
+      // API를 호출하여 선택한 카테고리의 도서를 가져옵니다. 
       axios
         .post(process.env.REACT_APP_API_URL + '/api/external/aladinSearch', {
           query: selectedTitle,
