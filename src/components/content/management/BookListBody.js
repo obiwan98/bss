@@ -1,3 +1,5 @@
+import { useUser } from '../../../contexts/UserContext';
+
 import { List, Image, Rate, Space, Button } from 'antd';
 import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
 
@@ -25,7 +27,13 @@ const getTagData = (key) => {
   );
 };
 
-const BookListBody = ({ bookListBody: { bookList, handleShowModal, handleBookDelete } }) => {
+const BookListBody = ({
+  bookListBody: { bookList, handleShowModal, handleBookReturn, handleBookDelete },
+}) => {
+  const { user } = useUser();
+
+  const { _id } = user;
+
   const handleRateAverage = (reviews) => {
     const average =
       reviews.length !== 0
@@ -39,7 +47,7 @@ const BookListBody = ({ bookListBody: { bookList, handleShowModal, handleBookDel
   const handleTagAverage = (reviews) => {
     const average =
       reviews.length !== 0
-        ? Math.round(reviews.reduce((acc, review) => acc + review.rate, 0) / reviews.length)
+        ? Math.round(reviews.reduce((acc, review) => acc + review.tag, 0) / reviews.length)
         : 0;
 
     return average;
@@ -51,10 +59,29 @@ const BookListBody = ({ bookListBody: { bookList, handleShowModal, handleBookDel
         <List
           dataSource={bookList}
           renderItem={(item) => {
-            const { reviews } = item;
+            const { history, reviews } = item;
+
             const rate = reviews ? handleRateAverage(reviews) : 0;
             const tag = reviews ? handleTagAverage(reviews) : 0;
             const tagData = getTagData(tag);
+
+            const rentedBookHistory = history?.find(
+              (item) => item.user === _id && item.state !== 2
+            );
+            const remainCount = item.count - item.rentalCount;
+
+            const isAvailableForRent = remainCount > 0;
+
+            const className = rentedBookHistory
+              ? 'rented'
+              : isAvailableForRent
+                ? 'available blink'
+                : 'unavailable';
+            const stateText = rentedBookHistory
+              ? '반납하기'
+              : isAvailableForRent
+                ? '대여하기'
+                : '대여 불가';
 
             return (
               <List.Item key={item._id}>
@@ -107,10 +134,17 @@ const BookListBody = ({ bookListBody: { bookList, handleShowModal, handleBookDel
                   </div>
                 </div>
                 <div className="bookData-state">
-                  <div className="state blink" onClick={() => handleShowModal('rental', item)}>
-                    대여 가능
+                  <div
+                    className={`state ${className}`}
+                    onClick={() =>
+                      rentedBookHistory
+                        ? handleBookReturn(item._id, rentedBookHistory)
+                        : isAvailableForRent && handleShowModal('rental', item)
+                    }
+                  >
+                    {stateText}
                   </div>
-                  <div className="remainCount">{`잔여 수량: ${item.count}`}</div>
+                  <div className="remainCount">{`잔여 수량: ${remainCount}`}</div>
                 </div>
                 <div className="bookData-footer">
                   <Space>

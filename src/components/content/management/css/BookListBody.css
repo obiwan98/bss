@@ -94,9 +94,17 @@
               border-radius: 20px;
               cursor: pointer;
 
-              &.blink {
+              &.rented,
+              &.available {
                 color: #5055b1;
-                animation: blink 1s infinite;
+
+                &.blink {
+                  animation: blink 1s infinite;
+                }
+              }
+
+              &.unavailable {
+                color: #ff0000;
               }
             }
           }

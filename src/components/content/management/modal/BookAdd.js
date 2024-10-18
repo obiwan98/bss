@@ -11,7 +11,7 @@ import './css/BookAdd.css';
 
 const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/gif']);
 
-const BookAdd = ({ bookData, autoBookData }) => {
+const BookAdd = ({ bookAdd: { autoBookData, bookData, handleBookData } }) => {
   const { user } = useUser();
   const { Option } = Select;
 
@@ -34,18 +34,6 @@ const BookAdd = ({ bookData, autoBookData }) => {
       : !isFileValid && message.error('이미지 파일만 업로드할 수 있습니다.');
 
     setFileList(isFileRemoved || isFileValid ? newFileList : []);
-  };
-
-  const handleBookData = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/management/bookList/${bookData._id}`
-      );
-
-      setActiveBookData(response.data);
-    } catch (error) {
-      message.error('도서 정보를 가져오는데 실패하였습니다.');
-    }
   };
 
   const handleBookSave = async (values) => {

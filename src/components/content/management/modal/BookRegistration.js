@@ -14,7 +14,12 @@ const BookRegistration = ({ bookData }) => {
     <div className="bookRegistration-container">
       <h2>도서 등록</h2>
       <div className="bookRegistration-form">
-        <BookAdd bookData={bookData} autoBookData={autoBookData} />
+        <BookAdd
+          bookAdd={{
+            autoBookData,
+            bookData,
+          }}
+        />
         <BookSearchAPI handleAutoBookData={handleAutoBookData} />
       </div>
     </div>

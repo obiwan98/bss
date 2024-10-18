@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useUser } from '../../../../contexts/UserContext';
 
-import { Form, Rate, Flex, Tag, Mentions, Button, message } from 'antd';
+import { Form, Input, Rate, Flex, Tag, Mentions, Button, message } from 'antd';
 import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
 
 import axios from 'axios';
@@ -54,11 +54,12 @@ const BookReviewWrite = ({ bookReviewWrite: { bookData, bookReview, handleBookDa
     const { _id, group, name } = user;
 
     try {
-      const { rate, tag, comment } = values;
+      const { id, rate, tag, comment } = values;
 
       const response = await axios.put(
         `${process.env.REACT_APP_API_URL}/api/management/bookReviewWrite/${bookData._id}`,
         {
+          id,
           user: _id,
           group: group._id,
           rate,
@@ -80,6 +81,7 @@ const BookReviewWrite = ({ bookReviewWrite: { bookData, bookReview, handleBookDa
   const handleBookReviewWriteReset = useCallback(() => {
     form.resetFields();
     form.setFieldsValue({
+      id: bookReview?._id || '',
       rate: bookReview?.rate || 0,
       tag: bookReview?.tag || 0,
       comment: bookReview?.comment || '',
@@ -104,6 +106,9 @@ const BookReviewWrite = ({ bookReviewWrite: { bookData, bookReview, handleBookDa
     <div className="bookReviewWrite-container">
       <div className="bookReviewWrite-form">
         <Form layout="vertical" form={form} onFinish={handleBookReviewWrite}>
+          <Form.Item label="" name="id" hidden>
+            <Input disabled />
+          </Form.Item>
           <Form.Item label="도서 별점" name="rate">
             <Rate allowHalf />
           </Form.Item>
