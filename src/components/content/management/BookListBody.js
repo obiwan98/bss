@@ -58,6 +58,7 @@ const BookListBody = ({
       <div className="bookList-body-form">
         <List
           dataSource={bookList}
+          pagination={{ pageSize: 5 }}
           renderItem={(item) => {
             const { history, reviews } = item;
 
