@@ -255,13 +255,17 @@ const BookRental = ({ bookData }) => {
             endDate: bookEndDate,
             registeredBy: name,
           })
-          .then(() => {
-            message.success('도서를 대여하였습니다.');
+          .then((response) => {
+            message.success(response.data.message);
 
             handleBookHistory();
           })
           .catch((error) => {
-            console.error('도서 대여를 실패하였습니다.');
+            message.error(error.response.data.message);
+
+            setValue(dayjs());
+            setBookStartDate(null);
+            setBookEndDate(null);
           });
       },
       onCancel() {

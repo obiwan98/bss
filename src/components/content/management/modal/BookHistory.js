@@ -1,22 +1,20 @@
 import { useState, useEffect } from 'react';
 import { useUser } from '../../../../contexts/UserContext';
 
-import { Table, Button, message } from 'antd';
+import { Table, Button } from 'antd';
 import { EditOutlined } from '@ant-design/icons';
 
-import axios from 'axios';
 import dayjs from 'dayjs';
 
 import BookReviewWrite from './BookReviewWrite';
 
 import './css/BookHistory.css';
 
-const BookHistory = ({ bookData }) => {
+const BookHistory = ({ bookHistory: { bookData, handleBookData } }) => {
   const { user } = useUser();
 
   const { _id } = user;
 
-  const [bookHistory, setBookHistory] = useState(null);
   const [bookReview, setBookReview] = useState(null);
   const [isRowExpanded, setIsRowExpanded] = useState(false);
   const [expandedRowKey, setExpandedRowKey] = useState(null);
@@ -26,6 +24,7 @@ const BookHistory = ({ bookData }) => {
   const expandedRowRender = () =>
     isRowExpanded && (
       <BookReviewWrite
+        key={expandedRowKey}
         bookReviewWrite={{
           bookData,
           bookReview,
@@ -34,30 +33,17 @@ const BookHistory = ({ bookData }) => {
       />
     );
 
-  const handleBookData = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/management/bookList/${bookData._id}`
-      );
-
-      const filteredReview = response.data.reviews?.find((item) => _id === item.user);
-
-      expandedRowKey && handleReviewClick(expandedRowKey);
-      setBookHistory(response.data.history);
-      setBookReview(filteredReview);
-    } catch (error) {
-      message.error('도서 정보를 가져오는데 실패하였습니다.');
-    }
-  };
-
   const handleReviewClick = (id) => {
-    setIsRowExpanded(!isRowExpanded);
-    setExpandedRowKey((prevExpandedRowKey) => (prevExpandedRowKey === id ? null : id));
+    setIsRowExpanded(expandedRowKey === id ? false : true);
+    setExpandedRowKey(expandedRowKey === id ? null : id);
   };
 
   useEffect(() => {
-    handleBookData();
-  }, []);
+    const filteredReview = bookData.reviews?.find((item) => _id === item.user);
+
+    expandedRowKey && handleReviewClick(expandedRowKey);
+    setBookReview(filteredReview);
+  }, [bookData]);
 
   const columns = [
     {
@@ -119,7 +105,7 @@ const BookHistory = ({ bookData }) => {
       <div className="bookHistory-form">
         <Table
           columns={columns}
-          dataSource={bookHistory}
+          dataSource={bookData.history}
           rowKey={(record) => record._id}
           pagination={{ pageSize: 5 }}
           expandable={{
