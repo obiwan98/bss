@@ -16,6 +16,7 @@ const BookRental = ({ bookData }) => {
   const [mode, setMode] = useState('month');
   const [value, setValue] = useState(dayjs());
   const [calendarWeeks, setCalendarWeeks] = useState([]);
+  const [isAlreadyRented, setIsAlreadyRented] = useState(false);
   const [bookHistory, setBookHistory] = useState([]);
   const [bookStartDate, setBookStartDate] = useState(null);
   const [bookEndDate, setBookEndDate] = useState(null);
@@ -65,6 +66,10 @@ const BookRental = ({ bookData }) => {
         `${process.env.REACT_APP_API_URL}/api/management/bookHistory/${bookData._id}`
       );
 
+      const rentedBookHistory = !!response.data.find(
+        (item) => item.user === _id && item.state !== 2
+      );
+
       const filteredHistory = response.data.filter(
         (event) =>
           (dayjs(event.startDate).isSame(firstDayOfMonth, 'day') ||
@@ -87,6 +92,7 @@ const BookRental = ({ bookData }) => {
       });
 
       setValue(value || dayjs());
+      setIsAlreadyRented(rentedBookHistory);
       setBookHistory(sortedBookHistory);
       setBookStartDate(null);
       setBookEndDate(null);
@@ -217,6 +223,8 @@ const BookRental = ({ bookData }) => {
   };
 
   const handleCalendarSelect = (date) => {
+    if (isAlreadyRented || date.isBefore(dayjs(), 'day')) return false;
+
     const minDays = 1;
     const maxDays = 14;
 
