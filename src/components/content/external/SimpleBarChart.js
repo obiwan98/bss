@@ -4,13 +4,16 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 
 const SimpleBarChart = () => {
   const [data, setData] = useState([]);
+  const colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A6', '#33FFF6', '#FF8C33', '#8D33FF', '#FFC300', '#DAF7A6', '#C70039', '#900C3F',
+    '#FF5733', '#33FF57', '#3357FF', '#FF33A6', '#33FFF6', '#FF8C33', '#8D33FF', '#FFC300', '#DAF7A6', '#C70039', '#900C3F'
+  ];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const response = await axios.get(process.env.REACT_APP_API_URL + '/api/management/group-count');
         // 응답 데이터를 Recharts에 맞게 변환
-        const chartData = response.data.map(item => ({ name: item.groupName, 권수: item.count }));
+        const chartData = response.data.map((item, index) => ({ name: item.groupName, 권수: item.count, fill: colors[index] }));
         setData(chartData);
         console.log(data);
       } catch (error) {
@@ -21,11 +24,10 @@ const SimpleBarChart = () => {
     fetchData();
   }, []);
 
-  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe', '#00c49f', '#ffbb28', '#d0ed57', '#a4de6c', '#ff8042'];
 
   return (
   <ResponsiveContainer width="100%" height={210}>
-    <BarChart width={730} height={280} data={data}>
+    <BarChart width={730} height={280} data={data} margin={{ left: -10}}>
       <CartesianGrid strokeDasharray="3 3" />
       <XAxis 
           dataKey="name" 
@@ -34,14 +36,14 @@ const SimpleBarChart = () => {
           textAnchor="end" 
           height={70}
         />
-      <YAxis />
+      <YAxis tick={{ fontSize: 10 }} padding={{ top: 10 }}/>
       <Tooltip />
       
-      <Bar dataKey="권수" fill="#8884d8" label={{ position: 'top', fontSize: 10 }}>
-          {data.map((entry, index) => (
-            <cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-          ))}
-        </Bar>
+      <Bar dataKey="권수" fill="#8884d8" label={{ position: 'top', fontSize: 10 }} radius={[15, 15, 0, 0]} barSize={20}>
+        {data.map((entry, index) => (
+          <cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+        ))}
+      </Bar>
     </BarChart>
   </ResponsiveContainer>
   )

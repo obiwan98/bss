@@ -89,7 +89,7 @@ const Home = () => {
         }}
       >
         <div style={{ flex: 1, borderBottom: "1px solid #f0f0f0" }}>
-          <h2>팀별 승인 요청 현황(TOP 3)</h2>
+          <h2>승인 요청 현황(TOP 3)</h2>
           <ApprovalItem data={dataList}></ApprovalItem>
         </div>
         <div style={{ flex: 1, paddingTop: "20px" }}>
