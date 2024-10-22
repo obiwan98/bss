@@ -186,12 +186,8 @@ const BookAdd = ({ bookAdd: { autoBookData, bookData, handleBookData } }) => {
               <Form.Item label="출판사" name="publisher">
                 <Input />
               </Form.Item>
-              <Form.Item
-                label="발행일"
-                name="publicationDate"
-                rules={[{ required: true, message: '발행일을 입력해 주세요.' }]}
-              >
-                <DatePicker />
+              <Form.Item label="발행일" name="publicationDate">
+                <DatePicker allowClear={false} />
               </Form.Item>
               <Form.Item label="수량" name="count" style={{ height: `${coverHeight}px` }}>
                 <Select>
