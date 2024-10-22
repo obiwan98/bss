@@ -84,7 +84,11 @@ const BookAdd = ({ bookAdd: { autoBookData, bookData, handleBookData } }) => {
 
       !isDetailView ? setActiveBookData(null) : handleBookData();
     } catch (error) {
-      message.error(`도서 ${!isDetailView ? '등록' : '변경'}을 실패하였습니다.`);
+      const { response } = error;
+
+      response.status !== 500
+        ? message.info(response.data.message)
+        : message.error(response.data.message);
     }
   };
 
