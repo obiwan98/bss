@@ -223,7 +223,7 @@ const BookRental = ({ bookData }) => {
   };
 
   const handleCalendarSelect = (date) => {
-    if (isAlreadyRented || date.isBefore(dayjs(), 'day')) return false;
+    if (isMonthMode && (isAlreadyRented || date.isBefore(dayjs(), 'day'))) return false;
 
     const minDays = 1;
     const maxDays = 14;
