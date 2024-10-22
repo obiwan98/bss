@@ -25,7 +25,12 @@ const App = () => {
   const { setUser } = useUser();
   // Base64 디코딩 함수 (URL-safe Base64 문자열 지원)
   const urlSafeBase64ToBase64 = (urlSafeBase64) => {
-    return urlSafeBase64.replace(/-/g, "+").replace(/_/g, "/") + "==".slice((urlSafeBase64.length + 3) % 4);
+    let base64 = urlSafeBase64.replace(/-/g, "+").replace(/_/g, "/");
+    const missingPadding = base64.length % 4;
+    if (missingPadding !== 0) {
+      base64 += "=".repeat(4 - missingPadding);
+    }
+    return base64;
   };
 
   useEffect(() => {

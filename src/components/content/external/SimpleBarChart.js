@@ -1,30 +1,50 @@
-import React from 'react';
-import { Bar, BarChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import axios from 'axios';
+import React, { useEffect, useState } from 'react';
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 
+const SimpleBarChart = () => {
+  const [data, setData] = useState([]);
 
-const data = [
-  { name: 'Page A', uv: 4000, pv: 2400, amt: 2400 },
-  { name: 'Page B', uv: 3000, pv: 1398, amt: 2210 },
-  { name: 'Page C', uv: 2000, pv: 9800, amt: 2290 },
-  { name: 'Page D', uv: 2780, pv: 3908, amt: 2000 },
-  { name: 'Page E', uv: 1890, pv: 4800, amt: 2181 },
-  { name: 'Page F', uv: 2390, pv: 3800, amt: 2500 },
-  { name: 'Page G', uv: 3490, pv: 4300, amt: 2100 },
-];
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(process.env.REACT_APP_API_URL + '/api/management/group-count');
+        // 응답 데이터를 Recharts에 맞게 변환
+        const chartData = response.data.map(item => ({ name: item.groupName, 권수: item.count }));
+        setData(chartData);
+        console.log(data);
+      } catch (error) {
+        console.error('Error fetching group book counts:', error);
+      }
+    };
 
-const SimpleBarChart = () => (
-  <ResponsiveContainer width="100%" height={180}>
-    <BarChart width={730} height={250} data={data}>
+    fetchData();
+  }, []);
+
+  const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#0088fe', '#00c49f', '#ffbb28', '#d0ed57', '#a4de6c', '#ff8042'];
+
+  return (
+  <ResponsiveContainer width="100%" height={210}>
+    <BarChart width={730} height={280} data={data}>
       <CartesianGrid strokeDasharray="3 3" />
-      <XAxis dataKey="name" />
+      <XAxis 
+          dataKey="name" 
+          tick={{ fontSize: 10 }} 
+          angle={-45} 
+          textAnchor="end" 
+          height={70}
+        />
       <YAxis />
       <Tooltip />
-      <Legend />
-      <Bar dataKey="pv" fill="#8884d8" />
-      <Bar dataKey="uv" fill="#82ca9d" />
-      <Bar dataKey="amt" fill="#cc2323" />
+      
+      <Bar dataKey="권수" fill="#8884d8" label={{ position: 'top', fontSize: 10 }}>
+          {data.map((entry, index) => (
+            <cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+          ))}
+        </Bar>
     </BarChart>
   </ResponsiveContainer>
-);
+  )
+};
 
 export default SimpleBarChart;
