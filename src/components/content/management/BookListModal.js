@@ -20,7 +20,7 @@ const BookListModal = ({
       width={modalWidth}
       open={isModalVisible}
       footer={null}
-      onCancel={handleCloseModal}
+      onCancel={() => handleCloseModal(modalType !== 'registration' ? true : false)}
       destroyOnClose={true}
     >
       {ModalComponent && <ModalComponent bookData={bookData} />}

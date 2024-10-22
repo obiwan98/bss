@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react';
-
 import { Avatar, List, Rate } from 'antd';
 import { FrownOutlined, MehOutlined, SmileOutlined } from '@ant-design/icons';
 
@@ -25,20 +23,14 @@ const getTagData = (key) => {
   };
 };
 
-const BookReview = ({ bookData }) => {
-  const { reviews } = bookData;
-
-  const [review, setReview] = useState([]);
-
-  useEffect(() => setReview(reviews), [reviews]);
-
+const BookReview = ({ bookReview: { bookData } }) => {
   return (
     <div className="bookReview-container">
       <div className="bookReview-form">
         <List
           itemLayout="vertical"
           size="small"
-          dataSource={review}
+          dataSource={bookData.reviews}
           pagination={{ pageSize: 3 }}
           renderItem={(item) => {
             const tagData = getTagData(item.tag);
