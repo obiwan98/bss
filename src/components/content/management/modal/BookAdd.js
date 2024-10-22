@@ -82,7 +82,11 @@ const BookAdd = ({ bookAdd: { autoBookData, bookData, handleBookData } }) => {
 
       message.success(response.data.message);
 
-      !isDetailView ? setActiveBookData(null) : handleBookData();
+      !activeBookData
+        ? handleBookReset()
+        : !isDetailView
+          ? setActiveBookData(null)
+          : handleBookReset();
     } catch (error) {
       const { response } = error;
 
@@ -206,7 +210,13 @@ const BookAdd = ({ bookAdd: { autoBookData, bookData, handleBookData } }) => {
             </Button>
             <Button
               type="default"
-              onClick={() => (!isDetailView ? setActiveBookData(null) : handleBookReset())}
+              onClick={() =>
+                !activeBookData
+                  ? handleBookReset()
+                  : !isDetailView
+                    ? setActiveBookData(null)
+                    : handleBookReset()
+              }
             >
               초기화
             </Button>
