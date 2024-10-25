@@ -28,7 +28,14 @@ const getTagData = (key) => {
 };
 
 const BookListBody = ({
-  bookListBody: { bookList, handleShowModal, handleBookReturn, handleBookDelete },
+  bookListBody: {
+    bookList,
+    currentPage,
+    handleCurrentPage,
+    handleShowModal,
+    handleBookReturn,
+    handleBookDelete,
+  },
 }) => {
   const { user } = useUser();
 
@@ -58,7 +65,11 @@ const BookListBody = ({
       <div className="bookList-body-form">
         <List
           dataSource={bookList}
-          pagination={{ pageSize: 5 }}
+          pagination={{
+            current: currentPage,
+            pageSize: 5,
+            onChange: handleCurrentPage,
+          }}
           renderItem={(item) => {
             const { history, reviews } = item;
 
