@@ -125,6 +125,7 @@ const BookList = () => {
       navigate('/login');
     } else {
       fetchGroups();
+      handleBookSearch();
     }
   }, [user, navigate]);
 
