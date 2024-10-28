@@ -39,8 +39,6 @@ const BookListBody = ({
 }) => {
   const { user } = useUser();
 
-  const { _id } = user;
-
   const handleRateAverage = (reviews) => {
     const average =
       reviews.length !== 0
@@ -78,7 +76,7 @@ const BookListBody = ({
             const tagData = getTagData(tag);
 
             const rentedBookHistory = history?.find(
-              (item) => item.user === _id && item.state !== 2
+              (item) => item.user === user._id && item.state !== 2
             );
             const remainCount = item.count - item.rentalCount;
 
