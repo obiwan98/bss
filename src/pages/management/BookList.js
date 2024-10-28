@@ -21,6 +21,7 @@ const BookList = () => {
   const [title, setTitle] = useState(null);
   const [bookData, setBookData] = useState(null);
   const [bookList, setBookList] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [modalType, setModalType] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -36,7 +37,7 @@ const BookList = () => {
 
   const handleActiveGroup = (group) => setActiveGroup(group);
 
-  const handleBookSearch = async (title) => {
+  const handleBookSearch = async (title, page) => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/management/bookList`, {
         params: {
@@ -47,10 +48,13 @@ const BookList = () => {
 
       setTitle(title);
       setBookList(response.data);
+      setCurrentPage(page || currentPage);
     } catch (error) {
       message.error('도서 정보를 가져오는데 실패하였습니다.');
     }
   };
+
+  const handleCurrentPage = (page) => setCurrentPage(page);
 
   const handleBookReturn = (id, bookHistory) => {
     Modal.confirm({
@@ -138,7 +142,14 @@ const BookList = () => {
           }}
         />
         <BookListBody
-          bookListBody={{ bookList, handleShowModal, handleBookReturn, handleBookDelete }}
+          bookListBody={{
+            bookList,
+            currentPage,
+            handleCurrentPage,
+            handleShowModal,
+            handleBookReturn,
+            handleBookDelete,
+          }}
         />
         <BookListModal bookListModal={{ modalType, bookData, isModalVisible, handleCloseModal }} />
       </div>

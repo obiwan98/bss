@@ -252,7 +252,15 @@ const ApprovalEdit = () => {
   // 이벤트 핸들링
   // 도서조회 API
   const handleDataChange = (data) =>
-    setStateData((prevState) => ({ ...prevState, showInput: true, inputValue: data }));
+    setStateData((prevState) => ({
+      ...prevState,
+      showInput: true,
+      inputValue: data,
+
+      // 하기 두 값은 메일 송신 시 개별 사용하기 위함
+      bookPrice: data.priceSales,
+      bookTitle: data.title,
+    }));
   // 신청 정보 - 요청사항
   const handleCommentChange = (e) =>
     setStateData((prevState) => ({ ...prevState, commentValue: e.target.value }));
@@ -395,16 +403,6 @@ const ApprovalEdit = () => {
           <br />
           <br />
           ISBN : {bookISBN || 'N/A'}
-          <br />
-          <br />
-          <BookSearchModal
-            isModalOpen={isModalOpen}
-            handleCancel={hideModal}
-            getData={handleDataChange}
-          />
-          <Button type="primary" onClick={showModal1}>
-            도서검색
-          </Button>
         </div>
       );
     }
@@ -574,12 +572,12 @@ const ApprovalEdit = () => {
     }
 
     if (item.key === 'paymentPrice') {
-      if (paymentPrice === 0) {
+      if (parseInt(paymentPrice) === 0) {
         return '구매금액 입력은 필수입니다.';
       }
 
-      if (parseInt(bookPrice) !== parseInt(paymentPrice)) {
-        return '판매가와 구매금액이 상이합니다.';
+      if (parseInt(bookPrice) < parseInt(paymentPrice)) {
+        return '구매금액은 판매가를 초과할 수 없습니다.';
       }
     }
 
@@ -612,8 +610,6 @@ const ApprovalEdit = () => {
         };
       });
 
-      console.log(approval);
-
       const totItem = {
         reqItems: approval,
         etc: {
@@ -630,43 +626,55 @@ const ApprovalEdit = () => {
           navigate('/approval/list');
 
           // Send-mail 예비 로직
-          // if (response.status === 201) {
-          //   let senderContent = {
-          //     applicantName: 'TESTER',
-          //   };
+          if (response.status === 201) {
+            // 송신
+            let sender = {
+              applicantName: userName,
+              department: userDept,
+              email: userEmail,
+            };
 
-          //   let recipientContent = {
-          //     to: 'seulbeom.choi@cj.net',
-          //     subject: 'SEND TEST',
-          //   };
+            // 수신
+            // * 수신인 범위 지정 필요
+            let recipient = {
+              to: 'seulbeom.choi@cj.net',
+              subject: 'SEND TEST',
+            };
 
-          //   let bookInfoContent = {
-          //     title: 'SAMPLE TITLE',
-          //   };
+            // 도서 정보
+            let bookInfo = {
+              title: bookTitle,
+              price: bookPrice,
+              requestDetails: commentValue,
+            };
 
-          //   let approvalInfoContent = {
-          //     status: '승인',
-          //   };
+            // 결재 정보
+            // * 승인자의 범위 지정 필요
+            let approvalInfo = {
+              approverName: 'TESTER',
+              approvalDetails: confirmComment,
+              status: '승인',
+              date: formatDate(new Date()),
+            };
 
-          //   let sender = JSON.stringify(senderContent);
-          //   let recipient = JSON.stringify(recipientContent);
-          //   let bookInfo = JSON.stringify(bookInfoContent);
-          //   let approvalInfo = JSON.stringify(approvalInfoContent);
+            let reqBody = {
+              sender: sender,
+              recipient: recipient,
+              bookInfo: bookInfo,
+              approvalInfo: approvalInfo,
+            };
 
-          //   console.log('before');
-          //   return axios
-          //     .post(process.env.REACT_APP_API_URL + '/api/send-email', {
-          //       sender,
-          //       recipient,
-          //       bookInfo,
-          //       approvalInfo,
-          //     })
-          //     .then((emailResponse) => {
-          //       console.log('after');
-          //       // Handle the response from /api/send-email
-          //       alert(emailResponse.data.message); // Assuming the email response has a message
-          //     });
-          // }
+            axios
+              .post(process.env.REACT_APP_API_URL + '/api/send-email', reqBody)
+              .then((emailResponse) => {
+                alert(emailResponse.data.message);
+                navigate('/approval/list');
+              })
+              .catch((error) => {
+                alert('이메일 전송에 실패하였습니다.', error);
+                navigate('/approval/list');
+              });
+          }
         })
         .catch((error) => {
           console.error('Error saving data:', error);
