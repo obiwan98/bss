@@ -20,18 +20,6 @@ const UserList = () => {
   const { confirm } = Modal;
   const { roles, groups, loading, errorMessage } = useFetchRolesAndGroups();
 
-  useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-    setIsAdmin(user.role.role === 'Admin');
-  }, [user, navigate, roles, groups, loading]);
-
-	if (loading) {
-    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><Spin size="large" /></div>;  // 로딩 중일 때는 로딩 메시지 표시
-  }
-
   const getFilteredUser = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -52,6 +40,21 @@ const UserList = () => {
       console.error('Error fetching users:', error);
     }
   };
+  
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setIsAdmin(user.role.role === 'Admin');
+    getFilteredUser();
+  }, [user, navigate, roles, groups, loading]);
+
+	if (loading) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}><Spin size="large" /></div>;  // 로딩 중일 때는 로딩 메시지 표시
+  }
+
+
 
   const handleSearch = async () => {
     getFilteredUser();
