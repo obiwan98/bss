@@ -1,11 +1,9 @@
-import React, { useEffect } from 'react';
-import { Badge, Button, Descriptions, Divider, Input, Form, message, Modal, Upload } from 'antd';
-import { ConsoleSqlOutlined, UploadOutlined } from '@ant-design/icons';
-import { useState } from 'react';
+import { UploadOutlined } from '@ant-design/icons';
+import { Badge, Button, Descriptions, Divider, Input, message, Modal, Upload } from 'antd';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useUser } from '../../../contexts/UserContext';
-import { useLocation, useParams } from 'react-router-dom';
 import BookSearchModal from './modal/BookSearchModal';
 
 import '../../../App.css';
@@ -120,7 +118,7 @@ const ApprovalEdit = () => {
 
     setStateData((prevState) => ({
       ...prevState,
-      approvalTitle: isNew ? '승인 요청' : '승인 상세',
+      approvalTitle: isNew ? '승인 요청' : badgeState === 1 ? '승인 요청 상세':badgeState === 2 ? '승인 완료 상세':badgeState === 3 ? '반려 상세':badgeState === 4 ? '구매 완료 상세':'',
       approvalId: isNew ? rndUniqueId : state?._id,
 
       // 신청 정보
@@ -766,7 +764,14 @@ const ApprovalEdit = () => {
 
   return (
     <div>
-      <h1>{approvalTitle}</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignitems: 'center' }}>
+        <h1>{approvalTitle}</h1>
+        <Button type="link" style={{ marginRight: '15px' }} 
+        onClick={() => navigate('/approval/list')}
+        >
+          목록으로
+        </Button>
+      </div>
       <Divider
         style={{
           borderColor: '#7cb305',
