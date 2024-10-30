@@ -208,18 +208,14 @@ const BookAdd = ({ bookAdd: { autoBookData, bookData, handleBookData } }) => {
             <Button type="primary" htmlType="submit">
               {!isDetailView ? '등록' : '변경'}
             </Button>
-            <Button
-              type="default"
-              onClick={() =>
-                !activeBookData
-                  ? handleBookReset()
-                  : !isDetailView
-                    ? setActiveBookData(null)
-                    : handleBookReset()
-              }
-            >
-              초기화
-            </Button>
+            {!isDetailView && (
+              <Button
+                type="default"
+                onClick={() => (!activeBookData ? handleBookReset() : setActiveBookData(null))}
+              >
+                초기화
+              </Button>
+            )}
           </Space>
         </Form>
       </div>
