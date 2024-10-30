@@ -15,7 +15,6 @@ const SimpleBarChart = () => {
         // 응답 데이터를 Recharts에 맞게 변환
         const chartData = response.data.map((item, index) => ({ name: item.groupName, 권수: item.count, fill: colors[index] }));
         setData(chartData);
-        console.log(data);
       } catch (error) {
         console.error('Error fetching group book counts:', error);
       }

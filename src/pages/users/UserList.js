@@ -40,7 +40,7 @@ const UserList = () => {
       console.error('Error fetching users:', error);
     }
   };
-  
+
   useEffect(() => {
     if (!user) {
       navigate('/login');
@@ -124,11 +124,13 @@ const UserList = () => {
         }
       );
 
-      setUser((prevUser) => ({
-        ...prevUser,
-        role: roles.find((r) => r._id === values.role),
-        group: groups.find((g) => g._id === values.group),
-      }));
+      if(selectedUser._id === user._id){
+        setUser((prevUser) => ({
+          ...prevUser,
+          role: roles.find((r) => r._id === values.role),
+          group: groups.find((g) => g._id === values.group),
+        }));
+      }
 
       message.success('사용자 정보가 성공적으로 업데이트되었습니다.', 2);
       setIsModalVisible(false);
