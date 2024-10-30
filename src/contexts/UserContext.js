@@ -18,11 +18,7 @@ export const UserProvider = ({ children }) => {
         process.env.REACT_APP_API_URL +
           `/api/users/group/${user?.group?._id}/role/66a0bbfe8d7e45a08668b30f/info`
       );
-      if (response.data.leaders.length > 0) {
-        setLeader(response.data.leaders[0]);
-      } else {
-        setLeader(null);
-      }
+      setLeader(response.data.leaders[1]);
     } catch (error) {
       console.error('Error fetching dataList:', error);
     }
