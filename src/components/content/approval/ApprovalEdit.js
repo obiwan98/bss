@@ -118,17 +118,7 @@ const ApprovalEdit = () => {
 
     setStateData((prevState) => ({
       ...prevState,
-      approvalTitle: isNew
-        ? '승인 요청'
-        : badgeState === 1
-          ? '승인 요청 상세'
-          : badgeState === 2
-            ? '승인 완료 상세'
-            : badgeState === 3
-              ? '반려 상세'
-              : badgeState === 4
-                ? '구매 완료 상세'
-                : '',
+      approvalTitle: isNew ? '승인 요청' : badgeState === 1 ? '승인 요청 상세':badgeState === 2 ? '승인 완료 상세':badgeState === 3 ? '반려 상세':badgeState === 4 ? '구매 완료 상세':'',
       approvalId: isNew ? rndUniqueId : state?._id,
 
       // 신청 정보
@@ -643,11 +633,10 @@ const ApprovalEdit = () => {
             };
 
             // 수신
+            // * 수신인 범위 지정 필요
             let recipient = {
-              to: Array.isArray(user?.leader?.email)
-                ? user.leader.email.join(', ')
-                : user?.leader?.email || 'N/A',
-              subject: '결재 요청 메일 안내',
+              to: 'seulbeom.choi@cj.net',
+              subject: 'SEND TEST',
             };
 
             // 도서 정보
@@ -658,10 +647,11 @@ const ApprovalEdit = () => {
             };
 
             // 결재 정보
+            // * 승인자의 범위 지정 필요
             let approvalInfo = {
-              approverName: user?.leader?.name || 'N/A',
+              approverName: 'TESTER',
               approvalDetails: confirmComment,
-              status: badgeValue === 1 ? '승인' : badgeValue === 3 ? '반려' : '',
+              status: '승인',
               date: formatDate(new Date()),
             };
 
@@ -776,10 +766,8 @@ const ApprovalEdit = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignitems: 'center' }}>
         <h1>{approvalTitle}</h1>
-        <Button
-          type="link"
-          style={{ marginRight: '15px' }}
-          onClick={() => navigate('/approval/list')}
+        <Button type="link" style={{ marginRight: '15px' }} 
+        onClick={() => navigate('/approval/list')}
         >
           목록으로
         </Button>
