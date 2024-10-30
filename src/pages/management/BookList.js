@@ -5,6 +5,7 @@ import { useUser } from '../../contexts/UserContext';
 import { Modal, message } from 'antd';
 
 import axios from 'axios';
+import dayjs from 'dayjs';
 
 import BookListBody from '../../components/content/management/BookListBody';
 import BookListHeader from '../../components/content/management/BookListHeader';
@@ -17,8 +18,10 @@ const BookList = () => {
 
   const [groups, setGroups] = useState([]);
   const [activeGroup, setActiveGroup] = useState('');
+  const [title, setTitle] = useState(null);
   const [bookData, setBookData] = useState(null);
   const [bookList, setBookList] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
   const [modalType, setModalType] = useState(null);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
@@ -34,7 +37,7 @@ const BookList = () => {
 
   const handleActiveGroup = (group) => setActiveGroup(group);
 
-  const handleBookSearch = async (title) => {
+  const handleBookSearch = async (title, page) => {
     try {
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/management/bookList`, {
         params: {
@@ -43,10 +46,42 @@ const BookList = () => {
         },
       });
 
+      setTitle(title);
       setBookList(response.data);
+      setCurrentPage(page || currentPage);
     } catch (error) {
       message.error('도서 정보를 가져오는데 실패하였습니다.');
     }
+  };
+
+  const handleCurrentPage = (page) => setCurrentPage(page);
+
+  const handleBookReturn = (id, bookHistory) => {
+    Modal.confirm({
+      title: '도서를 반납하시겠습니까?',
+      content: '이 작업은 되돌릴 수 없습니다.',
+      okType: 'primary',
+      okText: '확인',
+      cancelText: '취소',
+      onOk() {
+        axios
+          .put(`${process.env.REACT_APP_API_URL}/api/management/bookReturn/${id}`, {
+            id: bookHistory._id,
+            endDate: dayjs(),
+          })
+          .then((response) => {
+            message.success(response.data.message);
+
+            handleBookSearch(title);
+          })
+          .catch((error) => {
+            message.error(error.response.data.message);
+          });
+      },
+      onCancel() {
+        message.info('도서반납을 취소하였습니다.');
+      },
+    });
   };
 
   const handleBookDelete = (id) => {
@@ -62,7 +97,7 @@ const BookList = () => {
           .then(() => {
             message.success('도서를 삭제하였습니다.');
 
-            handleBookSearch();
+            handleBookSearch(title);
           })
           .catch((error) => {
             console.error('도서 삭제를 실패하였습니다.');
@@ -80,9 +115,9 @@ const BookList = () => {
     setIsModalVisible(true);
   };
 
-  const handleCloseModal = () => {
+  const handleCloseModal = (isRefresh) => {
     setIsModalVisible(false);
-    handleBookSearch();
+    isRefresh && handleBookSearch(title);
   };
 
   useEffect(() => {
@@ -90,6 +125,7 @@ const BookList = () => {
       navigate('/login');
     } else {
       fetchGroups();
+      handleBookSearch();
     }
   }, [user, navigate]);
 
@@ -106,7 +142,16 @@ const BookList = () => {
             handleShowModal,
           }}
         />
-        <BookListBody bookListBody={{ bookList, handleShowModal, handleBookDelete }} />
+        <BookListBody
+          bookListBody={{
+            bookList,
+            currentPage,
+            handleCurrentPage,
+            handleShowModal,
+            handleBookReturn,
+            handleBookDelete,
+          }}
+        />
         <BookListModal bookListModal={{ modalType, bookData, isModalVisible, handleCloseModal }} />
       </div>
     </div>

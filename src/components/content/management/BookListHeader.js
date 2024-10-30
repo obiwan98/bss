@@ -19,7 +19,11 @@ const BookListHeader = ({
             </Option>
           ))}
         </Select>
-        <Search placeholder="도서명을 입력해 주세요." onSearch={handleBookSearch} enterButton />
+        <Search
+          placeholder="도서명을 입력해 주세요."
+          onSearch={(value) => handleBookSearch(value, 1)}
+          enterButton
+        />
         <Button type="primary" onClick={() => handleShowModal('registration', null)}>
           추가
         </Button>

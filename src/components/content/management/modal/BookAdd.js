@@ -11,7 +11,7 @@ import './css/BookAdd.css';
 
 const allowedImageTypes = new Set(['image/jpeg', 'image/png', 'image/gif']);
 
-const BookAdd = ({ bookData, autoBookData }) => {
+const BookAdd = ({ bookAdd: { autoBookData, bookData, handleBookData } }) => {
   const { user } = useUser();
   const { Option } = Select;
 
@@ -34,18 +34,6 @@ const BookAdd = ({ bookData, autoBookData }) => {
       : !isFileValid && message.error('이미지 파일만 업로드할 수 있습니다.');
 
     setFileList(isFileRemoved || isFileValid ? newFileList : []);
-  };
-
-  const handleBookData = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/management/bookList/${bookData._id}`
-      );
-
-      setActiveBookData(response.data);
-    } catch (error) {
-      message.error('도서 정보를 가져오는데 실패하였습니다.');
-    }
   };
 
   const handleBookSave = async (values) => {
@@ -94,9 +82,17 @@ const BookAdd = ({ bookData, autoBookData }) => {
 
       message.success(response.data.message);
 
-      !isDetailView ? setActiveBookData(null) : handleBookData();
+      !activeBookData
+        ? handleBookReset()
+        : !isDetailView
+          ? setActiveBookData(null)
+          : handleBookReset();
     } catch (error) {
-      message.error(`도서 ${!isDetailView ? '등록' : '변경'}을 실패하였습니다.`);
+      const { response } = error;
+
+      response.status !== 500
+        ? message.info(response.data.message)
+        : message.error(response.data.message);
     }
   };
 
@@ -194,12 +190,8 @@ const BookAdd = ({ bookData, autoBookData }) => {
               <Form.Item label="출판사" name="publisher">
                 <Input />
               </Form.Item>
-              <Form.Item
-                label="발행일"
-                name="publicationDate"
-                rules={[{ required: true, message: '발행일을 입력해 주세요.' }]}
-              >
-                <DatePicker />
+              <Form.Item label="발행일" name="publicationDate">
+                <DatePicker allowClear={false} />
               </Form.Item>
               <Form.Item label="수량" name="count" style={{ height: `${coverHeight}px` }}>
                 <Select>
@@ -216,12 +208,14 @@ const BookAdd = ({ bookData, autoBookData }) => {
             <Button type="primary" htmlType="submit">
               {!isDetailView ? '등록' : '변경'}
             </Button>
-            <Button
-              type="default"
-              onClick={() => (!isDetailView ? setActiveBookData(null) : handleBookReset())}
-            >
-              초기화
-            </Button>
+            {!isDetailView && (
+              <Button
+                type="default"
+                onClick={() => (!activeBookData ? handleBookReset() : setActiveBookData(null))}
+              >
+                초기화
+              </Button>
+            )}
           </Space>
         </Form>
       </div>

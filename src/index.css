@@ -153,3 +153,11 @@
   border-color: #1890ff;
   box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2);
 }
+.custom-table-row-height {
+  height: 15px; /* 원하는 높이로 설정 */
+}
+.custom-simpletable .ant-table-cell {
+  padding: 10px 10px !important; /* 이 테이블에만 적용될 패딩 설정 */
+  height: 15px; /* 셀 높이 조정 */
+  line-height: 15px; /* 텍스트 정렬을 위해 line-height 설정 */
+}

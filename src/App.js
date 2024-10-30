@@ -23,13 +23,23 @@ const { Header, Content, Sider, Footer } = Layout;
 const App = () => {
   const navigate = useNavigate();
   const { setUser } = useUser();
+  // Base64 디코딩 함수 (URL-safe Base64 문자열 지원)
+  const urlSafeBase64ToBase64 = (urlSafeBase64) => {
+    let base64 = urlSafeBase64.replace(/-/g, "+").replace(/_/g, "/");
+    const missingPadding = base64.length % 4;
+    if (missingPadding !== 0) {
+      base64 += "=".repeat(4 - missingPadding);
+    }
+    return base64;
+  };
+
   useEffect(() => {
     const isTokenExpired = (token) => {
       if (!token) return true; // 토큰이 없으면 만료된 것으로 간주
 
       try {
         const payloadBase64 = token.split('.')[1]; // JWT의 payload 부분을 추출
-        const decodedPayload = JSON.parse(atob(payloadBase64)); // Base64 디코딩
+        const decodedPayload = JSON.parse(atob(urlSafeBase64ToBase64(payloadBase64))); // Base64 디코딩
         const expirationTime = decodedPayload.exp * 1000; // exp는 초 단위이므로 밀리초로 변환
 
         return Date.now() > expirationTime; // 현재 시간과 만료 시간을 비교
