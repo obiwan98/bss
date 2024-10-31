@@ -23,6 +23,8 @@ const BookRental = ({ bookData }) => {
   const isBookRental = bookStartDate && bookEndDate;
 
   const handlePanelChange = (value) => {
+    value.isBefore(dayjs(), 'day') && (setBookStartDate(null), setBookEndDate(null));
+
     setValue(value);
 
     handleBookHistory(value);
@@ -175,6 +177,8 @@ const BookRental = ({ bookData }) => {
       );
 
       const eventContent = eventWeeks.map((week, index) => {
+        const className = event.user !== _id ? 'nonSelf' : 'self';
+
         const firstDay =
           week.find((day) => day.date.isSame(startDate, 'day')) ||
           week.find((day) => day.isFirstDayOfWeek);
@@ -182,21 +186,51 @@ const BookRental = ({ bookData }) => {
           week.find((day) => day.date.isSame(endDate, 'day')) ||
           week.find((day) => day.isLastDayOfWeek);
 
+        const isFirstDay = firstDay.date.isSame(startDate, 'day');
+        const isLastDay = lastDay.date.isSame(endDate, 'day');
+
         const eventWidth = lastDay.left - firstDay.left + firstDay.width;
 
-        const className = event.user === _id ? 'active' : '';
+        let eventStyle = {
+          top: firstDay.top + level * 30 + 30,
+          left: firstDay.left,
+          width: eventWidth,
+        };
+
+        const eventType = `${isFirstDay}-${isLastDay}`;
+
+        switch (eventType) {
+          case 'true-false':
+            eventStyle = {
+              ...eventStyle,
+              width: eventWidth + 8,
+            };
+            break;
+
+          case 'false-true':
+            eventStyle = {
+              ...eventStyle,
+              left: firstDay.left - 8,
+              width: eventWidth + 8,
+            };
+            break;
+
+          case 'false-false':
+            eventStyle = {
+              ...eventStyle,
+              left: firstDay.left - 8,
+              width: eventWidth + 16,
+            };
+            break;
+
+          default:
+            eventStyle = { ...eventStyle };
+            break;
+        }
 
         return (
           firstDay && (
-            <div
-              className={`event ${className}`}
-              key={`${event._id}-${index}`}
-              style={{
-                top: firstDay.top + level * 30 + 30,
-                left: firstDay.left,
-                width: eventWidth,
-              }}
-            >
+            <div className={`event ${className}`} key={`${event._id}-${index}`} style={eventStyle}>
               {event.registeredBy}
             </div>
           )
@@ -231,6 +265,8 @@ const BookRental = ({ bookData }) => {
     setValue(start || dayjs());
     setBookStartDate(start);
     setBookEndDate(end);
+
+    !start && handleBookHistory();
   };
 
   const handleBookRental = async () => {
