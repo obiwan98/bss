@@ -13,7 +13,6 @@ const BookRental = ({ bookData }) => {
 
   const { _id, name } = user;
 
-  const [mode, setMode] = useState('month');
   const [value, setValue] = useState(dayjs());
   const [calendarWeeks, setCalendarWeeks] = useState([]);
   const [isAlreadyRented, setIsAlreadyRented] = useState(false);
@@ -21,20 +20,18 @@ const BookRental = ({ bookData }) => {
   const [bookStartDate, setBookStartDate] = useState(null);
   const [bookEndDate, setBookEndDate] = useState(null);
 
-  const isMonthMode = mode === 'month';
   const isBookRental = bookStartDate && bookEndDate;
 
-  const handlePanelChange = (value, mode) => {
-    setMode(mode);
-    setValue(value);
-    setBookStartDate(null);
-    setBookEndDate(null);
+  const handlePanelChange = (value) => {
+    value.isBefore(dayjs(), 'day') && (setBookStartDate(null), setBookEndDate(null));
 
-    mode === 'month' && handleBookHistory(value);
+    setValue(value);
+
+    handleBookHistory(value);
   };
 
   const handleCellRender = (calendarDate) => {
-    const isToday = calendarDate.isSame(dayjs(), isMonthMode ? 'day' : 'month');
+    const isToday = calendarDate.isSame(dayjs(), 'day');
     const isStart = bookStartDate && calendarDate.isSame(bookStartDate, 'day');
     const isEnd = bookEndDate && calendarDate.isSame(bookEndDate, 'day');
     const isRange =
@@ -49,9 +46,7 @@ const BookRental = ({ bookData }) => {
         className={`calendar-cell ${className}`}
         onClick={() => handleCalendarSelect(calendarDate)}
       >
-        <div className="calendar-date">
-          {isMonthMode ? calendarDate.format('DD') : calendarDate.format('MMM')}
-        </div>
+        <div className="calendar-date">{calendarDate.format('DD')}</div>
         <div className="calendar-content"></div>
       </div>
     );
@@ -59,7 +54,9 @@ const BookRental = ({ bookData }) => {
 
   const handleBookHistory = async (value) => {
     const firstDayOfMonth = value?.startOf('month') || dayjs().startOf('month');
-    const lastDayOfMonth = value?.endOf('month') || dayjs().endOf('month');
+    const firstDayOfCalendar = firstDayOfMonth.startOf('week');
+
+    const lastDayOfCalendar = firstDayOfCalendar.add(5, 'week').endOf('week');
 
     try {
       const response = await axios.get(
@@ -72,10 +69,10 @@ const BookRental = ({ bookData }) => {
 
       const filteredHistory = response.data.filter(
         (event) =>
-          (dayjs(event.startDate).isSame(firstDayOfMonth, 'day') ||
-            dayjs(event.startDate).isAfter(firstDayOfMonth, 'day')) &&
-          (dayjs(event.endDate).isSame(lastDayOfMonth, 'day') ||
-            dayjs(event.endDate).isBefore(lastDayOfMonth, 'day'))
+          (dayjs(event.startDate).isSame(lastDayOfCalendar, 'day') ||
+            dayjs(event.startDate).isBefore(lastDayOfCalendar, 'day')) &&
+          (dayjs(event.endDate).isSame(firstDayOfCalendar, 'day') ||
+            dayjs(event.endDate).isAfter(firstDayOfCalendar, 'day'))
       );
 
       const sortedBookHistory = filteredHistory.sort((a, b) => {
@@ -94,29 +91,21 @@ const BookRental = ({ bookData }) => {
       setValue(value || dayjs());
       setIsAlreadyRented(rentedBookHistory);
       setBookHistory(sortedBookHistory);
-      setBookStartDate(null);
-      setBookEndDate(null);
 
-      handleCalendarWeeks(firstDayOfMonth);
+      handleCalendarWeeks(firstDayOfCalendar);
     } catch (error) {
       message.error('도서 대여 정보를 가져오는데 실패하였습니다.');
     }
   };
 
-  const handleCalendarWeeks = (firstDayOfMonth) => {
+  const handleCalendarWeeks = (firstDayOfCalendar) => {
     const cells = document.querySelectorAll('.ant-picker-cell');
 
     let week = [];
     const weeks = [];
 
-    const firstDayOfWeekIndex = firstDayOfMonth.day();
-    const prevLastDayOfMonth = firstDayOfMonth.subtract(1, 'month').endOf('month');
-
     Array.from(cells).forEach((cell, index) => {
-      const date =
-        index < firstDayOfWeekIndex
-          ? prevLastDayOfMonth.subtract(firstDayOfWeekIndex - index - 1, 'day')
-          : firstDayOfMonth.add(index - firstDayOfWeekIndex, 'day');
+      const date = firstDayOfCalendar.add(index, 'day');
 
       if (index % 7 === 0 && week.length) {
         weeks.push(week);
@@ -188,6 +177,8 @@ const BookRental = ({ bookData }) => {
       );
 
       const eventContent = eventWeeks.map((week, index) => {
+        const className = event.user !== _id ? 'nonSelf' : 'self';
+
         const firstDay =
           week.find((day) => day.date.isSame(startDate, 'day')) ||
           week.find((day) => day.isFirstDayOfWeek);
@@ -195,21 +186,51 @@ const BookRental = ({ bookData }) => {
           week.find((day) => day.date.isSame(endDate, 'day')) ||
           week.find((day) => day.isLastDayOfWeek);
 
+        const isFirstDay = firstDay.date.isSame(startDate, 'day');
+        const isLastDay = lastDay.date.isSame(endDate, 'day');
+
         const eventWidth = lastDay.left - firstDay.left + firstDay.width;
 
-        const className = event.user === _id ? 'active' : '';
+        let eventStyle = {
+          top: firstDay.top + level * 30 + 30,
+          left: firstDay.left,
+          width: eventWidth,
+        };
+
+        const eventType = `${isFirstDay}-${isLastDay}`;
+
+        switch (eventType) {
+          case 'true-false':
+            eventStyle = {
+              ...eventStyle,
+              width: eventWidth + 8,
+            };
+            break;
+
+          case 'false-true':
+            eventStyle = {
+              ...eventStyle,
+              left: firstDay.left - 8,
+              width: eventWidth + 8,
+            };
+            break;
+
+          case 'false-false':
+            eventStyle = {
+              ...eventStyle,
+              left: firstDay.left - 8,
+              width: eventWidth + 16,
+            };
+            break;
+
+          default:
+            eventStyle = { ...eventStyle };
+            break;
+        }
 
         return (
           firstDay && (
-            <div
-              className={`event ${className}`}
-              key={`${event._id}-${index}`}
-              style={{
-                top: firstDay.top + level * 30 + 30,
-                left: firstDay.left,
-                width: eventWidth,
-              }}
-            >
+            <div className={`event ${className}`} key={`${event._id}-${index}`} style={eventStyle}>
               {event.registeredBy}
             </div>
           )
@@ -223,29 +244,29 @@ const BookRental = ({ bookData }) => {
   };
 
   const handleCalendarSelect = (date) => {
-    if (isMonthMode && (isAlreadyRented || date.isBefore(dayjs(), 'day'))) return false;
+    if (isAlreadyRented || date.isBefore(dayjs(), 'day')) return false;
 
     const minDays = 1;
     const maxDays = 14;
 
-    const [start, end] = isMonthMode
-      ? !bookStartDate
-        ? [date, null]
-        : !bookEndDate
-          ? !date.isSame(bookStartDate, 'day')
-            ? date.isAfter(bookStartDate, 'day')
-              ? date.diff(bookStartDate, 'day') >= minDays &&
-                date.diff(bookStartDate, 'day') <= maxDays
-                ? [bookStartDate, date]
-                : [bookStartDate, null]
-              : [date, null]
-            : [null, null]
-          : [date, null]
-      : [null, null];
+    const [start, end] = !bookStartDate
+      ? [date, null]
+      : !bookEndDate
+        ? !date.isSame(bookStartDate, 'day')
+          ? date.isAfter(bookStartDate, 'day')
+            ? date.diff(bookStartDate, 'day') >= minDays &&
+              date.diff(bookStartDate, 'day') <= maxDays
+              ? [bookStartDate, date]
+              : [bookStartDate, null]
+            : [date, null]
+          : [null, null]
+        : [date, null];
 
-    isMonthMode
-      ? (setValue(start || dayjs()), setBookStartDate(start), setBookEndDate(end))
-      : setValue((prevDate) => (prevDate?.isSame(date, 'month') ? dayjs() : date));
+    setValue(start || dayjs());
+    setBookStartDate(start);
+    setBookEndDate(end);
+
+    !start && handleBookHistory();
   };
 
   const handleBookRental = async () => {
@@ -265,6 +286,9 @@ const BookRental = ({ bookData }) => {
           })
           .then((response) => {
             message.success(response.data.message);
+
+            setBookStartDate(null);
+            setBookEndDate(null);
 
             handleBookHistory();
           })
@@ -291,12 +315,11 @@ const BookRental = ({ bookData }) => {
       <h2>도서 대여</h2>
       <div className="bookRental-form">
         <Calendar
-          mode={mode}
           value={value}
           onPanelChange={handlePanelChange}
           fullCellRender={handleCellRender}
         />
-        {isMonthMode && <div className="bookEvent-content">{handleEventRender()}</div>}
+        <div className="bookEvent-content">{handleEventRender()}</div>
         {isBookRental && (
           <Button type="primary" onClick={handleBookRental}>
             신청

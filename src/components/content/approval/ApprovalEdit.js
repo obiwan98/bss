@@ -84,7 +84,8 @@ const ApprovalEdit = () => {
   /** 모달 닫기 */
   const hideModal = () => setIsModalOpen({ ...isModalOpen, open: false });
 
-  const [imageInfo, setImageInfo] = useState(null); // State for image upload info
+  const [imageInfo, setImageInfo] = useState(null);
+  const [leader, setLeader] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -118,7 +119,17 @@ const ApprovalEdit = () => {
 
     setStateData((prevState) => ({
       ...prevState,
-      approvalTitle: isNew ? '승인 요청' : badgeState === 1 ? '승인 요청 상세':badgeState === 2 ? '승인 완료 상세':badgeState === 3 ? '반려 상세':badgeState === 4 ? '구매 완료 상세':'',
+      approvalTitle: isNew
+        ? '승인 요청'
+        : badgeState === 1
+          ? '승인 요청 상세'
+          : badgeState === 2
+            ? '승인 완료 상세'
+            : badgeState === 3
+              ? '반려 상세'
+              : badgeState === 4
+                ? '구매 완료 상세'
+                : '',
       approvalId: isNew ? rndUniqueId : state?._id,
 
       // 신청 정보
@@ -157,6 +168,30 @@ const ApprovalEdit = () => {
       paymentPrice: badgeState === 2 ? 0 : state?.payment?.price || 0,
       paymentReceiptInfo: badgeState === 4 ? state?.payment?.receiptImgUrl || 'N/A' : 'N/A',
     }));
+
+    // 로그인한 유저의 리더 갖고오기
+    const leaderInfo = async () => {
+      try {
+        const response = await axios.get(
+          process.env.REACT_APP_API_URL +
+            `/api/users/group/${user?.group?._id}/role/66a0bbfe8d7e45a08668b30f/info`
+        );
+
+        if (response.data.leaders.length > 0) {
+          if (response.data.leaders.length === 1) {
+            setLeader(response.data.leaders[0]);
+          } else {
+            setLeader(response.data.leaders);
+          }
+        } else {
+          setLeader(null);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    leaderInfo();
   }, [param, state, user, navigate]);
 
   const {
@@ -633,10 +668,11 @@ const ApprovalEdit = () => {
             };
 
             // 수신
-            // * 수신인 범위 지정 필요
             let recipient = {
-              to: 'seulbeom.choi@cj.net',
-              subject: 'SEND TEST',
+              to: Array.isArray(leader)
+                ? leader.map((l) => l.email).join(', ')
+                : leader.email || 'N/A',
+              subject: '결재 요청 메일 안내',
             };
 
             // 도서 정보
@@ -647,11 +683,12 @@ const ApprovalEdit = () => {
             };
 
             // 결재 정보
-            // * 승인자의 범위 지정 필요
             let approvalInfo = {
-              approverName: 'TESTER',
+              approverName: Array.isArray(leader)
+                ? leader.map((l) => l.name).join(', ')
+                : leader.name || 'N/A',
               approvalDetails: confirmComment,
-              status: '승인',
+              status: badgeValue === 1 ? '승인' : badgeValue === 3 ? '반려' : '',
               date: formatDate(new Date()),
             };
 
@@ -678,8 +715,7 @@ const ApprovalEdit = () => {
           console.error('Error saving data:', error);
         });
     } catch (error) {
-      console.error('Error updating approval:', error);
-      // message.error('승인 정보를 업데이트하는 중 오류가 발생했습니다.', 2);
+      console.error('Error saving approval:', error);
     }
   };
 
@@ -766,8 +802,10 @@ const ApprovalEdit = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignitems: 'center' }}>
         <h1>{approvalTitle}</h1>
-        <Button type="link" style={{ marginRight: '15px' }} 
-        onClick={() => navigate('/approval/list')}
+        <Button
+          type="link"
+          style={{ marginRight: '15px' }}
+          onClick={() => navigate('/approval/list')}
         >
           목록으로
         </Button>
