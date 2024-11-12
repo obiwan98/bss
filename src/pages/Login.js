@@ -41,7 +41,7 @@ const Login = () => {
       navigate('/home');
     } catch (error) {
       console.error('Error during login:', error.response ? error.response.data : error.message);
-      message.error(error.message, 2);
+      message.error(error.response.data.message, 2);
     }
   };
 
