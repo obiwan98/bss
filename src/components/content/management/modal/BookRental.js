@@ -3,6 +3,7 @@ import { useUser } from '../../../../contexts/UserContext';
 
 import { Calendar, Modal, Button, message } from 'antd';
 import { sendEmail } from '../../../../utils/api';
+import useFetchRolesAndGroups from '../../../../hooks/useFetchRolesAndGroups';
 import axios from 'axios';
 import dayjs from 'dayjs';
 
@@ -21,6 +22,8 @@ const BookRental = ({ bookData }) => {
   const [bookEndDate, setBookEndDate] = useState(null);
 
   const isBookRental = bookStartDate && bookEndDate;
+
+  const { groups } = useFetchRolesAndGroups();
 
   const handlePanelChange = (value) => {
     value.isBefore(dayjs(), 'day') && (setBookStartDate(null), setBookEndDate(null));
@@ -290,9 +293,15 @@ const BookRental = ({ bookData }) => {
             // Send-mail 예비 로직
             if (response.status === 200) {
               // 도서 정보
+              const group = groups.find((group) => group._id === bookData.group);
+              if (!group) {
+                console.error('해당 그룹을 찾을 수 없습니다.');
+                return;
+              }
               const bookInfo = {
-                title: bookData.title,
-                requestDetails: dayjs(bookStartDate).format('YYYY-MM-DD') + ' ~ ' + dayjs(bookEndDate).format('YYYY-MM-DD'),
+                title: `${bookData.title}`,
+                ownTeam : `${group.team}`,
+                requestDetails: `${dayjs(bookStartDate).format('YYYY-MM-DD')} ~ ${dayjs(bookEndDate).format('YYYY-MM-DD')}`,
               };
               sendEmail('rentalRequest', user, bookInfo, '', '');
             }
