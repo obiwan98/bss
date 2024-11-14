@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useUser } from '../../../../contexts/UserContext';
 
 import { Calendar, Modal, Button, message } from 'antd';
-
+import { sendEmail } from '../../../../utils/api';
 import axios from 'axios';
 import dayjs from 'dayjs';
 
@@ -287,6 +287,15 @@ const BookRental = ({ bookData }) => {
           .then((response) => {
             message.success(response.data.message);
 
+            // Send-mail 예비 로직
+            if (response.status === 200) {
+              // 도서 정보
+              const bookInfo = {
+                title: bookData.title,
+                requestDetails: dayjs(bookStartDate).format('YYYY-MM-DD') + ' ~ ' + dayjs(bookEndDate).format('YYYY-MM-DD'),
+              };
+              sendEmail('rentalRequest', user, bookInfo, '', '');
+            }
             setBookStartDate(null);
             setBookEndDate(null);
 

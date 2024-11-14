@@ -384,7 +384,7 @@ const ApprovalEdit = () => {
           {inputValue.title || 'N/A'}
           <br />
           <br />
-          판매가 : {inputValue.priceSales || 'N/A'}원
+          판매가 : {inputValue.priceSales.toLocaleString('ko-KR') || 'N/A'}원
           <br />
           <br />
           저자 : {inputValue.author || 'N/A'}
@@ -433,7 +433,7 @@ const ApprovalEdit = () => {
           저자 : {bookAuthor || 'N/A'}
           <br />
           <br />
-          판매가 : {bookPrice || 0}원
+          판매가 : {bookPrice.toLocaleString('ko-KR') || 0}원
           <br />
           <br />
           ISBN : {bookISBN || 'N/A'}
@@ -450,7 +450,7 @@ const ApprovalEdit = () => {
         저자 : {bookAuthor || 'N/A'}
         <br />
         <br />
-        판매가 : {bookPrice || 0}원
+        판매가 : {bookPrice.toLocaleString('ko-KR') || 0}원
         <br />
         <br />
         ISBN : {bookISBN || 'N/A'}
@@ -615,11 +615,11 @@ const ApprovalEdit = () => {
       }
     }
 
-    if (item.key === 'paymentReceiptInfo') {
-      if (imageInfo === null) {
-        return '구매정보 입력은 필수입니다.';
-      }
-    }
+    //if (item.key === 'paymentReceiptInfo') {
+    //  if (imageInfo === null) {
+    //    return '구매정보 입력은 필수입니다.';
+    //  }
+    //}
 
     return null;
   };
@@ -716,21 +716,22 @@ const ApprovalEdit = () => {
     try {
       const itemsToMap = approvalType !== 'payment' ? confirmItems : paymentItems;
 
-      const approval = itemsToMap.map((item) => {
+      const approval = [];
+      for (const item of itemsToMap) {
         const validationMessage = validateApprovalItems(item);
         if (validationMessage) {
           message.warning(validationMessage, 5);
-          return null;
+          return; // 유효성 검사에서 오류가 발생하면 함수 종료
         }
 
         let filePath = item.key === 'paymentReceiptInfo' ? imageInfo.name : undefined;
 
-        return {
+        approval.push({
           key: item.key,
           label: item.label,
           value: filePath || item.children.props?.value || item.children,
-        };
-      });
+        });
+      }
 
       const totItem = {
         data: approval,
@@ -739,7 +740,7 @@ const ApprovalEdit = () => {
           param: approvalType,
         },
       };
-      console.log(totItem);
+
       axios
         .put(`${process.env.REACT_APP_API_URL}/api/approvals/${approvalId}`, {
           data: totItem,

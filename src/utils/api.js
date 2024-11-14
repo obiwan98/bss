@@ -72,7 +72,7 @@ export const sendEmail = async (templateName, user, bookInfo, badgeValue, confir
   // 송신
   const sender = {
     applicantName: user.name,
-    department: user.group.groupName,
+    department: user.group.team,
     email: user.email,
   };
 
@@ -84,16 +84,21 @@ export const sendEmail = async (templateName, user, bookInfo, badgeValue, confir
     4: '구매 완료',
   };
   const getBadgeText = (badgeValue) => badgeTexts[badgeValue] || '알 수 없음';
-  
+  const leaderEmails = Array.isArray(leader)
+  ? leader.map((l) => l.email).join(', ')
+  : leader?.email || 'N/A';
+
   // 수신
   const recipient = {
-    to: Array.isArray(leader) ? leader.map((l) => l.email).join(', ') : leader?.email || 'N/A',
-    subject: '결재 ' + getBadgeText(badgeValue) + ' 합니다.',
+    to: leaderEmails,
+    subject: 
+      templateName === "approvalRequest" ? '결재 ' + getBadgeText(badgeValue) + ' 합니다.' :
+      templateName === "rentalRequest" ? '도서 대여 요청합니다.' : '',
   };
 
   // 결재 정보
   const approvalInfo = {
-    approverName: Array.isArray(leader) ? leader.map((l) => l.email).join(', ') : leader?.email || 'N/A',
+    approverName: leaderEmails,
     approvalDetails: confirmComment,
     status: getBadgeText(badgeValue),
     date: dayjs(new Date()).format('YYYY-MM-DD')
@@ -109,7 +114,6 @@ export const sendEmail = async (templateName, user, bookInfo, badgeValue, confir
 
   try {
     const emailResponse = await axios.post(`${process.env.REACT_APP_API_URL}/api/send-email`, reqBody);
-    alert(emailResponse.data.message);
   } catch (error) {
     console.error('이메일 전송에 실패하였습니다:', error);
     alert('이메일 전송에 실패하였습니다.');
