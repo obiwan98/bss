@@ -4,6 +4,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useUser } from '../../../contexts/UserContext';
+import { sendEmail } from '../../../utils/api';
 import BookSearchModal from './modal/BookSearchModal';
 
 import '../../../App.css';
@@ -660,55 +661,13 @@ const ApprovalEdit = () => {
 
           // Send-mail 예비 로직
           if (response.status === 201) {
-            // 송신
-            let sender = {
-              applicantName: userName,
-              department: userDept,
-              email: userEmail,
-            };
-
-            // 수신
-            let recipient = {
-              to: Array.isArray(leader)
-                ? leader.map((l) => l.email).join(', ')
-                : leader.email || 'N/A',
-              subject: '결재 요청 메일 안내',
-            };
-
             // 도서 정보
-            let bookInfo = {
+            const bookInfo = {
               title: bookTitle,
               price: bookPrice,
               requestDetails: commentValue,
             };
-
-            // 결재 정보
-            let approvalInfo = {
-              approverName: Array.isArray(leader)
-                ? leader.map((l) => l.name).join(', ')
-                : leader.name || 'N/A',
-              approvalDetails: confirmComment,
-              status: badgeValue === 1 ? '승인' : badgeValue === 3 ? '반려' : '',
-              date: formatDate(new Date()),
-            };
-
-            let reqBody = {
-              sender: sender,
-              recipient: recipient,
-              bookInfo: bookInfo,
-              approvalInfo: approvalInfo,
-            };
-
-            axios
-              .post(process.env.REACT_APP_API_URL + '/api/send-email', reqBody)
-              .then((emailResponse) => {
-                alert(emailResponse.data.message);
-                navigate('/approval/list');
-              })
-              .catch((error) => {
-                alert('이메일 전송에 실패하였습니다.', error);
-                navigate('/approval/list');
-              });
+            sendEmail('approvalRequest', user, bookInfo, badgeValue, confirmComment);
           }
         })
         .catch((error) => {
@@ -780,13 +739,26 @@ const ApprovalEdit = () => {
           param: approvalType,
         },
       };
-
+      console.log(totItem);
       axios
         .put(`${process.env.REACT_APP_API_URL}/api/approvals/${approvalId}`, {
           data: totItem,
         })
         .then((response) => {
           alert(response.data.message);
+          // Send-mail 예비 로직
+          if (response.status === 201) {
+            // 도서 정보
+            if(approvalType === 'approve' || approvalType === 'reject') {
+              const bookInfo = {
+                title: bookTitle,
+                price: bookPrice,
+                requestDetails: commentValue,
+              };
+  
+              sendEmail('approvalRequest', user, bookInfo, approvalType === 'approve' ? '2' : approvalType === 'reject' ? '3' : '', confirmComment);
+            }
+          }
           navigate('/approval/list');
         })
         .catch((error) => {
