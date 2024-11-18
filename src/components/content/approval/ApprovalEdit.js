@@ -4,6 +4,7 @@ import axios from 'axios';
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useUser } from '../../../contexts/UserContext';
+import { sendEmail } from '../../../utils/api';
 import BookSearchModal from './modal/BookSearchModal';
 
 import '../../../App.css';
@@ -84,7 +85,8 @@ const ApprovalEdit = () => {
   /** 모달 닫기 */
   const hideModal = () => setIsModalOpen({ ...isModalOpen, open: false });
 
-  const [imageInfo, setImageInfo] = useState(null); // State for image upload info
+  const [imageInfo, setImageInfo] = useState(null);
+  const [leader, setLeader] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -118,7 +120,17 @@ const ApprovalEdit = () => {
 
     setStateData((prevState) => ({
       ...prevState,
-      approvalTitle: isNew ? '승인 요청' : badgeState === 1 ? '승인 요청 상세':badgeState === 2 ? '승인 완료 상세':badgeState === 3 ? '반려 상세':badgeState === 4 ? '구매 완료 상세':'',
+      approvalTitle: isNew
+        ? '승인 요청'
+        : badgeState === 1
+          ? '승인 요청 상세'
+          : badgeState === 2
+            ? '승인 완료 상세'
+            : badgeState === 3
+              ? '반려 상세'
+              : badgeState === 4
+                ? '구매 완료 상세'
+                : '',
       approvalId: isNew ? rndUniqueId : state?._id,
 
       // 신청 정보
@@ -157,6 +169,30 @@ const ApprovalEdit = () => {
       paymentPrice: badgeState === 2 ? 0 : state?.payment?.price || 0,
       paymentReceiptInfo: badgeState === 4 ? state?.payment?.receiptImgUrl || 'N/A' : 'N/A',
     }));
+
+    // 로그인한 유저의 리더 갖고오기
+    const leaderInfo = async () => {
+      try {
+        const response = await axios.get(
+          process.env.REACT_APP_API_URL +
+            `/api/users/group/${user?.group?._id}/role/66a0bbfe8d7e45a08668b30f/info`
+        );
+
+        if (response.data.leaders.length > 0) {
+          if (response.data.leaders.length === 1) {
+            setLeader(response.data.leaders[0]);
+          } else {
+            setLeader(response.data.leaders);
+          }
+        } else {
+          setLeader(null);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    leaderInfo();
   }, [param, state, user, navigate]);
 
   const {
@@ -348,7 +384,7 @@ const ApprovalEdit = () => {
           {inputValue.title || 'N/A'}
           <br />
           <br />
-          판매가 : {inputValue.priceSales || 'N/A'}원
+          판매가 : {inputValue.priceSales.toLocaleString('ko-KR') || 'N/A'}원
           <br />
           <br />
           저자 : {inputValue.author || 'N/A'}
@@ -397,7 +433,7 @@ const ApprovalEdit = () => {
           저자 : {bookAuthor || 'N/A'}
           <br />
           <br />
-          판매가 : {bookPrice || 0}원
+          판매가 : {bookPrice.toLocaleString('ko-KR') || 0}원
           <br />
           <br />
           ISBN : {bookISBN || 'N/A'}
@@ -414,7 +450,7 @@ const ApprovalEdit = () => {
         저자 : {bookAuthor || 'N/A'}
         <br />
         <br />
-        판매가 : {bookPrice || 0}원
+        판매가 : {bookPrice.toLocaleString('ko-KR') || 0}원
         <br />
         <br />
         ISBN : {bookISBN || 'N/A'}
@@ -445,7 +481,22 @@ const ApprovalEdit = () => {
       return (
         <div>
           첨부파일 :
-          <a onClick={() => handleImageDownload(paymentReceiptInfo)}>{paymentReceiptInfo}</a>
+          <a
+            onClick={(e) => {
+              if (paymentReceiptInfo === 'N/A') {
+                e.preventDefault();
+              } else {
+                handleImageDownload(paymentReceiptInfo);
+              }
+            }}
+            style={{
+              pointerEvents: paymentReceiptInfo === 'N/A' ? 'none' : 'auto',
+              color: paymentReceiptInfo === 'N/A' ? 'gray' : 'blue', // 'N/A'일 때 색상 변경
+              textDecoration: paymentReceiptInfo === 'N/A' ? 'none' : 'underline', // 'N/A'일 때 링크 스타일 제거
+            }}
+          >
+            {paymentReceiptInfo}
+          </a>
         </div>
       );
     }
@@ -579,11 +630,11 @@ const ApprovalEdit = () => {
       }
     }
 
-    if (item.key === 'paymentReceiptInfo') {
-      if (imageInfo === null) {
-        return '구매정보 입력은 필수입니다.';
-      }
-    }
+    //if (item.key === 'paymentReceiptInfo') {
+    //  if (imageInfo === null) {
+    //    return '구매정보 입력은 필수입니다.';
+    //  }
+    //}
 
     return null;
   };
@@ -625,61 +676,20 @@ const ApprovalEdit = () => {
 
           // Send-mail 예비 로직
           if (response.status === 201) {
-            // 송신
-            let sender = {
-              applicantName: userName,
-              department: userDept,
-              email: userEmail,
-            };
-
-            // 수신
-            // * 수신인 범위 지정 필요
-            let recipient = {
-              to: 'seulbeom.choi@cj.net',
-              subject: 'SEND TEST',
-            };
-
             // 도서 정보
-            let bookInfo = {
+            const bookInfo = {
               title: bookTitle,
               price: bookPrice,
               requestDetails: commentValue,
             };
-
-            // 결재 정보
-            // * 승인자의 범위 지정 필요
-            let approvalInfo = {
-              approverName: 'TESTER',
-              approvalDetails: confirmComment,
-              status: '승인',
-              date: formatDate(new Date()),
-            };
-
-            let reqBody = {
-              sender: sender,
-              recipient: recipient,
-              bookInfo: bookInfo,
-              approvalInfo: approvalInfo,
-            };
-
-            axios
-              .post(process.env.REACT_APP_API_URL + '/api/send-email', reqBody)
-              .then((emailResponse) => {
-                alert(emailResponse.data.message);
-                navigate('/approval/list');
-              })
-              .catch((error) => {
-                alert('이메일 전송에 실패하였습니다.', error);
-                navigate('/approval/list');
-              });
+            sendEmail('approvalRequest', user, bookInfo, badgeValue, confirmComment);
           }
         })
         .catch((error) => {
           console.error('Error saving data:', error);
         });
     } catch (error) {
-      console.error('Error updating approval:', error);
-      // message.error('승인 정보를 업데이트하는 중 오류가 발생했습니다.', 2);
+      console.error('Error saving approval:', error);
     }
   };
 
@@ -721,21 +731,22 @@ const ApprovalEdit = () => {
     try {
       const itemsToMap = approvalType !== 'payment' ? confirmItems : paymentItems;
 
-      const approval = itemsToMap.map((item) => {
+      const approval = [];
+      for (const item of itemsToMap) {
         const validationMessage = validateApprovalItems(item);
         if (validationMessage) {
           message.warning(validationMessage, 5);
-          return null;
+          return; // 유효성 검사에서 오류가 발생하면 함수 종료
         }
 
-        let filePath = item.key === 'paymentReceiptInfo' ? imageInfo.name : undefined;
+        let filePath = item.key === 'paymentReceiptInfo' ? imageInfo?.name || 'N/A' : undefined;
 
-        return {
+        approval.push({
           key: item.key,
           label: item.label,
           value: filePath || item.children.props?.value || item.children,
-        };
-      });
+        });
+      }
 
       const totItem = {
         data: approval,
@@ -751,6 +762,25 @@ const ApprovalEdit = () => {
         })
         .then((response) => {
           alert(response.data.message);
+          // Send-mail 예비 로직
+          if (response.status === 201) {
+            // 도서 정보
+            if (approvalType === 'approve' || approvalType === 'reject') {
+              const bookInfo = {
+                title: bookTitle,
+                price: bookPrice,
+                requestDetails: commentValue,
+              };
+
+              sendEmail(
+                'approvalRequest',
+                user,
+                bookInfo,
+                approvalType === 'approve' ? '2' : approvalType === 'reject' ? '3' : '',
+                confirmComment
+              );
+            }
+          }
           navigate('/approval/list');
         })
         .catch((error) => {
@@ -766,8 +796,10 @@ const ApprovalEdit = () => {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignitems: 'center' }}>
         <h1>{approvalTitle}</h1>
-        <Button type="link" style={{ marginRight: '15px' }} 
-        onClick={() => navigate('/approval/list')}
+        <Button
+          type="link"
+          style={{ marginRight: '15px' }}
+          onClick={() => navigate('/approval/list')}
         >
           목록으로
         </Button>
