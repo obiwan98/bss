@@ -481,7 +481,22 @@ const ApprovalEdit = () => {
       return (
         <div>
           첨부파일 :
-          <a onClick={() => handleImageDownload(paymentReceiptInfo)}>{paymentReceiptInfo}</a>
+          <a
+            onClick={(e) => {
+              if (paymentReceiptInfo === 'N/A') {
+                e.preventDefault();
+              } else {
+                handleImageDownload(paymentReceiptInfo);
+              }
+            }}
+            style={{
+              pointerEvents: paymentReceiptInfo === 'N/A' ? 'none' : 'auto',
+              color: paymentReceiptInfo === 'N/A' ? 'gray' : 'blue', // 'N/A'일 때 색상 변경
+              textDecoration: paymentReceiptInfo === 'N/A' ? 'none' : 'underline', // 'N/A'일 때 링크 스타일 제거
+            }}
+          >
+            {paymentReceiptInfo}
+          </a>
         </div>
       );
     }
@@ -724,7 +739,7 @@ const ApprovalEdit = () => {
           return; // 유효성 검사에서 오류가 발생하면 함수 종료
         }
 
-        let filePath = item.key === 'paymentReceiptInfo' ? imageInfo.name : undefined;
+        let filePath = item.key === 'paymentReceiptInfo' ? imageInfo?.name || 'N/A' : undefined;
 
         approval.push({
           key: item.key,
@@ -750,14 +765,20 @@ const ApprovalEdit = () => {
           // Send-mail 예비 로직
           if (response.status === 201) {
             // 도서 정보
-            if(approvalType === 'approve' || approvalType === 'reject') {
+            if (approvalType === 'approve' || approvalType === 'reject') {
               const bookInfo = {
                 title: bookTitle,
                 price: bookPrice,
                 requestDetails: commentValue,
               };
-  
-              sendEmail('approvalRequest', user, bookInfo, approvalType === 'approve' ? '2' : approvalType === 'reject' ? '3' : '', confirmComment);
+
+              sendEmail(
+                'approvalRequest',
+                user,
+                bookInfo,
+                approvalType === 'approve' ? '2' : approvalType === 'reject' ? '3' : '',
+                confirmComment
+              );
             }
           }
           navigate('/approval/list');
