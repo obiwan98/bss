@@ -697,9 +697,9 @@ const ApprovalEdit = () => {
   const onClickDelete = () => {
     try {
       confirm({
-        title: '해당 요청을 삭제하시겠습니까?',
+        title: '해당 요청을 회수하시겠습니까?',
         content: '이 작업은 되돌릴 수 없습니다.',
-        okText: '삭제',
+        okText: '회수',
         okType: 'danger',
         cancelText: '취소',
         onOk() {
@@ -709,7 +709,7 @@ const ApprovalEdit = () => {
           axios
             .delete(`${process.env.REACT_APP_API_URL}/api/approvals/${approvalId}`)
             .then(() => {
-              message.success('해당 요청이 삭제되었습니다.', 2);
+              message.success('해당 요청이 회수되었습니다.', 2);
               navigate('/approval/list');
             })
             .catch((error) => {
@@ -717,12 +717,12 @@ const ApprovalEdit = () => {
             });
         },
         onCancel() {
-          console.log('삭제 취소됨');
+          console.log('회수 취소됨');
         },
       });
     } catch (error) {
       console.error('Error updating approval:', error);
-      message.error('삭제 중 오류가 발생했습니다.', 2);
+      message.error('회수 중 오류가 발생했습니다.', 2);
     }
   };
 
