@@ -897,7 +897,7 @@ const ApprovalEdit = () => {
             display: buttonDisplay('delete'),
           }}
         >
-          삭제
+          회수
         </Button>
         <Button
           type="primary"
