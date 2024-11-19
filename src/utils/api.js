@@ -90,7 +90,7 @@ export const sendEmail = async (templateName, user, bookInfo, badgeValue, confir
 
   // 수신
   const recipient = {
-    to: leaderEmails,
+    to: badgeValue === "1" ? leaderEmails : sender,
     subject: 
       templateName === "approvalRequest" ? '결재 ' + getBadgeText(badgeValue) + ' 합니다.' :
       templateName === "rentalRequest" ? '도서 대여 요청합니다.' : '',
@@ -106,7 +106,7 @@ export const sendEmail = async (templateName, user, bookInfo, badgeValue, confir
 
   const reqBody = {
     templateName: templateName,
-    sender: sender,
+    sender: badgeValue === "1" ? sender : leaderEmails,
     recipient: recipient,
     bookInfo: bookInfo,
     approvalInfo: approvalInfo,
