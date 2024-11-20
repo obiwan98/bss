@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useUser } from '../../../../contexts/UserContext';
 
-import { Calendar, Modal, Button, message } from 'antd';
-import { sendEmail } from '../../../../utils/api';
-import useFetchRolesAndGroups from '../../../../hooks/useFetchRolesAndGroups';
+import { Button, Calendar, message, Modal } from 'antd';
 import axios from 'axios';
 import dayjs from 'dayjs';
+import useFetchRolesAndGroups from '../../../../hooks/useFetchRolesAndGroups';
+import { sendEmail } from '../../../../utils/api';
 
 import './css/BookRental.css';
 
@@ -303,7 +303,7 @@ const BookRental = ({ bookData }) => {
                 ownTeam : `${group.team}`,
                 requestDetails: `${dayjs(bookStartDate).format('YYYY-MM-DD')} ~ ${dayjs(bookEndDate).format('YYYY-MM-DD')}`,
               };
-              sendEmail('rentalRequest', user, bookInfo, '', '');
+              sendEmail('rentalRequest', user, bookInfo, -1, '');
             }
             setBookStartDate(null);
             setBookEndDate(null);
